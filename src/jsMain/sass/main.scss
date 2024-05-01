@@ -1,0 +1,30 @@
+@import "bootswatch/dist/pulse/variables.scss";
+@import "bootstrap/scss/bootstrap.scss";
+@import "bootswatch/dist/pulse/bootswatch.scss";
+
+body {
+  font-family: Arial, serif;
+  padding-top: 100px;
+}
+
+.stat {
+  margin-right: 10px;
+  display: inline-block;
+  i {
+    margin-right: 4px;
+  }
+}
+
+.login-form {
+  width: 500px;
+  margin: 100px auto;
+}
+
+.config, .login-form {
+  .form-group > input, .input-group {
+    margin-bottom: 10px;
+  }
+  button {
+    margin-top: 10px;
+  }
+}
