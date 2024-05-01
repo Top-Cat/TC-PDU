@@ -1,3 +1,4 @@
+import org.w3c.dom.HTMLCanvasElement
 import react.ComponentClass
 import react.Props
 
@@ -11,17 +12,28 @@ external object ChartJs {
 @JsNonModule
 external object ChartJsBase {
     val Chart: Chart
-    val CategoryScale: dynamic
-    val LinearScale: dynamic
-    val PointElement: dynamic
-    val LineElement: dynamic
-    val Tooltip: dynamic
-    val Legend: dynamic
-    val Colors: dynamic
+    val CategoryScale: ChartComponent
+    val LinearScale: ChartComponent
+    val PointElement: ChartComponent
+    val LineElement: ChartComponent
+    val Tooltip: ChartComponent
+    val Legend: ChartComponent
+    val Colors: ChartComponent
+}
+
+external interface ChartComponent {
+    var id: String
+    var defaults: Any
 }
 
 external class Chart {
-    fun register(scale: dynamic)
+    val id: String
+    val canvas: HTMLCanvasElement
+    val width: Number
+    val height: Number
+    val aspectRatio: Number
+    val version: String
+    fun register(vararg component: ChartComponent)
 }
 
 external interface ChartProps : Props {

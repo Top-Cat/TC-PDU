@@ -56,13 +56,15 @@ val graphPage = fc<Props> {
     }
 
     useEffectOnce {
-        ChartJsBase.Chart.register(ChartJsBase.CategoryScale)
-        ChartJsBase.Chart.register(ChartJsBase.LinearScale)
-        ChartJsBase.Chart.register(ChartJsBase.PointElement)
-        ChartJsBase.Chart.register(ChartJsBase.LineElement)
-        ChartJsBase.Chart.register(ChartJsBase.Tooltip)
-        ChartJsBase.Chart.register(ChartJsBase.Legend)
-        ChartJsBase.Chart.register(ChartJsBase.Colors)
+        ChartJsBase.Chart.register(
+            ChartJsBase.CategoryScale,
+            ChartJsBase.LinearScale,
+            ChartJsBase.PointElement,
+            ChartJsBase.LineElement,
+            ChartJsBase.Tooltip,
+            ChartJsBase.Legend,
+            ChartJsBase.Colors
+        )
 
         val handle = window.setInterval({
             callback.current?.invoke()
