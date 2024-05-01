@@ -2,7 +2,7 @@
 #include "config.h"
 
 void PDUWeb::configEndpoints() {
-  server->on("/config", HTTP_GET, [&]() {
+  server->on("/api/config", HTTP_GET, [&]() {
     JsonDocument doc;
     WifiConfig* wifiConf = config.getWifi();
     doc["wifi"]["ssid"] = wifiConf->ssid;
@@ -43,7 +43,7 @@ void PDUWeb::configEndpoints() {
     server->send(200, "application/json", json);
   });
 
-  server->on("/config/wifi", HTTP_POST, [&]() {
+  server->on("/api/config/wifi", HTTP_POST, [&]() {
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
@@ -57,7 +57,7 @@ void PDUWeb::configEndpoints() {
     server->send(200, textPlain, "DONE");
   }, []() { });
 
-  server->on("/config/radius", HTTP_POST, [&]() {
+  server->on("/api/config/radius", HTTP_POST, [&]() {
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
@@ -71,7 +71,7 @@ void PDUWeb::configEndpoints() {
     server->send(200, textPlain, "DONE");
   }, [&]() { });
 
-  server->on("/config/ntp", HTTP_POST, [&]() {
+  server->on("/api/config/ntp", HTTP_POST, [&]() {
     String user;
     if (!currentUser(user)) return;
 
@@ -87,7 +87,7 @@ void PDUWeb::configEndpoints() {
     server->send(200, textPlain, "DONE");
   }, [&]() { });
 
-  server->on("/config/auth", HTTP_POST, [&]() {
+  server->on("/api/config/auth", HTTP_POST, [&]() {
     String user;
     if (!currentUser(user)) return;
 
@@ -104,7 +104,7 @@ void PDUWeb::configEndpoints() {
     server->send(200, textPlain, "DONE");
   }, [&]() { });
 
-  server->on("/config/log", HTTP_POST, [&]() {
+  server->on("/api/config/log", HTTP_POST, [&]() {
     String user;
     if (!currentUser(user)) return;
 

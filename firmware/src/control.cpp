@@ -48,7 +48,7 @@ void PDUControl::task() {
       Output* res = getLowestPriority();
 
       if (res != NULL) {
-        res->setState(false);
+        res->setState(NULL, false);
       }
     }
 

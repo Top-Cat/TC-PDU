@@ -41,7 +41,7 @@ val logsPage = fc<Props> {
     val (logs, setLogs) = useState(listOf<LogLine>())
 
     useEffectOnce {
-        axiosGet<LogPage>("$apiRoot/logs").then {
+        axiosGet<LogPage>("$apiRoot/logs/1").then {
             setLogs(it.data.logs)
         }.handleForbidden(history)
     }

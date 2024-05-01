@@ -63,9 +63,9 @@ void Output::init() {
 
   // On at boot
   if (bootState == BootState::LAST && reason != ESP_RST_BROWNOUT) {
-    setState(lastState);
+    setState(NULL, lastState);
   } else {
-    setState(bootState == BootState::ON);
+    setState(NULL, bootState == BootState::ON);
   }
 }
 
@@ -128,19 +128,20 @@ bool Output::getState() {
   return relayState;
 }
 
-void Output::setState(bool state) {
+void Output::setState(const char* user, bool state) {
   if (state && bootDelay && !relayState) {
     // Ensure consistent state
-    setRelayState(relayState);
+    setRelayState(NULL, relayState);
     uint64_t time = esp_timer_get_time();
     onAt = time + ((uint64_t) bootDelay * 1000 * 1000);
+    // TODO: Either store user to log later or log here that a trigger occured
     return;
   }
 
-  setRelayState(state);
+  setRelayState(user, state);
 }
 
-void Output::setRelayState(bool state) {
+void Output::setRelayState(const char* user, bool state) {
   bus.setRelay(idx, state);
   bus.setLed(idx, !state, state);
 
@@ -149,6 +150,7 @@ void Output::setRelayState(bool state) {
 
     LogLine* msg = new LogLine();
     msg->type = OUTLET_STATE;
+    if (user != NULL) strncpy(msg->user, user, 64);
     snprintf(msg->message, sizeof(msg->message), "%s was turned %s", name, state ? "ON" : "OFF");
     config.storeOutputState(idx, state);
     logger.msg(msg);
@@ -158,7 +160,7 @@ void Output::setRelayState(bool state) {
 void Output::tick(uint64_t time) {
   if (onAt > 0 && time > onAt) {
     onAt = 0;
-    setRelayState(true);
+    setRelayState(NULL, true);
   } else if (!relayState) {
     bus.setLed(idx, true, false);
   } else {

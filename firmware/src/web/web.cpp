@@ -1,4 +1,5 @@
 #include "web.h"
+#include <uri/UriBraces.h>
 
 #include "config.h"
 #include "logs/logs.h"
@@ -31,16 +32,28 @@ void PDUWeb::setup() {
   updateEndpoints();
   controlEndpoints();
 
-  server->on("/logs", HTTP_GET, [&]() {
+  server->on(UriBraces("/api/logs/{}"), HTTP_GET, [&]() {
+
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     JsonArray devices = doc["logs"].to<JsonArray>();
 
     size_t rows = logger.getSize();
+    uint8_t pageVar = strtoul(server->pathArg(0).c_str(), NULL, 0);
+    uint8_t maxPage = (rows / pageSize) + 1;
+    uint8_t page = min(max((uint8_t) 1, pageVar), maxPage);
+
     doc["count"] = rows;
+    doc["pages"] = maxPage;
+    doc["page"] = page;
 
-    LogLine arr[16];
-    size_t actual = logger.readRows(arr, max(0, (uint8_t) rows - 16), 16);
+    int16_t start = rows - (page * pageSize);
+    uint8_t toGet = min(start, (int16_t) 0) + pageSize;
 
+    LogLine arr[pageSize];
+    size_t actual = logger.readRows(arr, max((int16_t) 0, start), toGet);
     for (uint8_t idx = actual; idx > 0; idx--) {
       LogLine* line = &arr[idx - 1];
 

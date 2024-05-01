@@ -16,7 +16,7 @@ import io.ktor.server.routing.Route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-const val apiRoot = "http://10.2.2.58"
+const val apiRoot = "http://10.2.2.58/api"
 
 @Location("/")
 class MainRoute {
@@ -26,10 +26,10 @@ class MainRoute {
     @Location("/")
     data class Root(val api: MainRoute)
 
-    @Location("/proxy/{path?}")
+    @Location("/api/{path?}")
     data class Proxy(val path: String, val api: MainRoute)
 
-    @Location("/proxy/{path?}/{path2?}")
+    @Location("/api/{path?}/{path2?}")
     data class Proxy2(val path: String, val path2: String, val api: MainRoute)
 
     fun Route.setup() {

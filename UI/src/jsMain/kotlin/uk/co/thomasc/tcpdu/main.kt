@@ -21,8 +21,7 @@ import uk.co.thomasc.tcpdu.page.logsPage
 import uk.co.thomasc.tcpdu.page.systemPage
 import web.dom.document
 
-// TODO: Pull from variable at build time
-const val apiRoot = ""
+const val apiRoot = "/api"
 
 fun main() {
     jsJodaTz

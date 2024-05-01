@@ -34,7 +34,7 @@ class Output {
     void setBootState(BootState _bootState);
 
     bool getState();
-    void setState(bool state);
+    void setState(const char* user, bool state);
     void tick(uint64_t time);
   private:
     char name[64] = {};
@@ -70,7 +70,7 @@ class Output {
     static constexpr float CF = 1; // 1 / 1000R
 
     static float safeDiv(float lhs, uint32_t rhs);
-    void setRelayState(bool state);
+    void setRelayState(const char* user, bool state);
 };
 
 #endif

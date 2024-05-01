@@ -22,4 +22,5 @@ class PDUWeb {
     bool currentUser(String& user);
 
     static bool deserializeOrError(WebServer* server, JsonDocument* doc);
+    static constexpr const uint8_t pageSize = 16;
 };

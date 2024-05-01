@@ -4,7 +4,7 @@
 #include "network.h"
 
 void PDUWeb::controlEndpoints() {
-  server->on("/state", HTTP_GET, [&]() {
+  server->on("/api/state", HTTP_GET, [&]() {
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     JsonArray devices = doc["devices"].to<JsonArray>();
@@ -33,7 +33,7 @@ void PDUWeb::controlEndpoints() {
     server->send(200, "text/html", json);
   });
 
-  server->on("/system", HTTP_GET, [&]() {
+  server->on("/api/system", HTTP_GET, [&]() {
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     doc["time"] = network.getFormattedTime();
@@ -70,7 +70,10 @@ void PDUWeb::controlEndpoints() {
     server->send(200, "text/html", json);
   });
 
-  server->on("/state", HTTP_POST, [&]() {
+  server->on("/api/state", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
@@ -78,7 +81,7 @@ void PDUWeb::controlEndpoints() {
     Output* output = config.getOutput(idx);
 
     JsonVariant state = doc["state"];
-    if (!state.isNull()) output->setState(state);
+    if (!state.isNull()) output->setState(user.c_str(), state);
 
     if (doc["name"]) output->setName(doc["name"]);
     if (doc["priority"]) output->setPriority(doc["priority"]);
