@@ -16,7 +16,8 @@ import io.ktor.server.routing.Route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-const val apiRoot = "http://10.2.2.58/api"
+const val mainRoot = "http://10.2.2.58"
+const val apiRoot = "$mainRoot/api"
 
 @Location("/")
 class MainRoute {
@@ -56,7 +57,12 @@ class MainRoute {
         }
 
         suspend fun postProxy(call: ApplicationCall, path: String) {
-            val result = client.post("$apiRoot/$path") {
+            val uri = when(path) {
+                "update" -> "$mainRoot/$path"
+                else -> "$apiRoot/$path"
+            }
+
+            val result = client.post(uri) {
                 call.request.headers.forEach { key, strings ->
                     headers.appendAll(key, strings)
                 }
