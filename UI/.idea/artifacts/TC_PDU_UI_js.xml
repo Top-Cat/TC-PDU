@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TC-PDU-UI-js">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="TC-PDU-UI-js.jar">
+      <element id="module-output" name="TC-PDU-UI.jsMain" />
+    </root>
+  </artifact>
+</component>

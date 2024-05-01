@@ -46,13 +46,13 @@ class MainRoute {
         }
 
         suspend fun getProxy(call: ApplicationCall, path: String) {
-            call.respond(
-                client.get("$apiRoot/$path") {
-                    call.request.headers.forEach { key, strings ->
-                        headers.appendAll(key, strings)
-                    }
-                }.bodyAsText()
-            )
+            val result = client.get("$apiRoot/$path") {
+                call.request.headers.forEach { key, strings ->
+                    headers.appendAll(key, strings)
+                }
+            }
+
+            call.respond(result.status, result.bodyAsText())
         }
 
         suspend fun postProxy(call: ApplicationCall, path: String) {

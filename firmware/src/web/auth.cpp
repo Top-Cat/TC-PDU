@@ -66,7 +66,7 @@ bool PDUWeb::currentUser(String& user) {
 }
 
 void PDUWeb::authEndpoints() {
-  server->on("/me", HTTP_GET, [&]() {
+  server->on("/api/me", HTTP_GET, [&]() {
     String user;
     if (!currentUser(user)) return;
 
@@ -74,7 +74,7 @@ void PDUWeb::authEndpoints() {
     server->send(200, "text/html", user);
   });
 
-  server->on("/login", HTTP_POST, [&]() {
+  server->on("/api/login", HTTP_POST, [&]() {
     // TODO: Support form parameters as well as json
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;

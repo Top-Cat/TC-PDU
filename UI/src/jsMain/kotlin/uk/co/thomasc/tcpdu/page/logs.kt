@@ -34,7 +34,7 @@ enum class LogType(val enc: Int) {
 }
 
 @Serializable
-data class LogPage(val logs: List<LogLine>, val count: Int)
+data class LogPage(val logs: List<LogLine>, val count: Int, val page: Int, val pages: Int)
 
 val logsPage = fc<Props> {
     val history = useNavigate()
