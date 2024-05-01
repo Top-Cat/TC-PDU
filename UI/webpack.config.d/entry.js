@@ -6,7 +6,7 @@
         usedExports: true,
         splitChunks: {
             chunks: 'all',
-            filename: 'modules.js'
+            filename: 'ext.js'
         }
     };
     config.plugins.push(new ContextReplacementPlugin(/moment[\/\\]locale$/, /en\-gb/));
