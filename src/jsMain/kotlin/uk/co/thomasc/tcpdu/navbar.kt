@@ -1,6 +1,5 @@
 package uk.co.thomasc.tcpdu
 
-import csstype.ClassName
 import kotlinx.browser.window
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
@@ -18,6 +17,7 @@ import react.router.useLocation
 import react.useEffect
 import react.useRef
 import react.useState
+import web.cssom.ClassName
 
 val navbar = fc<Props> {
     val location = useLocation()

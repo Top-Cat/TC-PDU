@@ -4,12 +4,12 @@ import ChartDataset
 import ChartJs
 import ChartJsBase
 import external.axiosGet
+import js.objects.jso
 import kotlinx.browser.window
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.html.id
 import kotlinx.html.js.onChangeFunction
-import kotlinx.js.jso
 import org.w3c.dom.HTMLSelectElement
 import react.Props
 import react.dom.option
