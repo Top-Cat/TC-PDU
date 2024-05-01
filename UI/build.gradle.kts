@@ -95,7 +95,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-legacy:18.3.1-pre.736")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom-legacy:18.3.1-pre.736")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.23.0-pre.736")
-                implementation(npm("axios", "0.28.1"))
+                implementation(npm("axios", "0.21.1"))
                 implementation(npm("bootswatch", "5.3.3"))
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("react-chartjs-2", "5.2.0"))
