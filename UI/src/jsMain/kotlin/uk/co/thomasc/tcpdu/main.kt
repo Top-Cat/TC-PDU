@@ -21,7 +21,8 @@ import uk.co.thomasc.tcpdu.page.logsPage
 import uk.co.thomasc.tcpdu.page.systemPage
 import web.dom.document
 
-const val apiRoot = "/proxy"
+// TODO: Pull from variable at build time
+const val apiRoot = ""
 
 fun main() {
     jsJodaTz
