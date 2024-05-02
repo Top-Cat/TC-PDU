@@ -3,6 +3,7 @@
 #include "logs/logs.h"
 
 #ifndef BUILD_NUMBER
+#warning "Build number not set"
 #define BUILD_NUMBER 8
 #endif
 #define STR_HELPER(x) #x
