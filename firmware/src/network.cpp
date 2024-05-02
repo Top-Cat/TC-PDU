@@ -11,11 +11,15 @@ void Network::task() {
   delay(1);
 
   NTPConfig* ntpConf = config.getNTP();
+  const char* tz = "GMT0BST,M3.5.0/1,M10.5.0";
+  const char* ntpHost = "pool.ntp.org";
   if (ntpConf->host.length() > 0) {
-    timeClient.setPoolServerName(ntpConf->host.c_str());
+    ntpHost = ntpConf->host.c_str();
   }
-  timeClient.setTimeOffset(ntpConf->offset);
-  timeClient.begin();
+  if (ntpConf->timezone.length() > 0) {
+    tz = ntpConf->timezone.c_str();
+  }
+  configTzTime(tz, ntpHost);
 
   setupComplete = true;
 
@@ -29,11 +33,6 @@ void Network::task() {
 
     if (ap && eth) {
       setupWifi();
-    }
-
-    if (wifi || eth) {
-      timeClient.setTimeOffset(ntpConf->offset);
-      timeClient.update();
     }
 
     delay(500);
@@ -131,21 +130,35 @@ void Network::ethEvent(WiFiEvent_t event)
 }
 
 String Network::getFormattedTime() const {
-  time_t epochTime = timeClient.getEpochTime();
-  struct tm *ptm = gmtime((time_t*) &epochTime);
+  struct tm ptm;
+  getLocalTime(&ptm);
 
   char buffer[100];
-  strftime(buffer, sizeof(buffer), "%F %T", ptm);
+  strftime(buffer, sizeof(buffer), "%F %T", &ptm);
 
   return buffer;
 }
 
 time_t Network::getEpochTime() const {
-  return timeClient.getEpochTime();
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  return mktime(&timeinfo);
 }
 
 bool Network::hasTime() const {
-  return timeClient.isTimeSet();
+  struct tm timeinfo;
+  return getLocalTime(&timeinfo);
+}
+
+uint16_t Network::getOffset() const { 
+    time_t t, t2; 
+    struct tm *tm2; 
+
+    time(&t);
+    tm2 = gmtime(&t);
+    tm2->tm_isdst = -1; 
+    t2 = mktime(tm2);
+    return t - t2; 
 }
 
 WifiState Network::wifiState() const {

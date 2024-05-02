@@ -51,26 +51,61 @@ void PDUConfig::load() {
   if (version >= 4) {
     ntp.host = EEPROM.readString(addr);
     addr += ntp.host.length() + 1;
-
-    ntp.offset = EEPROM.readUInt(addr);
-    addr += 4;
   } else {
     ntp.host = "";
-    ntp.offset = 0;
   }
 
-  // TODO: Store in EEPROM (Currently easier to test like this)
-  // Only use serial for now
-  log.emailMask = 0;
-  log.serialMask = 0xFFFFFFFFFFFFFFFF;
-  log.syslogMask = 0;
-  log.smtpServer = "mail.thomasc.co.uk";
-  log.smtpPort = 25;
-  log.smtpUser = "";
-  log.smtpPass = "";
-  log.smtpFrom = "pdu@thomasc.co.uk";
-  log.smtpTo = "test@thomasc.co.uk";
-  log.daysToKeep = 7;
+  if (version >= 6) {
+    ntp.timezone = EEPROM.readString(addr);
+    addr += ntp.timezone.length() + 1;
+  } else if (version >= 4) {
+    ntp.timezone = "";
+    addr += 4;
+  } else {
+    ntp.timezone = "";
+  }
+
+  if (version >= 6) {
+    log.serialMask = EEPROM.readULong64(addr);
+    addr += 8;
+
+    log.syslogMask = EEPROM.readULong64(addr);
+    addr += 8;
+
+    log.emailMask = EEPROM.readULong64(addr);
+    addr += 8;
+
+    log.smtpServer = EEPROM.readString(addr);
+    addr += log.smtpServer.length() + 1;
+
+    log.smtpPort = EEPROM.readUShort(addr);
+    addr += 2;
+
+    log.smtpUser = EEPROM.readString(addr);
+    addr += log.smtpUser.length() + 1;
+
+    log.smtpPass = EEPROM.readString(addr);
+    addr += log.smtpPass.length() + 1;
+
+    log.smtpFrom = EEPROM.readString(addr);
+    addr += log.smtpFrom.length() + 1;
+
+    log.smtpTo = EEPROM.readString(addr);
+    addr += log.smtpTo.length() + 1;
+
+    log.daysToKeep = EEPROM.readByte(addr++);
+  } else {
+    // TODO: Store in EEPROM (Currently easier to test like this)
+    // Only use serial for now
+    log.emailMask = log.serialMask = log.syslogMask = 0;
+    log.smtpServer = "";
+    log.smtpPort = 25;
+    log.smtpUser = "";
+    log.smtpPass = "";
+    log.smtpFrom = "";
+    log.smtpTo = "";
+    log.daysToKeep = 7;
+  }
 
   uint8_t ser[128];
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
@@ -151,7 +186,19 @@ void PDUConfig::save() {
   addr += EEPROM.writeString(addr, jwt.key) + 1;
 
   addr += EEPROM.writeString(addr, ntp.host) + 1;
-  addr += EEPROM.writeUInt(addr, ntp.offset);
+  addr += EEPROM.writeString(addr, ntp.timezone) + 1;
+
+  addr += EEPROM.writeULong64(addr, log.serialMask);
+  addr += EEPROM.writeULong64(addr, log.syslogMask);
+  addr += EEPROM.writeULong64(addr, log.emailMask);
+
+  addr += EEPROM.writeString(addr, log.smtpServer) + 1;
+  addr += EEPROM.writeUShort(addr, log.smtpPort);
+  addr += EEPROM.writeString(addr, log.smtpUser) + 1;
+  addr += EEPROM.writeString(addr, log.smtpPass) + 1;
+  addr += EEPROM.writeString(addr, log.smtpFrom) + 1;
+  addr += EEPROM.writeString(addr, log.smtpTo) + 1;
+  addr += EEPROM.writeByte(addr, log.daysToKeep);
 
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
     uint8_t ser[128];

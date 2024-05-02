@@ -53,7 +53,7 @@ val logsConfig = fc<ConfigProps> { props ->
                     LogType.entries.forEachIndexed { idx, logType ->
                         tr {
                             td {
-                                +logType.name
+                                +logType.human
                             }
                             td {
                                 input(InputType.checkBox, classes = "form-check-input") {

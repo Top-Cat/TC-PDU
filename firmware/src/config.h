@@ -5,7 +5,7 @@
 #include <WString.h>
 #include "output.h"
 
-#define CONFIG_VERSION 5
+#define CONFIG_VERSION 6
 #define MAX_OUTPUTS 8
 
 struct RadiusConfig {
@@ -28,7 +28,7 @@ struct JWTConfig {
 
 struct NTPConfig {
   String host;
-  uint32_t offset;
+  String timezone;
 };
 
 struct LogConfig {

@@ -3,7 +3,6 @@
 
 #include <ETH.h>
 #include <WiFi.h>
-#include <NTPClient.h>
 #include <WebServer.h>
 
 #define TIMEOUT 20 * 1000 * 1000 // 10s
@@ -48,6 +47,7 @@ class Network {
     bool hasTime() const;
     String getFormattedTime() const;
     time_t getEpochTime() const;
+    uint16_t getOffset() const;
   private:
     static constexpr const char* APssid = "PDU-SETUP";
     static constexpr const char* APpass = "123456789";
@@ -61,8 +61,6 @@ class Network {
     void setupETH();
     void setupAP();
     void disconnected();
-
-    NTPClient timeClient = NTPClient(udpClient);
 };
 
 extern Network network;

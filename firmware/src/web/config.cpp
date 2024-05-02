@@ -22,12 +22,13 @@ void PDUWeb::configEndpoints() {
 
     NTPConfig* ntpConf = config.getNTP();
     doc["ntp"]["host"] = ntpConf->host;
-    doc["ntp"]["offset"] = ntpConf->offset;
+    doc["ntp"]["tz"] = ntpConf->timezone;
 
     LogConfig* logConf = config.getLog();
     doc["log"]["serialMask"] = logConf->serialMask;
     doc["log"]["syslogMask"] = logConf->syslogMask;
     doc["log"]["emailMask"] = logConf->emailMask;
+    doc["log"]["days"] = logConf->daysToKeep;
 
     doc["log"]["smtp"]["host"] = logConf->smtpServer;
     doc["log"]["smtp"]["port"] = logConf->smtpPort;
@@ -80,7 +81,12 @@ void PDUWeb::configEndpoints() {
 
     NTPConfig* ntpConf = config.getNTP();
     if (doc["host"]) ntpConf->host = (const char*) doc["host"];
-    if (doc["offset"]) ntpConf->offset = doc["offset"];
+    if (doc["tz"]) {
+      const char* tz = doc["tz"];
+      ntpConf->timezone = tz;
+      setenv("TZ", tz, 1);
+      tzset();
+    }
 
     config.save();
     sendStaticHeaders();
@@ -115,6 +121,7 @@ void PDUWeb::configEndpoints() {
     if (doc["serialMask"]) logConf->serialMask = doc["serialMask"];
     if (doc["emailMask"]) logConf->emailMask = doc["emailMask"];
     if (doc["syslogMask"]) logConf->syslogMask = doc["syslogMask"];
+    if (doc["daysToKeep"]) logConf->daysToKeep = doc["daysToKeep"];
 
     if (doc["smtp"]) {
       if (doc["smtp"]["host"]) logConf->smtpServer = (const char*) doc["smtp"]["host"];

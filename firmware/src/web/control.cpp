@@ -2,6 +2,7 @@
 #include "config.h"
 #include "control.h"
 #include "network.h"
+#include "version.h"
 
 void PDUWeb::controlEndpoints() {
   server->on("/api/state", HTTP_GET, [&]() {
@@ -37,7 +38,8 @@ void PDUWeb::controlEndpoints() {
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     doc["time"] = network.getFormattedTime();
-    doc["fw"] = "0.0.1";
+    doc["offset"] = network.getOffset();
+    doc["fw"] = "0.0." STRING(BUILD_NUMBER);
     doc["uptime"] = control.getUptime();
 
     WifiState wState = network.wifiState();

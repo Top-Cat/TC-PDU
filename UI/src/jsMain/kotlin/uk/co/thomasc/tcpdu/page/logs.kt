@@ -31,8 +31,11 @@ data class LogLine(val time: Long, val type: LogType, val user: String, val mess
 }
 
 @Serializable(with = LogType.LogTypeSerializer::class)
-enum class LogType(val enc: Int) {
-    OUTLET_STATE(0), DEVICE_IP(1), FIRMWARE(2), CRASH(3);
+enum class LogType(val enc: Int, val color: String, val human: String) {
+    OUTLET_STATE(0, "info", "Outlet State"),
+    DEVICE_IP(1, "warning", "IP"),
+    FIRMWARE(2, "primary", "Firmware"),
+    CRASH(3, "danger", "Crash");
 
     class LogTypeSerializer : EnumAsIntSerializer<LogType>(
         "LogType",
@@ -58,7 +61,7 @@ val logsPage = fc<Props> {
         }.handleForbidden(history)
     }
 
-    table("table table-sm table-striped") {
+    table("table table-sm") {
         thead {
             tr {
                 th(classes = "col-2") {
@@ -77,12 +80,12 @@ val logsPage = fc<Props> {
         }
         tbody {
             logs.forEach { line ->
-                tr {
+                tr("table-${line.type.color}") {
                     td {
                         +line.getInstant().toString()
                     }
                     td {
-                        +line.type.name
+                        +line.type.human
                     }
                     td {
                         +line.user
