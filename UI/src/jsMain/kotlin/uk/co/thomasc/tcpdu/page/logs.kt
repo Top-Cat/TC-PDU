@@ -2,6 +2,13 @@ package uk.co.thomasc.tcpdu.page
 
 import external.axiosGet
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.Serializable
 import react.Props
@@ -27,7 +34,18 @@ import kotlin.math.min
 
 @Serializable
 data class LogLine(val time: Long, val type: LogType, val user: String, val message: String) {
-    fun getInstant() = Instant.fromEpochSeconds(time)
+    fun formattedTime() = Instant
+        .fromEpochSeconds(time)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .format(dtf)
+
+    companion object {
+        val dtf = LocalDateTime.Format {
+            date(LocalDate.Formats.ISO)
+            char(' ')
+            time(LocalTime.Formats.ISO)
+        }
+    }
 }
 
 @Serializable(with = LogType.LogTypeSerializer::class)
@@ -82,7 +100,7 @@ val logsPage = fc<Props> {
             logs.forEach { line ->
                 tr("table-${line.type.color}") {
                     td {
-                        +line.getInstant().toString()
+                        +line.formattedTime()
                     }
                     td {
                         +line.type.human
