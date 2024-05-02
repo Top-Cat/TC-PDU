@@ -22,7 +22,6 @@ class FileLogger {
 
     static constexpr const char* directory = "/logs";
     static constexpr const char* pathFormat = "%s/%s.log";
-    static constexpr const uint8_t daysToKeep = 1;
 };
 
 extern FileLogger fileLog;

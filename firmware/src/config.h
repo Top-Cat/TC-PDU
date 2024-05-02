@@ -42,6 +42,8 @@ struct LogConfig {
   String smtpPass;
   String smtpFrom;
   String smtpTo;
+
+  uint8_t daysToKeep;
 };
 
 class PDUConfig {

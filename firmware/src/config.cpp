@@ -70,6 +70,7 @@ void PDUConfig::load() {
   log.smtpPass = "";
   log.smtpFrom = "pdu@thomasc.co.uk";
   log.smtpTo = "test@thomasc.co.uk";
+  log.daysToKeep = 7;
 
   uint8_t ser[128];
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {

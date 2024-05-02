@@ -1,5 +1,6 @@
 #include "filelog.h"
 #include "network.h"
+#include "config.h"
 
 void FileLogger::process(LogProcess* state) {
   while (!network.hasTime()) delay(500);
@@ -44,6 +45,7 @@ time_t FileLogger::dateFromPath(const char* path) {
 void FileLogger::rotate() {
   const time_t now = network.getEpochTime();
   const time_t localToday = now / 86400 * 86400;
+  LogConfig* lc = config.getLog();
 
   if (today != localToday) {
     today = localToday;
@@ -57,7 +59,7 @@ void FileLogger::rotate() {
         const char *dateStart = file.name();
         const time_t midnight = dateFromPath(dateStart);
 
-        if (midnight < today - daysToKeep * 86400) {
+        if (midnight < today - lc->daysToKeep * 86400) {
           SPIFFS.remove(file.path());
         }
       }
