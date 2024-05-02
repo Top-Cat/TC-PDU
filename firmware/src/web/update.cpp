@@ -2,7 +2,13 @@
 #include <Update.h>
 #include "logs/logs.h"
 
-const char* serverIndex = "<!DOCTYPE HTML><html lang=\"en\"><head><title>TC-PDU</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><link href=\"https://use.fontawesome.com/releases/v5.15.4/css/all.css\" rel=\"stylesheet\"><link href=\"https://pdu.topc.at/8/main.css\" rel=\"stylesheet\"><script src=\"https://pdu.topc.at/8/ext.js\"></script><script src=\"https://pdu.topc.at/8/output.js\"></script></head><body><main class=\"container\" id=\"root\"></main></body></html>";
+#ifndef BUILD_NUMBER
+#define BUILD_NUMBER 8
+#endif
+#define STR_HELPER(x) #x
+#define STRING(x) STR_HELPER(x)
+
+const char* serverIndex = "<!DOCTYPE HTML><html lang=\"en\"><head><title>TC-PDU</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><link href=\"https://use.fontawesome.com/releases/v5.15.4/css/all.css\" rel=\"stylesheet\"><link href=\"https://pdu.topc.at/" STRING(BUILD_NUMBER) "/main.css\" rel=\"stylesheet\"><script src=\"https://pdu.topc.at/" STRING(BUILD_NUMBER) "/ext.js\"></script><script src=\"https://pdu.topc.at/" STRING(BUILD_NUMBER) "/output.js\"></script></head><body><main class=\"container\" id=\"root\"></main></body></html>";
 
 void PDUWeb::updateEndpoints() {
   server->on("/", HTTP_GET, [&]() {

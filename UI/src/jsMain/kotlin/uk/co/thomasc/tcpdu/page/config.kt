@@ -9,30 +9,32 @@ import react.router.useNavigate
 import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.page.config.logsConfig
 import uk.co.thomasc.tcpdu.page.config.ntpConfig
 import uk.co.thomasc.tcpdu.page.config.radiusConfig
+import uk.co.thomasc.tcpdu.page.config.smtpConfig
 import uk.co.thomasc.tcpdu.page.config.wifiConfig
 
 @Serializable
 data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig)
 
 @Serializable
-data class WifiConfig(val ssid: String?, val pass: String?)
+data class WifiConfig(val ssid: String? = null, val pass: String? = null)
 
 @Serializable
-data class RadiusConfig(val ip: String?, val port: Int?, val secret: String?, val timeout: Int?, val retries: Int?)
+data class RadiusConfig(val ip: String? = null, val port: Int? = null, val secret: String? = null, val timeout: Int? = null, val retries: Int? = null)
 
 @Serializable
-data class AuthConfig(val validityPeriod: Int)
+data class AuthConfig(val validityPeriod: Int? = null)
 
 @Serializable
-data class NtpConfig(val host: String?, val offset: Int?)
+data class NtpConfig(val host: String? = null, val offset: Int? = null)
 
 @Serializable
-data class LogConfig(val serialMask: ULong, val syslogMask: ULong, val emailMask: ULong, val smtp: SmtpConfig)
+data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = null, val emailMask: ULong? = null, val smtp: SmtpConfig?)
 
 @Serializable
-data class SmtpConfig(val host: String, val port: Int, val user: String, val password: String, val from: String, val to: String)
+data class SmtpConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val from: String? = null, val to: String? = null)
 
 val configPage = fc<Props> {
     val (config, setConfig) = useState<PDUConfig>()
@@ -45,12 +47,18 @@ val configPage = fc<Props> {
     }
 
     if (config != null) {
-        div("config row row-cols-1 g-4") {
-            val configBlocks = listOf(wifiConfig, radiusConfig, ntpConfig)
+        div("config row row-cols-1 row-cols-md-2 g-4") {
+            val configBlocks = mapOf(
+                wifiConfig to "col",
+                ntpConfig to "col",
+                radiusConfig to "col",
+                smtpConfig to "col",
+                logsConfig to "col-md-12"
+            )
 
-            configBlocks.forEach {
-                div("col") {
-                    it.invoke {
+            configBlocks.forEach { (fc, clazz) ->
+                div(clazz) {
+                    fc.invoke {
                         attrs.config = config
                     }
                 }

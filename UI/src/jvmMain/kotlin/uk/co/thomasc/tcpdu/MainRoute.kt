@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 const val mainRoot = "http://10.2.2.58"
-const val apiRoot = "$mainRoot/api"
 
 @Location("/")
 class MainRoute {
@@ -47,7 +46,7 @@ class MainRoute {
         }
 
         suspend fun getProxy(call: ApplicationCall, path: String) {
-            val result = client.get("$apiRoot/$path") {
+            val result = client.get("$mainRoot/api/$path") {
                 call.request.headers.forEach { key, strings ->
                     headers.appendAll(key, strings)
                 }
@@ -57,9 +56,9 @@ class MainRoute {
         }
 
         suspend fun postProxy(call: ApplicationCall, path: String) {
-            val uri = when(path) {
+            val uri = when (path) {
                 "update" -> "$mainRoot/$path"
-                else -> "$apiRoot/$path"
+                else -> "$mainRoot/api/$path"
             }
 
             val result = client.post(uri) {

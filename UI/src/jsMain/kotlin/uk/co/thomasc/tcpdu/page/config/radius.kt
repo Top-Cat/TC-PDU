@@ -96,7 +96,7 @@ val radiusConfig = fc<ConfigProps> { props ->
                             attrs.htmlFor = "radius-timeout"
                             +"Timeout"
                         }
-                        input(InputType.number, classes = "form-control") {
+                        input(InputType.number, classes = "form-control w-25") {
                             attrs.placeholder = "5"
                             attrs.id = "radius-timeout"
                             attrs.defaultValue = config.radius.timeout?.toString() ?: ""
@@ -109,7 +109,7 @@ val radiusConfig = fc<ConfigProps> { props ->
                             attrs.htmlFor = "radius-retry"
                             +"Retries"
                         }
-                        input(InputType.number, classes = "form-control") {
+                        input(InputType.number, classes = "form-control w-25") {
                             attrs.placeholder = "3"
                             attrs.id = "radius-retry"
                             attrs.defaultValue = config.radius.retries?.toString() ?: ""
@@ -127,7 +127,7 @@ val radiusConfig = fc<ConfigProps> { props ->
                                 timeoutRef.current?.value?.toIntOrNull(),
                                 retriesRef.current?.value?.toIntOrNull()
                             )
-                            Axios.post<String>("$apiRoot/config/uk.co.thomasc.tcpdu.page.config.getWifi", newConfig, generateConfig<RadiusConfig, String>()).then {
+                            Axios.post<String>("$apiRoot/config/radius", newConfig, generateConfig<RadiusConfig, String>()).then {
                                 // TODO: Show toast
                                 console.log("Success")
                             }.handleForbidden(history)
