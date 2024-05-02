@@ -18,6 +18,7 @@ data class PDUSystem(
     val fw: String = "Unknown",
     val uptime: Long,
     val time: String,
+    val offset: Int,
     val wifi: WifiState,
     val eth: EthState
 )

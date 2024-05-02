@@ -28,10 +28,10 @@ data class RadiusConfig(val ip: String? = null, val port: Int? = null, val secre
 data class AuthConfig(val validityPeriod: Int? = null)
 
 @Serializable
-data class NtpConfig(val host: String? = null, val offset: Int? = null)
+data class NtpConfig(val host: String? = null, val tz: String? = null)
 
 @Serializable
-data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = null, val emailMask: ULong? = null, val smtp: SmtpConfig?)
+data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = null, val emailMask: ULong? = null, val smtp: SmtpConfig? = null, val days: Int? = null)
 
 @Serializable
 data class SmtpConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val from: String? = null, val to: String? = null)

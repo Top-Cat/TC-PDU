@@ -150,15 +150,15 @@ bool Network::hasTime() const {
   return getLocalTime(&timeinfo);
 }
 
-uint16_t Network::getOffset() const { 
-    time_t t, t2; 
-    struct tm *tm2; 
+uint16_t Network::getOffset() const {
+    time_t t, t2;
+    struct tm *tm2;
 
     time(&t);
     tm2 = gmtime(&t);
-    tm2->tm_isdst = -1; 
+    tm2->tm_isdst = -1;
     t2 = mktime(tm2);
-    return t - t2; 
+    return t - t2;
 }
 
 WifiState Network::wifiState() const {

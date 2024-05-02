@@ -1,6 +1,5 @@
 package uk.co.thomasc.tcpdu
 
-import external.jsJodaTz
 import js.objects.jso
 import kotlinx.browser.window
 import kotlinx.html.id
@@ -24,7 +23,6 @@ import web.dom.document
 const val apiRoot = "/api"
 
 fun main() {
-    jsJodaTz
     window.onload = {
         document.getElementById("root")?.let { root ->
             createRoot(root).render(createElement(app))

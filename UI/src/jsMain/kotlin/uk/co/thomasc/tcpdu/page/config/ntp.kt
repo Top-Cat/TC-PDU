@@ -1,14 +1,12 @@
 package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
+import external.axiosGet
 import external.generateConfig
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.internal.JSJoda.Clock
-import kotlinx.datetime.internal.JSJoda.Instant
-import kotlinx.datetime.internal.JSJoda.ZoneId
 import kotlinx.html.ButtonType
 import kotlinx.html.InputType
 import kotlinx.html.id
+import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLSelectElement
@@ -22,16 +20,27 @@ import react.dom.option
 import react.dom.select
 import react.fc
 import react.router.useNavigate
+import react.useEffectOnce
 import react.useRef
+import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.page.NtpConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 
 val ntpConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (timezones, setTimezones) = useState(mapOf<String, String>())
+    val (selectedTimezone, setSelectedTimezone) = useState("Europe/London")
 
     val hostRef = useRef<HTMLInputElement>()
     val offsetRef = useRef<HTMLSelectElement>()
+
+    useEffectOnce {
+        axiosGet<Map<String, String>>("https://raw.githubusercontent.com/nayarsystems/posix_tz_db/master/zones.json").then {
+            setTimezones(it.data)
+            setSelectedTimezone(it.data.toList().firstOrNull { (_, v) -> v == props.config?.ntp?.tz }?.first ?: "")
+        }
+    }
 
     props.config?.let { config ->
         div("card border-primary") {
@@ -60,19 +69,14 @@ val ntpConfig = fc<ConfigProps> { props ->
                         }
                         select("form-control") {
                             attrs.id = "ntp-offset"
-                            attrs.value = config.ntp.offset.toString()
-                            val now = Instant.now(Clock.systemUTC())
-                            TimeZone.availableZoneIds
-                                .asSequence()
-                                .filter { it.startsWith("Etc/GMT") }
-                                .map { ZoneId.of(it) }
-                                .filter { it.rules().isFixedOffset() } // PDU doesn't support DST
-                                .map { it to -it.rules().offset(now).totalSeconds() }
-                                .sortedBy { it.second }
+                            attrs.value = selectedTimezone
+                            attrs.onChangeFunction = { ev ->
+                                setSelectedTimezone((ev.target as HTMLSelectElement).value)
+                            }
+                            timezones
                                 .forEach {
                                     option {
-                                        attrs.value = "${it.second}"
-                                        +it.first.id()
+                                        +it.key
                                     }
                                 }
                             ref = offsetRef
@@ -82,11 +86,10 @@ val ntpConfig = fc<ConfigProps> { props ->
                     button(type = ButtonType.submit, classes = "btn btn-primary") {
                         attrs.onClickFunction = { ev ->
                             ev.preventDefault()
-                            val offset = offsetRef.current?.value?.toIntOrNull()
 
                             Axios.post<String>(
                                 "$apiRoot/config/ntp",
-                                NtpConfig(hostRef.current?.value, offset),
+                                NtpConfig(hostRef.current?.value, timezones[offsetRef.current?.value]),
                                 generateConfig<NtpConfig, String>()
                             )
                                 .then {

@@ -75,7 +75,7 @@ val radiusConfig = fc<ConfigProps> { props ->
                         }
                         div("input-group") {
                             input(if (showRadiusSecret) InputType.text else InputType.password, classes = "form-control") {
-                                attrs.placeholder = "1812"
+                                attrs.placeholder = "********"
                                 attrs.id = "radius-pw"
                                 attrs.defaultValue = config.radius.secret ?: ""
                                 ref = secretRef

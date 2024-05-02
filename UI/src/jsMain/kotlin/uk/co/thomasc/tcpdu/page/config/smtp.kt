@@ -90,7 +90,7 @@ val smtpConfig = fc<ConfigProps> { props ->
                         }
                         div("input-group") {
                             input(if (showSmtpPassword) InputType.text else InputType.password, classes = "form-control") {
-                                attrs.placeholder = "1812"
+                                attrs.placeholder = "********"
                                 attrs.id = "smtp-pw"
                                 attrs.defaultValue = config.log.smtp?.password ?: ""
                                 ref = passRef

@@ -121,7 +121,7 @@ void PDUWeb::configEndpoints() {
     if (doc["serialMask"]) logConf->serialMask = doc["serialMask"];
     if (doc["emailMask"]) logConf->emailMask = doc["emailMask"];
     if (doc["syslogMask"]) logConf->syslogMask = doc["syslogMask"];
-    if (doc["daysToKeep"]) logConf->daysToKeep = doc["daysToKeep"];
+    if (doc["days"]) logConf->daysToKeep = doc["days"];
 
     if (doc["smtp"]) {
       if (doc["smtp"]["host"]) logConf->smtpServer = (const char*) doc["smtp"]["host"];

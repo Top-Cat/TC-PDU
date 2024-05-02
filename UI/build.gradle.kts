@@ -100,7 +100,6 @@ kotlin {
                 implementation(npm("bootstrap", "5.3.3"))
                 implementation(npm("react-chartjs-2", "5.2.0"))
                 implementation(npm("chart.js", "4.4.2"))
-                implementation(npm("@js-joda/timezone", "2.3.0"))
                 implementation(devNpm("webpack-bundle-analyzer", "4.6.1"))
             }
         }
