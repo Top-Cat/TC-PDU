@@ -26,6 +26,9 @@ class MainRoute {
     @Location("/")
     data class Root(val api: MainRoute)
 
+    @Location("/update")
+    data class Update(val api: MainRoute)
+
     @Location("/api/{path?}")
     data class Proxy(val path: String, val api: MainRoute)
 
@@ -56,12 +59,7 @@ class MainRoute {
         }
 
         suspend fun postProxy(call: ApplicationCall, path: String) {
-            val uri = when (path) {
-                "update" -> "$mainRoot/$path"
-                else -> "$mainRoot/api/$path"
-            }
-
-            val result = client.post(uri) {
+            val result = client.post("$mainRoot/$path") {
                 call.request.headers.forEach { key, strings ->
                     headers.appendAll(key, strings)
                 }
@@ -88,12 +86,16 @@ class MainRoute {
             getProxy(call, "${it.path}/${it.path2}")
         }
 
+        post<Update> {
+            postProxy(call, "update")
+        }
+
         post<Proxy> {
-            postProxy(call, it.path)
+            postProxy(call, "api/${it.path}")
         }
 
         post<Proxy2> {
-            postProxy(call, "${it.path}/${it.path2}")
+            postProxy(call, "api/${it.path}/${it.path2}")
         }
     }
 }

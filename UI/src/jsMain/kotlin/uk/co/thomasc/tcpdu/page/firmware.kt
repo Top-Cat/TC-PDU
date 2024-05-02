@@ -82,7 +82,7 @@ val firmwarePage = fc<Props> {
                 data.asDynamic().append("file", fwRef.current?.files?.get(0))
 
                 Axios.post<String>(
-                    "$apiRoot/update",
+                    "/update",
                     data,
                     UploadRequestConfig { progress ->
                         val v = ((progress.loaded * 100f) / progress.total).toInt()
