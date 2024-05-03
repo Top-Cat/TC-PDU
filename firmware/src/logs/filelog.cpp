@@ -87,6 +87,44 @@ size_t FileLogger::rowCount(File &logFile) {
     return logFile.size() / sizeof(LogLine);
 }
 
+size_t FileLogger::rowCount() {
+  LogConfig* logConf = config.getLog();
+  time_t time = network.getEpochTime();
+  size_t rowCount = 0;
+
+  for (uint8_t i = 0; i < logConf->daysToKeep; i++) {
+    rowCount += fileLog.rowCount(time - (86400 * i));
+  }
+
+  return rowCount;
+}
+
+size_t FileLogger::readRows(LogLine* output, size_t skip, size_t maxCount) {
+  size_t originalMaxCount = maxCount;
+  LogConfig* logConf = config.getLog();
+  time_t now = network.getEpochTime();
+
+  uint8_t idx = -1;
+  while (++idx < logConf->daysToKeep) {
+    time_t fileTime = now - (86400 * idx);
+    size_t fileCount = rowCount(fileTime);
+
+    if (maxCount <= 0) {
+      break;
+    } else if (fileCount < skip) {
+      skip -= fileCount;
+    } else {
+        int16_t tmpIndex = max((int16_t) 0, (int16_t) (maxCount - (fileCount - skip)));
+        size_t count = min(fileCount - skip, maxCount);
+        uint8_t rows = readRows(&output[tmpIndex], fileTime, fileCount - skip - count, count);
+        maxCount -= rows;
+        skip = max((int16_t) 0, (int16_t) (skip - count));
+    }
+  }
+
+  return originalMaxCount - maxCount;
+}
+
 void FileLogger::pathFromDate(char *output, size_t size, time_t time) {
   struct tm *ptm = gmtime(&time);
 

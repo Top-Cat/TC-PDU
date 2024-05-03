@@ -28,7 +28,7 @@ import react.router.useNavigate
 import react.useEffect
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
-import uk.co.thomasc.tcpdu.util.EnumAsIntSerializer
+import uk.co.thomasc.tcpdu.util.EnumAsLongSerializer
 import kotlin.math.max
 import kotlin.math.min
 
@@ -49,16 +49,17 @@ data class LogLine(val time: Long, val type: LogType, val user: String, val mess
 }
 
 @Serializable(with = LogType.LogTypeSerializer::class)
-enum class LogType(val enc: Int, val color: String, val human: String) {
+enum class LogType(val enc: Long, val color: String, val human: String) {
+    UNKNOWN(-1, "dark", "UNKNOWN"),
     OUTLET_STATE(0, "info", "Outlet State"),
     DEVICE_IP(1, "warning", "IP"),
     FIRMWARE(2, "primary", "Firmware"),
     CRASH(3, "danger", "Crash");
 
-    class LogTypeSerializer : EnumAsIntSerializer<LogType>(
+    class LogTypeSerializer : EnumAsLongSerializer<LogType>(
         "LogType",
         { it.enc },
-        { v -> LogType.entries.first { it.enc == v } }
+        { v -> LogType.entries.firstOrNull { it.enc == v } ?: UNKNOWN }
     )
 }
 

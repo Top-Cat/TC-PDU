@@ -103,5 +103,15 @@ void PDUWeb::controlEndpoints() {
     server->send(200, textPlain, "DONE");
   }, [&]() { });
 
+  server->on("/reboot", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    ESP.restart();
+
+    sendStaticHeaders();
+    server->send(200, textPlain, "REBOOTING");
+  }, [&]() { });
+
   // TODO: Calibration endpoint / allow calibration via /state
 }

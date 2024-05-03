@@ -55,7 +55,7 @@ class MainRoute {
                 }
             }
 
-            call.respond(result.status, result.bodyAsText())
+            call.respond(result.status, result.bodyAsText(Charsets.ISO_8859_1))
         }
 
         suspend fun postProxy(call: ApplicationCall, path: String) {
@@ -75,7 +75,7 @@ class MainRoute {
                 }
             }
 
-            call.respond(result.status, result.bodyAsText())
+            call.respond(result.status, result.bodyAsText(Charsets.ISO_8859_1))
         }
 
         get<Proxy> {

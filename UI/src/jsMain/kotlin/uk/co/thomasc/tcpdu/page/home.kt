@@ -16,7 +16,7 @@ import react.router.useNavigate
 import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
-import uk.co.thomasc.tcpdu.util.EnumAsIntSerializer
+import uk.co.thomasc.tcpdu.util.EnumAsLongSerializer
 import uk.co.thomasc.tcpdu.util.NewNavOption
 import uk.co.thomasc.tcpdu.util.fixed
 import kotlin.js.Promise
@@ -42,10 +42,10 @@ data class PDUDeviceState(
 }
 
 @Serializable(with = BootState.BootStateSerializer::class)
-enum class BootState(val enc: Int) {
+enum class BootState(val enc: Long) {
     ON(0), LAST(1), OFF(2);
 
-    class BootStateSerializer : EnumAsIntSerializer<BootState>(
+    class BootStateSerializer : EnumAsLongSerializer<BootState>(
         "BootState",
         { it.enc },
         { v -> BootState.entries.first { it.enc == v } }

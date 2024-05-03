@@ -73,13 +73,11 @@ void PDULogs::msg(LogLine* msg) {
 }
 
 size_t PDULogs::getSize() {
-  time_t time = network.getEpochTime();
-  return fileLog.rowCount(time);
+  return fileLog.rowCount();
 }
 
-size_t PDULogs::readRows(LogLine* output, size_t startIdx, size_t maxCount) {
-  time_t time = network.getEpochTime();
-  return fileLog.readRows(output, time, startIdx, maxCount);
+size_t PDULogs::readRows(LogLine* output, size_t skip, size_t maxCount) {
+  return fileLog.readRows(output, skip, maxCount);
 }
 
 ///// Global object

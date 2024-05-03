@@ -46,26 +46,25 @@ void PDUWeb::setup() {
     if (!currentUser(user)) return;
 
     JsonDocument doc;
-    JsonArray devices = doc["logs"].to<JsonArray>();
+    JsonArray logs = doc["logs"].to<JsonArray>();
 
     size_t rows = logger.getSize();
     uint8_t pageVar = strtoul(server->pathArg(0).c_str(), NULL, 0);
-    uint8_t maxPage = (rows / pageSize) + 1;
+    uint8_t maxPage = ceil(rows / (float) pageSize);
     uint8_t page = min(max((uint8_t) 1, pageVar), maxPage);
 
     doc["count"] = rows;
     doc["pages"] = maxPage;
     doc["page"] = page;
 
-    int16_t start = rows - (page * pageSize);
-    uint8_t toGet = min(start, (int16_t) 0) + pageSize;
-
     LogLine arr[pageSize];
-    size_t actual = logger.readRows(arr, max((int16_t) 0, start), toGet);
-    for (uint8_t idx = actual; idx > 0; idx--) {
-      LogLine* line = &arr[idx - 1];
+    size_t skip = (page - 1) * pageSize;
+    size_t actual = logger.readRows(arr, skip, pageSize);
 
-      JsonObject object = devices.add<JsonObject>();
+    for (uint8_t idx = 1; idx <= actual; idx++) {
+      LogLine* line = &arr[pageSize - idx];
+
+      JsonObject object = logs.add<JsonObject>();
       object["time"] = line->time;
       object["type"] = line->type;
       object["user"] = line->user;
