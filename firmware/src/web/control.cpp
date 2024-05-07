@@ -6,6 +6,9 @@
 
 void PDUWeb::controlEndpoints() {
   server->on("/api/state", HTTP_GET, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     JsonArray devices = doc["devices"].to<JsonArray>();
@@ -25,6 +28,7 @@ void PDUWeb::controlEndpoints() {
       object["bootState"] = (uint8_t) output->getBootState();
       object["bootDelay"] = output->getBootDelay();
       object["priority"] = output->getPriority();
+      object["maxPower"] = output->getMaxPower();
     }
 
     String json;
@@ -39,7 +43,7 @@ void PDUWeb::controlEndpoints() {
     doc["power"] = control.getTotalPower();
     doc["time"] = network.getFormattedTime();
     doc["offset"] = network.getOffset();
-    doc["fw"] = "0.0." STRING(BUILD_NUMBER);
+    doc["fw"] = "0.0." STRING(BUILD_NUMBER) STRING(SNAPSHOT);
     doc["uptime"] = control.getUptime();
 
     WifiState wState = network.wifiState();

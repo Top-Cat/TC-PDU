@@ -1,5 +1,6 @@
 #include "web.h"
 #include "config.h"
+#include "../logs/logs.h"
 
 void PDUWeb::configEndpoints() {
   server->on("/api/config", HTTP_GET, [&]() {
@@ -45,8 +46,17 @@ void PDUWeb::configEndpoints() {
   });
 
   server->on("/api/config/wifi", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "WiFi config updated", sizeof(msg->message));
+    logger.msg(msg);
 
     WifiConfig* wifiConf = config.getWifi();
     wifiConf->ssid = (const char*) doc["ssid"];
@@ -59,8 +69,17 @@ void PDUWeb::configEndpoints() {
   }, []() { });
 
   server->on("/api/config/radius", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "Radius config updated", sizeof(msg->message));
+    logger.msg(msg);
 
     RadiusConfig* radiusConf = config.getRadius();
     if (doc["secret"]) radiusConf->secret = (const char*) doc["secret"];
@@ -78,6 +97,12 @@ void PDUWeb::configEndpoints() {
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "NTP config updated", sizeof(msg->message));
+    logger.msg(msg);
 
     NTPConfig* ntpConf = config.getNTP();
     if (doc["host"]) ntpConf->host = (const char*) doc["host"];
@@ -100,6 +125,12 @@ void PDUWeb::configEndpoints() {
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "Auth config updated", sizeof(msg->message));
+    logger.msg(msg);
+
     JWTConfig* jwtConf = config.getJWT();
     if (doc["validityPeriod"]) jwtConf->validityPeriod = doc["validityPeriod"];
     if (doc["updateKey"]) config.regenerateJWTKey();
@@ -117,20 +148,43 @@ void PDUWeb::configEndpoints() {
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "Log config updated", sizeof(msg->message));
+    logger.msg(msg);
+
     LogConfig* logConf = config.getLog();
     if (doc["serialMask"]) logConf->serialMask = doc["serialMask"];
     if (doc["emailMask"]) logConf->emailMask = doc["emailMask"];
     if (doc["syslogMask"]) logConf->syslogMask = doc["syslogMask"];
     if (doc["days"]) logConf->daysToKeep = doc["days"];
 
-    if (doc["smtp"]) {
-      if (doc["smtp"]["host"]) logConf->smtpServer = (const char*) doc["smtp"]["host"];
-      if (doc["smtp"]["port"]) logConf->smtpPort = doc["smtp"]["port"];
-      if (doc["smtp"]["user"]) logConf->smtpUser = (const char*) doc["smtp"]["user"];
-      if (doc["smtp"]["password"]) logConf->smtpPass = (const char*) doc["smtp"]["password"];
-      if (doc["smtp"]["from"]) logConf->smtpFrom = (const char*) doc["smtp"]["from"];
-      if (doc["smtp"]["to"]) logConf->smtpTo = (const char*) doc["smtp"]["to"];
-    }
+    config.save();
+    sendStaticHeaders();
+    server->send(200, textPlain, "DONE");
+  }, [&]() { });
+
+  server->on("/api/config/smtp", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    JsonDocument doc;
+    if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "SMTP config updated", sizeof(msg->message));
+    logger.msg(msg);
+
+    LogConfig* logConf = config.getLog();
+    if (doc["host"]) logConf->smtpServer = (const char*) doc["host"];
+    if (doc["port"]) logConf->smtpPort = doc["port"];
+    if (doc["user"]) logConf->smtpUser = (const char*) doc["user"];
+    if (doc["password"]) logConf->smtpPass = (const char*) doc["password"];
+    if (doc["from"]) logConf->smtpFrom = (const char*) doc["from"];
+    if (doc["to"]) logConf->smtpTo = (const char*) doc["to"];
 
     config.save();
     sendStaticHeaders();

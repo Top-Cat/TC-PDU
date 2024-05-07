@@ -16,12 +16,16 @@ import react.dom.label
 import react.fc
 import react.router.useNavigate
 import react.useRef
+import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.errors
 import uk.co.thomasc.tcpdu.page.WifiConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
+import uk.co.thomasc.tcpdu.success
 
 val wifiConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (success, setSuccess) = useState<Boolean?>(null)
 
     val ssidRef = useRef<HTMLInputElement>()
     val wifiPwRef = useRef<HTMLInputElement>()
@@ -32,6 +36,12 @@ val wifiConfig = fc<ConfigProps> { props ->
                 +"Wifi"
             }
             div("card-body") {
+                if (success == true) {
+                    success { +"Config saved" }
+                } else if (success == false) {
+                    errors { +"Unknown error" }
+                }
+
                 form {
                     div("form-group") {
                         label("form-label") {
@@ -66,11 +76,9 @@ val wifiConfig = fc<ConfigProps> { props ->
                                 "$apiRoot/config/wifi",
                                 WifiConfig(ssidRef.current?.value, wifiPwRef.current?.value),
                                 generateConfig<WifiConfig, String>()
-                            )
-                                .then {
-                                    // TODO: Show toast
-                                    console.log("Success")
-                                }.handleForbidden(history)
+                            ).then { setSuccess(true) }.handleForbidden(history).catch {
+                                setSuccess(false)
+                            }
                         }
                         +"Save"
                     }

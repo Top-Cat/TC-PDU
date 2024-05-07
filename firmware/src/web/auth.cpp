@@ -2,6 +2,7 @@
 #include "../auth/radius.h"
 #include "config.h"
 #include "network.h"
+#include "../logs/logs.h"
 
 bool PDUWeb::checkCredentials(const char* user, const char* pass) {
   // Local auth
@@ -75,15 +76,18 @@ void PDUWeb::authEndpoints() {
   });
 
   server->on("/api/login", HTTP_POST, [&]() {
-    // TODO: Support form parameters as well as json
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
     const char* user = doc["user"];
     const char* pass = doc["pass"];
 
+    LogLine* msg = new LogLine();
+    strncpy(msg->user, user, 64);
+
     sendStaticHeaders();
     if (checkCredentials(user, pass)) {
+      msg->type = LOGIN_SUCCESS;
       JWTConfig* jwtConf = config.getJWT();
 
       JsonDocument payload;
@@ -98,7 +102,10 @@ void PDUWeb::authEndpoints() {
       server->sendHeader("Set-Cookie", "PDUJWT=" + jwt.encodeJWT(json) + "; Path=/");
       server->send(302);
     } else {
+      msg->type = LOGIN_FAILURE;
       server->send(401, textPlain, "Forbidden");
     }
+
+    logger.msg(msg);
   }, [&]() { });
 }

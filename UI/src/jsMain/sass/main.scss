@@ -28,3 +28,15 @@ body {
     margin-top: 10px;
   }
 }
+
+.card-header a {
+  padding: 11px 10px;
+  &:hover {
+    background: #d0d0d0;
+  }
+}
+
+.output-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}

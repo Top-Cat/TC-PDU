@@ -98,8 +98,9 @@ kotlin {
                 implementation(npm("axios", "0.21.1"))
                 implementation(npm("bootswatch", "5.3.3"))
                 implementation(npm("bootstrap", "5.3.3"))
-                implementation(npm("react-chartjs-2", "5.2.0"))
                 implementation(npm("chart.js", "4.4.2"))
+                implementation(npm("react-chartjs-2", "5.2.0"))
+                implementation(npm("react-timeago", "7.2.0"))
                 implementation(devNpm("webpack-bundle-analyzer", "4.6.1"))
             }
         }

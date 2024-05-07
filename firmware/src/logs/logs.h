@@ -4,8 +4,8 @@
 #include <ESP_Mail_Client.h>
 #include <time.h>
 
-enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH };
-extern const char* LOGTYPE[4];
+enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH, LOGIN_SUCCESS, LOGIN_FAILURE, CONFIG };
+extern const char* LOGTYPE[7];
 
 struct LogLine {
   time_t time = 0;

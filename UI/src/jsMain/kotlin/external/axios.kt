@@ -126,6 +126,7 @@ external interface AxiosStatic : AxiosInstance {
     fun isCancel(value: Any): Boolean
     fun <T> all(values: Array<dynamic /* T | Promise<T> */>): Promise<Array<T>>
     fun <T, R> spread(callback: (args: T) -> R): (array: Array<T>) -> R
+    fun isAxiosError(value: Throwable): Boolean
 }
 
 @JsModule("axios")

@@ -24,12 +24,15 @@ import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.errors
 import uk.co.thomasc.tcpdu.page.LogConfig
 import uk.co.thomasc.tcpdu.page.LogType
 import uk.co.thomasc.tcpdu.page.handleForbidden
+import uk.co.thomasc.tcpdu.success
 
 val logsConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (success, setSuccess) = useState<Boolean?>(null)
     val (serialMask, setSerialMask) = useState(props.config?.log?.serialMask ?: 0uL)
     val (syslogMask, setSyslogMask) = useState(props.config?.log?.syslogMask ?: 0uL)
     val (emailMask, setEmailMask) = useState(props.config?.log?.emailMask ?: 0uL)
@@ -48,6 +51,12 @@ val logsConfig = fc<ConfigProps> { props ->
             +"Logs"
         }
         div("card-body") {
+            if (success == true) {
+                success { +"Config saved" }
+            } else if (success == false) {
+                errors { +"Unknown error" }
+            }
+
             table("table table-sm table-striped") {
                 thead {
                     tr {
@@ -66,7 +75,8 @@ val logsConfig = fc<ConfigProps> { props ->
                     }
                 }
                 tbody {
-                    LogType.entries.forEachIndexed { idx, logType ->
+                    LogType.entries.filter { it.enc >= 0 }.forEach { logType ->
+                        val idx = logType.enc.toInt()
                         tr {
                             td {
                                 +logType.human
@@ -116,12 +126,16 @@ val logsConfig = fc<ConfigProps> { props ->
             button(type = ButtonType.submit, classes = "btn btn-primary") {
                 attrs.onClickFunction = { ev ->
                     ev.preventDefault()
+                    setSuccess(null)
+
                     val newDays = daysRef.current?.value?.toIntOrNull() ?: 3
                     val newConfig = LogConfig(serialMask, syslogMask, emailMask, days = newDays)
-                    Axios.post<String>("$apiRoot/config/log", newConfig, generateConfig<LogConfig, String>()).then {
-                        // TODO: Show toast
-                        console.log("Success")
-                    }.handleForbidden(history)
+                    Axios.post<String>("$apiRoot/config/log", newConfig, generateConfig<LogConfig, String>())
+                        .then { setSuccess(true) }
+                        .handleForbidden(history)
+                        .catch {
+                            setSuccess(false)
+                        }
                 }
                 +"Save"
             }

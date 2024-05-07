@@ -10,6 +10,7 @@ import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.page.system.ethStatus
+import uk.co.thomasc.tcpdu.page.system.sysStatus
 import uk.co.thomasc.tcpdu.page.system.wifiStatus
 
 @Serializable
@@ -67,7 +68,7 @@ val systemPage = fc<Props> {
 
     if (system != null) {
         div("config row row-cols-1 row-cols-md-3 g-4") {
-            val systemBlocks = listOf(wifiStatus, ethStatus)
+            val systemBlocks = listOf(wifiStatus, ethStatus, sysStatus)
 
             systemBlocks.forEach {
                 div("col") {

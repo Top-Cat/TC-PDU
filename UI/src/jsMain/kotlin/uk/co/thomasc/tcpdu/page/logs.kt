@@ -29,6 +29,7 @@ import react.useEffect
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.util.EnumAsLongSerializer
+import uk.co.thomasc.tcpdu.util.pduJson
 import kotlin.math.max
 import kotlin.math.min
 
@@ -54,7 +55,10 @@ enum class LogType(val enc: Long, val color: String, val human: String) {
     OUTLET_STATE(0, "info", "Outlet State"),
     DEVICE_IP(1, "warning", "IP"),
     FIRMWARE(2, "primary", "Firmware"),
-    CRASH(3, "danger", "Crash");
+    CRASH(3, "danger", "Crash"),
+    LOGIN_SUCCESS(4, "success", "Login"),
+    LOGIN_FAILURE(5, "danger", "Login Failure"),
+    CONFIG(6, "active", "Config");
 
     class LogTypeSerializer : EnumAsLongSerializer<LogType>(
         "LogType",
@@ -73,10 +77,11 @@ val logsPage = fc<Props> {
     val (pages, setPages) = useState(1)
 
     useEffect(page) {
-        axiosGet<LogPage>("$apiRoot/logs/$page").then {
-            setLogs(it.data.logs)
-            setPage(it.data.page)
-            setPages(it.data.pages)
+        axiosGet<String>("$apiRoot/logs/$page").then {
+            val data = pduJson.decodeFromString<LogPage>(it.data)
+            setLogs(data.logs)
+            setPage(data.page)
+            setPages(data.pages)
         }.handleForbidden(history)
     }
 

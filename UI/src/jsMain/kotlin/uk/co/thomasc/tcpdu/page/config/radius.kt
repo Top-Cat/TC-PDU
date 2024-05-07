@@ -21,11 +21,14 @@ import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.errors
 import uk.co.thomasc.tcpdu.page.RadiusConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
+import uk.co.thomasc.tcpdu.success
 
 val radiusConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (success, setSuccess) = useState<Boolean?>(null)
 
     val hostRef = useRef<HTMLInputElement>()
     val portRef = useRef<HTMLInputElement>()
@@ -41,6 +44,12 @@ val radiusConfig = fc<ConfigProps> { props ->
                 +"Radius"
             }
             div("card-body") {
+                if (success == true) {
+                    success { +"Config saved" }
+                } else if (success == false) {
+                    errors { +"Unknown error" }
+                }
+
                 form {
                     div("form-group") {
                         label("form-label") {
@@ -127,10 +136,12 @@ val radiusConfig = fc<ConfigProps> { props ->
                                 timeoutRef.current?.value?.toIntOrNull(),
                                 retriesRef.current?.value?.toIntOrNull()
                             )
-                            Axios.post<String>("$apiRoot/config/radius", newConfig, generateConfig<RadiusConfig, String>()).then {
-                                // TODO: Show toast
-                                console.log("Success")
-                            }.handleForbidden(history)
+                            Axios.post<String>("$apiRoot/config/radius", newConfig, generateConfig<RadiusConfig, String>())
+                                .then { setSuccess(true) }
+                                .handleForbidden(history)
+                                .catch {
+                                    setSuccess(false)
+                                }
                         }
                         +"Save"
                     }

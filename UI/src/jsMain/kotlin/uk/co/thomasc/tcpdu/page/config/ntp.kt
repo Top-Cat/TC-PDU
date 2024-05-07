@@ -24,11 +24,14 @@ import react.useEffectOnce
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.errors
 import uk.co.thomasc.tcpdu.page.NtpConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
+import uk.co.thomasc.tcpdu.success
 
 val ntpConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (success, setSuccess) = useState<Boolean?>(null)
     val (timezones, setTimezones) = useState(mapOf<String, String>())
     val (selectedTimezone, setSelectedTimezone) = useState("Europe/London")
 
@@ -48,6 +51,12 @@ val ntpConfig = fc<ConfigProps> { props ->
                 +"NTP"
             }
             div("card-body") {
+                if (success == true) {
+                    success { +"Config saved" }
+                } else if (success == false) {
+                    errors { +"Unknown error" }
+                }
+
                 form {
                     div("form-group") {
                         label("form-label") {
@@ -91,11 +100,9 @@ val ntpConfig = fc<ConfigProps> { props ->
                                 "$apiRoot/config/ntp",
                                 NtpConfig(hostRef.current?.value, timezones[offsetRef.current?.value]),
                                 generateConfig<NtpConfig, String>()
-                            )
-                                .then {
-                                    // TODO: Show toast
-                                    console.log("Success")
-                                }.handleForbidden(history)
+                            ).then { setSuccess(true) }.handleForbidden(history).catch {
+                                setSuccess(false)
+                            }
                         }
                         +"Save"
                     }

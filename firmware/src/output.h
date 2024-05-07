@@ -41,6 +41,7 @@ class Output {
     uint8_t address = 0xFF;
     uint8_t priority = 1;
     uint8_t bootDelay = 0;
+    // TODO: Add alarm threshold before trip threshold
     uint16_t maxPower = 1000;
     BootState bootState = BootState::ON;
     float voltageCalibration = 1;

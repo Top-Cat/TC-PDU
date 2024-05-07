@@ -21,12 +21,14 @@ import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
-import uk.co.thomasc.tcpdu.page.LogConfig
+import uk.co.thomasc.tcpdu.errors
 import uk.co.thomasc.tcpdu.page.SmtpConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
+import uk.co.thomasc.tcpdu.success
 
 val smtpConfig = fc<ConfigProps> { props ->
     val history = useNavigate()
+    val (success, setSuccess) = useState<Boolean?>(null)
 
     val hostRef = useRef<HTMLInputElement>()
     val portRef = useRef<HTMLInputElement>()
@@ -43,6 +45,12 @@ val smtpConfig = fc<ConfigProps> { props ->
                 +"SMTP"
             }
             div("card-body") {
+                if (success == true) {
+                    success { +"Config saved" }
+                } else if (success == false) {
+                    errors { +"Unknown error" }
+                }
+
                 form {
                     div("form-group") {
                         label("form-label") {
@@ -144,13 +152,12 @@ val smtpConfig = fc<ConfigProps> { props ->
                                 toRef.current?.value
                             )
                             Axios.post<String>(
-                                "$apiRoot/config/log",
-                                LogConfig(smtp = newSmtpConfig),
-                                generateConfig<LogConfig, String>()
-                            ).then {
-                                // TODO: Show toast
-                                console.log("Success")
-                            }.handleForbidden(history)
+                                "$apiRoot/config/smtp",
+                                newSmtpConfig,
+                                generateConfig<SmtpConfig, String>()
+                            ).then { setSuccess(true) }.handleForbidden(history).catch {
+                                setSuccess(false)
+                            }
                         }
                         +"Save"
                     }

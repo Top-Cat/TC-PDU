@@ -95,8 +95,6 @@ void PDUConfig::load() {
 
     log.daysToKeep = EEPROM.readByte(addr++);
   } else {
-    // TODO: Store in EEPROM (Currently easier to test like this)
-    // Only use serial for now
     log.emailMask = log.serialMask = log.syslogMask = 0;
     log.smtpServer = "";
     log.smtpPort = 25;
