@@ -55,9 +55,9 @@ val configPage = fc<Props> {
             val configBlocks = mapOf(
                 wifiConfig to "col",
                 ntpConfig to "col",
-                radiusConfig to "col",
-                smtpConfig to "col",
                 mqttConfig to "col",
+                smtpConfig to "col",
+                radiusConfig to "col",
                 logsConfig to "col" // col-md-12
             )
 

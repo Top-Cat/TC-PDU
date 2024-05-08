@@ -121,7 +121,7 @@ val output = fc<OutputProps> { props ->
                         }
                         input(InputType.number, classes = "form-control") {
                             attrs.placeholder = "5"
-                            attrs.defaultValue = dev.address.toString()
+                            attrs.defaultValue = dev.bootDelay.toString()
                             attrs.id = "output-${props.idx}-delay"
                             attrs.disabled = loading
                             ref = bootDelayRef
