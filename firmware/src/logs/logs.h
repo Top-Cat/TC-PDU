@@ -1,7 +1,6 @@
 #ifndef logs_h
 #define logs_h
 
-#include <ESP_Mail_Client.h>
 #include <time.h>
 
 enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH, LOGIN_SUCCESS, LOGIN_FAILURE, CONFIG };
