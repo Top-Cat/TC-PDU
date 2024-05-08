@@ -46,7 +46,7 @@ val configPage = fc<Props> {
 
     useEffectOnce {
         axiosGet<PDUConfig>("$apiRoot/config").then {
-            setConfig(it.data)
+            setConfig(it)
         }.handleForbidden(history)
     }
 

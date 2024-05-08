@@ -68,7 +68,7 @@ val homePage = fc<Props> {
 
     useEffectOnce {
         axiosGet<PDUState>("$apiRoot/state").then {
-            setPduState(it.data)
+            setPduState(it)
         }.handleForbidden(history)
     }
 

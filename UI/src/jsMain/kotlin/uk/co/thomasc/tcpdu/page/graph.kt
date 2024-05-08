@@ -43,13 +43,13 @@ val graphPage = fc<Props> {
                 data.plus(
                     TimePoint(
                         Clock.System.now(),
-                        it.data.devices.mapIndexed { idx, state ->
+                        it.devices.mapIndexed { idx, state ->
                             idx to DataPoint(state.voltage, state.current, state.power, state.va)
                         }.toMap()
                     )
                 ).take(360)
             )
-            setNames(it.data.devices.map { dev -> dev.name })
+            setNames(it.devices.map { dev -> dev.name })
         }.catch {
             console.log("ERROR", it)
         }

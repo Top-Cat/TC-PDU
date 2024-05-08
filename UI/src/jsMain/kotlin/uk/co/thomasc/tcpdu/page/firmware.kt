@@ -44,7 +44,7 @@ val firmwarePage = fc<Props> {
 
     useEffectOnce {
         axiosGet<PDUSystem>("$apiRoot/system").then {
-            setFw(it.data.fw)
+            setFw(it.fw)
         }.handleForbidden(history)
     }
 

@@ -40,8 +40,8 @@ val ntpConfig = fc<ConfigProps> { props ->
 
     useEffectOnce {
         axiosGet<Map<String, String>>("https://raw.githubusercontent.com/nayarsystems/posix_tz_db/master/zones.json").then {
-            setTimezones(it.data)
-            setSelectedTimezone(it.data.toList().firstOrNull { (_, v) -> v == props.config?.ntp?.tz }?.first ?: "")
+            setTimezones(it)
+            setSelectedTimezone(it.toList().firstOrNull { (_, v) -> v == props.config?.ntp?.tz }?.first ?: "")
         }
     }
 

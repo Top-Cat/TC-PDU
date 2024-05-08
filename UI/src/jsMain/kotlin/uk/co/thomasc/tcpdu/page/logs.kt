@@ -29,7 +29,6 @@ import react.useEffect
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.util.EnumAsLongSerializer
-import uk.co.thomasc.tcpdu.util.pduJson
 import kotlin.math.max
 import kotlin.math.min
 
@@ -77,8 +76,7 @@ val logsPage = fc<Props> {
     val (pages, setPages) = useState(1)
 
     useEffect(page) {
-        axiosGet<String>("$apiRoot/logs/$page").then {
-            val data = pduJson.decodeFromString<LogPage>(it.data)
+        axiosGet<LogPage>("$apiRoot/logs/$page").then { data ->
             setLogs(data.logs)
             setPage(data.page)
             setPages(data.pages)

@@ -62,7 +62,7 @@ val systemPage = fc<Props> {
 
     useEffectOnce {
         axiosGet<PDUSystem>("$apiRoot/system").then {
-            setSystem(it.data)
+            setSystem(it)
         }.handleForbidden(history)
     }
 
