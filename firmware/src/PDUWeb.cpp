@@ -4,6 +4,7 @@
 #include "i2c.h"
 #include "web/web.h"
 #include "control.h"
+#include "mqtt.h"
 
 WebServer server(80);
 PDUWeb web = PDUWeb(&server);
@@ -34,6 +35,7 @@ void logStartupError() {
 
 void setup() {
   Serial.begin(115200);
+  // Serial.setDebugOutput(true);
   Serial.print(F("setup() running on core "));
   Serial.println(xPortGetCoreID());
 
@@ -43,6 +45,7 @@ void setup() {
   bus.setupTask();
   network.setupTask();
   control.setupTask();
+  mqtt.setupTask();
 
   logStartupError();
 

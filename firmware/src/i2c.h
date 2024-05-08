@@ -17,12 +17,13 @@
 #define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
 
 struct PowerInfo {
-  uint32_t VolPar; 
-  uint32_t VolData;
-  uint32_t CurrentPar;
-  uint32_t CurrentData;
-  uint32_t PowerPar;
-  uint32_t PowerData;
+  uint8_t StateReg = 0;
+  uint32_t VolPar = 0;
+  uint32_t VolData = 0;
+  uint32_t CurrentPar = 0;
+  uint32_t CurrentData = 0;
+  uint32_t PowerPar = 0;
+  uint32_t PowerData = 0;
   uint64_t TotalPulses = 0;
 };
 

@@ -5,7 +5,7 @@
 #include <WString.h>
 #include "output.h"
 
-#define CONFIG_VERSION 6
+#define CONFIG_VERSION 7
 #define MAX_OUTPUTS 8
 
 struct RadiusConfig {
@@ -32,18 +32,27 @@ struct NTPConfig {
 };
 
 struct LogConfig {
-  uint64_t serialMask;
-  uint64_t syslogMask;
-  uint64_t emailMask;
+  uint64_t serialMask = 0;
+  uint64_t syslogMask = 0;
+  uint64_t emailMask = 0;
 
-  String smtpServer;
-  uint16_t smtpPort;
-  String smtpUser;
-  String smtpPass;
-  String smtpFrom;
-  String smtpTo;
+  String smtpServer = "";
+  uint16_t smtpPort = 25;
+  String smtpUser = "";
+  String smtpPass = "";
+  String smtpFrom = "";
+  String smtpTo = "";
 
-  uint8_t daysToKeep;
+  uint8_t daysToKeep = 7;
+};
+
+struct MqttConfig {
+  String host = "";
+  uint16_t port = 1883;
+  String clientId = "esp32-tcpdu";
+  String username = "";
+  String password = "";
+  String prefix = "";
 };
 
 class PDUConfig {
@@ -55,6 +64,7 @@ class PDUConfig {
     JWTConfig* getJWT();
     NTPConfig* getNTP();
     LogConfig* getLog();
+    MqttConfig* getMqtt();
     Output* getOutput(uint8_t idx);
     void storeOutputState(uint8_t idx, bool state);
 
@@ -68,6 +78,7 @@ class PDUConfig {
     JWTConfig jwt;
     NTPConfig ntp;
     LogConfig log;
+    MqttConfig mqtt;
     Output outputs[MAX_OUTPUTS];
     EEPROMClass* OutputStates = new EEPROMClass("output-states");
 };

@@ -94,15 +94,26 @@ void PDUConfig::load() {
     addr += log.smtpTo.length() + 1;
 
     log.daysToKeep = EEPROM.readByte(addr++);
-  } else {
-    log.emailMask = log.serialMask = log.syslogMask = 0;
-    log.smtpServer = "";
-    log.smtpPort = 25;
-    log.smtpUser = "";
-    log.smtpPass = "";
-    log.smtpFrom = "";
-    log.smtpTo = "";
-    log.daysToKeep = 7;
+  }
+
+  if (version >= 7) {
+    mqtt.host = EEPROM.readString(addr);
+    addr += mqtt.host.length() + 1;
+
+    mqtt.port = EEPROM.readUShort(addr);
+    addr += 2;
+
+    mqtt.username = EEPROM.readString(addr);
+    addr += mqtt.username.length() + 1;
+
+    mqtt.password = EEPROM.readString(addr);
+    addr += mqtt.password.length() + 1;
+
+    mqtt.clientId = EEPROM.readString(addr);
+    addr += mqtt.clientId.length() + 1;
+
+    mqtt.prefix = EEPROM.readString(addr);
+    addr += mqtt.prefix.length() + 1;
   }
 
   uint8_t ser[128];
@@ -142,6 +153,10 @@ NTPConfig* PDUConfig::getNTP() {
 
 LogConfig* PDUConfig::getLog() {
   return &log;
+}
+
+MqttConfig* PDUConfig::getMqtt() {
+  return &mqtt;
 }
 
 void PDUConfig::regenerateJWTKey() {
@@ -197,6 +212,13 @@ void PDUConfig::save() {
   addr += EEPROM.writeString(addr, log.smtpFrom) + 1;
   addr += EEPROM.writeString(addr, log.smtpTo) + 1;
   addr += EEPROM.writeByte(addr, log.daysToKeep);
+
+  addr += EEPROM.writeString(addr, mqtt.host) + 1;
+  addr += EEPROM.writeUShort(addr, mqtt.port);
+  addr += EEPROM.writeString(addr, mqtt.username) + 1;
+  addr += EEPROM.writeString(addr, mqtt.password) + 1;
+  addr += EEPROM.writeString(addr, mqtt.clientId) + 1;
+  addr += EEPROM.writeString(addr, mqtt.prefix) + 1;
 
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
     uint8_t ser[128];

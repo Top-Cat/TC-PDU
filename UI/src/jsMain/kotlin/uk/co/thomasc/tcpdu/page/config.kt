@@ -10,13 +10,14 @@ import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.page.config.logsConfig
+import uk.co.thomasc.tcpdu.page.config.mqttConfig
 import uk.co.thomasc.tcpdu.page.config.ntpConfig
 import uk.co.thomasc.tcpdu.page.config.radiusConfig
 import uk.co.thomasc.tcpdu.page.config.smtpConfig
 import uk.co.thomasc.tcpdu.page.config.wifiConfig
 
 @Serializable
-data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig)
+data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig, val mqtt: MqttConfig)
 
 @Serializable
 data class WifiConfig(val ssid: String? = null, val pass: String? = null)
@@ -36,6 +37,9 @@ data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = nul
 @Serializable
 data class SmtpConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val from: String? = null, val to: String? = null)
 
+@Serializable
+data class MqttConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null)
+
 val configPage = fc<Props> {
     val (config, setConfig) = useState<PDUConfig>()
     val history = useNavigate()
@@ -53,7 +57,8 @@ val configPage = fc<Props> {
                 ntpConfig to "col",
                 radiusConfig to "col",
                 smtpConfig to "col",
-                logsConfig to "col-md-12"
+                mqttConfig to "col",
+                logsConfig to "col" // col-md-12
             )
 
             configBlocks.forEach { (fc, clazz) ->

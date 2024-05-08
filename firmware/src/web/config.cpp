@@ -38,6 +38,14 @@ void PDUWeb::configEndpoints() {
     doc["log"]["smtp"]["from"] = logConf->smtpFrom;
     doc["log"]["smtp"]["to"] = logConf->smtpTo;
 
+    MqttConfig* mqttConf = config.getMqtt();
+    doc["mqtt"]["host"] = mqttConf->host;
+    doc["mqtt"]["port"] = mqttConf->port;
+    doc["mqtt"]["user"] = mqttConf->username;
+    doc["mqtt"]["password"] = mqttConf->password;
+    doc["mqtt"]["clientId"] = mqttConf->clientId;
+    doc["mqtt"]["prefix"] = mqttConf->prefix;
+
     String json;
     serializeJson(doc, json);
 
@@ -185,6 +193,32 @@ void PDUWeb::configEndpoints() {
     if (doc["password"]) logConf->smtpPass = (const char*) doc["password"];
     if (doc["from"]) logConf->smtpFrom = (const char*) doc["from"];
     if (doc["to"]) logConf->smtpTo = (const char*) doc["to"];
+
+    config.save();
+    sendStaticHeaders();
+    server->send(200, textPlain, "DONE");
+  }, [&]() { });
+
+  server->on("/api/config/mqtt", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    JsonDocument doc;
+    if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "MQTT config updated", sizeof(msg->message));
+    logger.msg(msg);
+
+    MqttConfig* mqttConf = config.getMqtt();
+    if (doc["host"]) mqttConf->host = (const char*) doc["host"];
+    if (doc["port"]) mqttConf->port = doc["port"];
+    if (doc["user"]) mqttConf->username = (const char*) doc["user"];
+    if (doc["password"]) mqttConf->password = (const char*) doc["password"];
+    if (doc["clientId"]) mqttConf->clientId = (const char*) doc["clientId"];
+    if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
 
     config.save();
     sendStaticHeaders();

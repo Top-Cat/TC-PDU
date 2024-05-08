@@ -37,7 +37,15 @@ uint8_t ModuleBus::indexFor(uint8_t addr) {
   return 0xFF;
 }
 
-void ModuleBus::parseBuffer(uint8_t buff[], PowerInfo *info) {
+void ModuleBus::parseBuffer(uint8_t* buff, PowerInfo *info) {
+  // uint8_t checksum = 0;
+  // for (uint8_t i = 2; i < 23; i++) checksum += buff[i];
+  // if (checksum != buff[23]) return;
+  // Last byte should be 0x55 if data is not corrupt
+  if (buff[28] != 0x55) return;
+
+  info->StateReg = buff[0];
+
   info->VolPar = ((uint32_t)buff[2] <<16) + ((uint32_t)buff[3] <<8) + buff[4]; 
   if(bitRead(buff[20], 6) == 1) {
     info->VolData = ((uint32_t)buff[5]  <<16) + ((uint32_t)buff[6] <<8) + buff[7];
@@ -53,10 +61,19 @@ void ModuleBus::parseBuffer(uint8_t buff[], PowerInfo *info) {
     info->PowerData = ((uint32_t)buff[17]  <<16) + ((uint32_t)buff[18] <<8) + buff[19];    
   }
 
-  uint16_t PF = ((uint16_t)buff[21] <<8) + buff[22];
-  uint32_t PFData = ((uint32_t)buff[26] << 24) + ((uint32_t)buff[25] << 16) + ((uint32_t)buff[26] << 8) + buff[27];
+  // Data is not valid
+  if ((buff[0] & 0xF0) == 0xF0 && bitRead(buff[0], 0) == 0) {
+    if (bitRead(buff[0], 1) == 1) info->PowerData = 0;
+    if (bitRead(buff[0], 2) == 1) info->CurrentData = 0;
+    if (bitRead(buff[0], 3) == 1) info->VolData = 0;
+  } else if (buff[0] != 0x55) {
+    info->VolData = info->CurrentData = info->PowerData = 0;
+  }
 
-  info->TotalPulses = (PFData * 65536) + PF;
+  uint16_t PF = ((uint16_t)buff[21] << 8) + buff[22];
+  uint32_t PFData = ((uint32_t)buff[24] << 24) + ((uint32_t)buff[25] << 16) + ((uint32_t)buff[26] << 8) + buff[27];
+
+  info->TotalPulses = ((uint64_t)PFData << 16) + PF;
 }
 
 void ModuleBus::sendUpdates() {
@@ -104,8 +121,7 @@ void ModuleBus::sendUpdates() {
 void ModuleBus::task() {
   Wire.begin(I2C_SDA, I2C_SCL, I2C_KHZ * 100000);
   uint8_t idx = 0;
-  uint8_t buffer[28];
-  uint8_t bidx = 0;
+  uint8_t buffer[29];
 
   for (uint8_t address = 0; address < 127; ++address) {
     Wire.beginTransmission(address);
@@ -129,13 +145,11 @@ void ModuleBus::task() {
       idx -= totalDevices;
     }
 
-    bidx = 0;
-    Wire.requestFrom(addresses[idx], (uint8_t) 24);
-    while (Wire.available()) {
-      buffer[bidx++] = Wire.read();
+    uint8_t bytesReceived = Wire.requestFrom(addresses[idx], sizeof(buffer));
+    if (bytesReceived == sizeof(buffer)) {
+      Wire.readBytes(buffer, sizeof(buffer));
+      parseBuffer(buffer, &powerInfo[idx]);
     }
-
-    parseBuffer(buffer, &powerInfo[idx]);
 
     // Wait between requesting power updates
     for (uint8_t wait = 0; wait < 30; wait++) {
