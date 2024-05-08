@@ -11,11 +11,12 @@ class FileLogger {
 
     size_t rowCount();
     size_t readRows(LogLine* output, size_t startIdx, size_t maxCount);
+
+    size_t rowCount(time_t time);
+    size_t readRows(LogLine* output, time_t date, size_t startIdx, size_t maxCount);
   private:
     void rotate();
-    size_t rowCount(time_t time);
     size_t rowCount(File &logFile);
-    size_t readRows(LogLine* output, time_t date, size_t startIdx, size_t maxCount);
 
     time_t today;
     char curPath[32] = "";

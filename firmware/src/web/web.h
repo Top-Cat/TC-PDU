@@ -15,6 +15,7 @@ class PDUWeb {
     void configEndpoints();
     void updateEndpoints();
     void controlEndpoints();
+    void logEndpoints();
 
     static constexpr const char* textPlain = "text/plain";
     void sendStaticHeaders();

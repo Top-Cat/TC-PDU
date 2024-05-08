@@ -76,8 +76,16 @@ size_t PDULogs::getSize() {
   return fileLog.rowCount();
 }
 
+size_t PDULogs::getSize(time_t day) {
+  return fileLog.rowCount(day);
+}
+
 size_t PDULogs::readRows(LogLine* output, size_t skip, size_t maxCount) {
   return fileLog.readRows(output, skip, maxCount);
+}
+
+size_t PDULogs::readRows(LogLine* output, time_t day, size_t skip, size_t maxCount) {
+  return fileLog.readRows(output, day, skip, maxCount);
 }
 
 ///// Global object

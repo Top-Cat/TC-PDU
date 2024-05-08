@@ -29,6 +29,9 @@ class PDULogs {
 
     size_t getSize();
     size_t readRows(LogLine* output, size_t startIdx, size_t maxCount);
+
+    size_t getSize(time_t day);
+    size_t readRows(LogLine* output, time_t day, size_t startIdx, size_t maxCount);
   private:
     void toFile(LogProcess* msg);
     void printLog(LogProcess* state);
