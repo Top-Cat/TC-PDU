@@ -10,7 +10,7 @@ val wifiStatus = fc<SystemProps> { props ->
             div("card-header") {
                 +"Wifi"
                 div("float-end") {
-                    if (system.eth.connected) {
+                    if (system.wifi.connected) {
                         i("fas fa-circle text-success") {}
                     } else {
                         i("far fa-circle text-danger") {}
