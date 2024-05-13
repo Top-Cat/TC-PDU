@@ -41,11 +41,11 @@ data class DeviceStateUpdate(
     val idx: Int,
     val state: Boolean? = null,
     val name: String? = null,
-    val address: Int? = null,
-    val priority: Int? = null,
-    val bootDelay: Byte? = null,
+    val address: UByte? = null,
+    val priority: UByte? = null,
+    val bootDelay: UByte? = null,
     val bootState: BootState? = null,
-    val maxPower: Short? = null
+    val maxPower: UShort? = null
 )
 
 val output = fc<OutputProps> { props ->
@@ -189,10 +189,10 @@ val output = fc<OutputProps> { props ->
                         val update = DeviceStateUpdate(
                             props.idx,
                             name = nameRef.current?.value,
-                            priority = priorityRef.current?.value?.toIntOrNull(),
-                            address = addressRef.current?.value?.toIntOrNull(),
-                            bootDelay = bootDelayRef.current?.value?.toByteOrNull(),
-                            maxPower = maxPowerRef.current?.value?.toShortOrNull(),
+                            priority = priorityRef.current?.value?.toUByteOrNull(),
+                            address = addressRef.current?.value?.toUByteOrNull(),
+                            bootDelay = bootDelayRef.current?.value?.toUByteOrNull(),
+                            maxPower = maxPowerRef.current?.value?.toUShortOrNull(),
                             bootState = bootState
                         )
                         Axios.post<String>("$apiRoot/state", update, generateConfig<DeviceStateUpdate, String>()).then {

@@ -29,12 +29,12 @@ data class PDUDeviceState(
     val power: Float,
     val kwh: Float,
     val va: Float,
-    val address: Int,
+    val address: UByte,
     val state: Boolean,
     val bootState: BootState,
-    val bootDelay: Byte,
-    val priority: Int,
-    val maxPower: Short
+    val bootDelay: UByte,
+    val priority: UByte,
+    val maxPower: UShort
 ) {
     fun apply(update: DeviceStateUpdate) = copy(
         state = update.state ?: state,

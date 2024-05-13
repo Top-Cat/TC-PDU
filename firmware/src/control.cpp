@@ -3,6 +3,7 @@
 #include "i2c.h"
 #include "config.h"
 #include "network.h"
+#include "logs/logs.h"
 
 Output* PDUControl::getLowestPriority() {
   uint8_t priority = 0xFF;
@@ -48,6 +49,11 @@ void PDUControl::task() {
       Output* res = getLowestPriority();
 
       if (res != NULL) {
+        LogLine* msg = new LogLine();
+        msg->type = OVERLOAD;
+        snprintf(msg->message, sizeof(msg->message), "Turning off output due to overload condition. Total: %.1f W", localTotalPower);
+        logger.msg(msg);
+
         res->setState(NULL, false);
       }
     }

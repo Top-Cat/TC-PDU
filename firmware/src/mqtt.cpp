@@ -6,8 +6,15 @@
 #include <ArduinoJson.h>
 
 void PDUMqtt::onMqttConnect(bool sessionPresent) {
-  // TODO: Subscribe to control topics
-  //uint16_t packetIdSub = mqttClient.subscribe("test/lol", 2);
+  MqttConfig* conf = config.getMqtt();
+
+  // I tried (conf->prefix + "#").c_str() but it didn't work
+  char result[conf->prefix.length() + 1];
+  strcpy(result, conf->prefix.c_str());
+  strcat(result, "#");
+
+  mqttClient.subscribe(result, 2);
+
   connected = true;
 }
 
@@ -16,7 +23,26 @@ void PDUMqtt::onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
 }
 
 void PDUMqtt::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-  // TODO: Handle control messages
+  MqttConfig* conf = config.getMqtt();
+  const char* MQTTDelimiter = "/";
+
+  if (strncmp(topic, conf->prefix.c_str(), conf->prefix.length()) != 0) return;
+  // Prefix matches
+
+  char* withoutPrefix = topic + conf->prefix.length();
+  char* token = strtok(withoutPrefix, MQTTDelimiter);
+
+  uint8_t outputIdx = strtoul(token, NULL, 0);
+  Output* output = config.getOutput(outputIdx);
+  token = strtok(NULL, MQTTDelimiter);
+
+  if (token != NULL && strncmp(token, "state", 5) == 0) {
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, payload);
+    if (!error) {
+      output->setFromJson("MQTT", &doc);
+    }
+  }
 }
 
 void PDUMqtt::task() {

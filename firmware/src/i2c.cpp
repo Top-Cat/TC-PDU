@@ -91,16 +91,6 @@ void ModuleBus::sendUpdates() {
       uint8_t period = info.period * multiple;
       uint8_t dutyCycle = info.dutyCycle * period;
 
-      // Debug i2c state
-      /*Serial.print("Period IN = ");
-      Serial.print(info.period);
-      Serial.print(". Scale = ");
-      Serial.print(slowScale ? "1024" : "256");
-      Serial.print(", Period = ");
-      Serial.print(period);
-      Serial.print(", Duty Cycle = ");
-      Serial.println(dutyCycle);*/
-
       Wire.beginTransmission(addr);
       Wire.write(
         (info.relayState<<0) |

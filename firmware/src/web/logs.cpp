@@ -3,7 +3,6 @@
 
 #include "config.h"
 #include "logs/logs.h"
-#include "version.h"
 #include "network.h"
 
 void PDUWeb::logEndpoints() {

@@ -2,7 +2,8 @@
 #define output_h
 
 #include <stdint.h>
-#include <string.h>
+#include <WString.h>
+#include <ArduinoJson.h>
 
 enum class BootState { ON, LAST, OFF };
 
@@ -26,6 +27,7 @@ class Output {
     float getPower();
     float getKWH();
 
+    void setFromJson(String user, JsonDocument* json);
     void setName(const char* _name);
     void setAddress(uint8_t _address);
     void setPriority(uint8_t _priority);
@@ -51,6 +53,7 @@ class Output {
     bool dirty = false;
     uint8_t idx = 0;
     uint64_t onAt = 0;
+    String onAtUser = "";
     float lastPower = 0;
     bool lastState = false;
     bool relayState = false;

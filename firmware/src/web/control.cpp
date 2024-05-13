@@ -86,23 +86,8 @@ void PDUWeb::controlEndpoints() {
     uint8_t idx = doc["idx"];
     Output* output = config.getOutput(idx);
 
-    JsonVariant state = doc["state"];
-    if (!state.isNull()) output->setState(user.c_str(), state);
+    output->setFromJson(user, &doc);
 
-    if (doc["name"]) output->setName(doc["name"]);
-    if (doc["priority"]) output->setPriority(doc["priority"]);
-    if (doc["address"]) output->setAddress(doc["address"]);
-
-    JsonVariant bootState = doc["bootState"];
-    if (!bootState.isNull()) output->setBootState((BootState)(uint8_t)bootState);
-
-    JsonVariant bootDelay = doc["bootDelay"];
-    if (!bootDelay.isNull()) output->setBootDelay(bootDelay);
-
-    JsonVariant maxPower = doc["maxPower"];
-    if (!maxPower.isNull()) output->setMaxPower(maxPower);
-
-    if (output->isDirty()) config.save();
     sendStaticHeaders();
     server->send(200, textPlain, "DONE");
   }, [&]() { });

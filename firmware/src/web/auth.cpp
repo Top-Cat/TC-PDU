@@ -98,7 +98,7 @@ void PDUWeb::authEndpoints() {
       String json;
       serializeJson(payload, json);
 
-      server->sendHeader("Location", "/me");
+      server->sendHeader("Location", "/api/me");
       server->sendHeader("Set-Cookie", "PDUJWT=" + jwt.encodeJWT(json) + "; Path=/");
       server->send(302);
     } else {

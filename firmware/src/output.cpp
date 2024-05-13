@@ -134,7 +134,7 @@ void Output::setState(const char* user, bool state) {
     setRelayState(NULL, relayState);
     uint64_t time = esp_timer_get_time();
     onAt = time + ((uint64_t) bootDelay * 1000 * 1000);
-    // TODO: Either store user to log later or log here that a trigger occured
+    onAtUser = user;
     return;
   }
 
@@ -157,10 +157,31 @@ void Output::setRelayState(const char* user, bool state) {
   }
 }
 
+void Output::setFromJson(String user, JsonDocument* doc) {
+  JsonVariant state = (*doc)["state"];
+    if (!state.isNull()) setState(user.c_str(), state);
+
+    if ((*doc)["name"]) setName((*doc)["name"]);
+    if ((*doc)["priority"]) setPriority((*doc)["priority"]);
+    if ((*doc)["address"]) setAddress((*doc)["address"]);
+
+    JsonVariant bootState = (*doc)["bootState"];
+    if (!bootState.isNull()) setBootState((BootState)(uint8_t)bootState);
+
+    JsonVariant bootDelay = (*doc)["bootDelay"];
+    if (!bootDelay.isNull()) setBootDelay(bootDelay);
+
+    JsonVariant maxPower = (*doc)["maxPower"];
+    if (!maxPower.isNull()) setMaxPower(maxPower);
+
+    if (isDirty()) config.save();
+}
+
 void Output::tick(uint64_t time) {
   if (onAt > 0 && time > onAt) {
     onAt = 0;
-    setRelayState(NULL, true);
+    setRelayState(onAtUser.c_str(), true);
+    onAtUser = "";
   } else if (!relayState) {
     bus.setLed(idx, true, false);
   } else {
