@@ -7,6 +7,8 @@ import react.dom.html.ReactHTML.br
 import react.dom.html.ReactHTML.p
 import react.fc
 
+fun bytesToText(b: Long) = (b / 1024.0).asDynamic().toFixed(2)
+
 val sysStatus = fc<SystemProps> { props ->
     props.system?.let { system ->
         div("card border-primary") {
@@ -15,7 +17,9 @@ val sysStatus = fc<SystemProps> { props ->
             }
             div("card-body") {
                 p {
-                    +"Free heap: ${(system.mem / 1024.0).asDynamic().toFixed(2)} kB"
+                    +"Free heap: ${bytesToText(system.mem)} kB"
+                    br {}
+                    +"FS: ${bytesToText(system.fs.used)} / ${bytesToText(system.fs.total)} kB"
                     br {}
                     +"Uptime: "
                     TimeAgo.default {

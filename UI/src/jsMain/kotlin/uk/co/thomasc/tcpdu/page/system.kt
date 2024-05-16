@@ -22,7 +22,14 @@ data class PDUSystem(
     val time: String,
     val offset: Int,
     val wifi: WifiState,
-    val eth: EthState
+    val eth: EthState,
+    val fs: FsState
+)
+
+@Serializable
+data class FsState(
+    val used: Long,
+    val total: Long
 )
 
 @Serializable

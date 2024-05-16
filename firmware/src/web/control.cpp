@@ -4,6 +4,8 @@
 #include "network.h"
 #include "version.h"
 
+#include <SPIFFS.h>
+
 void PDUWeb::controlEndpoints() {
   server->on("/api/state", HTTP_GET, [&]() {
     String user;
@@ -49,6 +51,9 @@ void PDUWeb::controlEndpoints() {
     doc["fw"] = "0.0." STRING(BUILD_NUMBER) STRING(SNAPSHOT);
     doc["uptime"] = control.getUptime();
     doc["mem"] = esp_get_free_heap_size();
+
+    doc["fs"]["used"] = SPIFFS.usedBytes();
+    doc["fs"]["total"] = SPIFFS.totalBytes();
 
     WifiState wState = network.wifiState();
     doc["wifi"]["connected"] = wState.connected;
