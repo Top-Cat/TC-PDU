@@ -52,7 +52,7 @@ bool PDUWeb::currentUser(String& user) {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, payload);
 
-        if (!error && doc["exp"] > network.getEpochTime() && doc["iat"] < network.getEpochTime()) {
+        if (!error && doc["exp"] > network.getEpochTime() && doc["iat"] <= network.getEpochTime()) {
           String sub = doc["sub"];
           user = sub;
           return true;
