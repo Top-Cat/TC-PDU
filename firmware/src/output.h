@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 
 enum class BootState { ON, LAST, OFF };
+enum class OutputState { NORMAL, ALARM, TRIP };
 
 class Output {
   public:
@@ -19,7 +20,10 @@ class Output {
     uint8_t getPriority();
     uint8_t getBootDelay();
     uint16_t getMaxPower();
+    uint16_t getMinAlarm();
+    uint16_t getMaxAlarm();
     BootState getBootState();
+    OutputState getOutputState();
 
     float getVoltage();
     float getCurrent();
@@ -33,6 +37,8 @@ class Output {
     void setPriority(uint8_t _priority);
     void setBootDelay(uint8_t _bootDelay);
     void setMaxPower(uint16_t _maxPower);
+    void setMinAlarm(uint16_t _minAlarm);
+    void setMaxAlarm(uint16_t _maxAlarm);
     void setBootState(BootState _bootState);
 
     bool getState();
@@ -43,8 +49,12 @@ class Output {
     uint8_t address = 0xFF;
     uint8_t priority = 1;
     uint8_t bootDelay = 0;
-    // TODO: Add alarm threshold before trip threshold
-    uint16_t maxPower = 1000;
+
+    OutputState outputState = OutputState::NORMAL;
+    uint16_t maxPower = 0;
+    uint16_t minAlarm = 0;
+    uint16_t maxAlarm = 0;
+
     BootState bootState = BootState::ON;
     float voltageCalibration = 1;
     float currentCalibration = 1;
@@ -53,6 +63,7 @@ class Output {
     bool dirty = false;
     uint8_t idx = 0;
     uint64_t onAt = 0;
+    uint64_t lastTurnedOn = 0;
     String onAtUser = "";
     float lastPower = 0;
     bool lastState = false;
@@ -75,6 +86,7 @@ class Output {
 
     static float safeDiv(float lhs, uint32_t rhs);
     void setRelayState(const char* user, bool state);
+    void handleAlarms(float power, uint64_t time);
 };
 
 #endif

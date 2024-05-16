@@ -5,7 +5,7 @@
 #include "config.h"
 #include "network.h"
 
-const char* LOGTYPE[8] = {"Outlet State", "IP", "Firmware", "Crash", "Login", "Login Failure", "Config", "Overload"};
+const char* LOGTYPE[10] = {"Outlet State", "IP", "Firmware", "Crash", "Login", "Login Failure", "Config", "Overload", "Outlet Trip", "Outlet Alarm"};
 
 QueueHandle_t EmailQueue;
 TaskHandle_t EmailTask;

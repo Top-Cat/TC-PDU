@@ -16,6 +16,11 @@ void Output::serialize(uint8_t* ser) {
   storeFloat(&ser[70], voltageCalibration);
   storeFloat(&ser[74], currentCalibration);
 
+  ser[78] = minAlarm >> 8;
+  ser[79] = minAlarm & 0xFF;
+  ser[80] = maxAlarm >> 8;
+  ser[81] = maxAlarm & 0xFF;
+
   dirty = false;
 }
 
@@ -33,10 +38,12 @@ void Output::deserialize(uint8_t* ser, uint8_t idx, bool state) {
     address = 0xFF;
     priority = 1;
     bootDelay = 0;
-    maxPower = 1000;
+    maxPower = 0;
     lastState = false;
     voltageCalibration = 1;
     currentCalibration = 1;
+    minAlarm = 0;
+    maxAlarm = 0;
   } else {
     strncpy(name, (char*) ser, sizeof(name));
     address = ser[64];
@@ -47,6 +54,9 @@ void Output::deserialize(uint8_t* ser, uint8_t idx, bool state) {
 
     readFloat(&ser[70], &voltageCalibration);
     readFloat(&ser[74], &currentCalibration);
+
+    minAlarm = (ser[78] << 8) | ser[79];
+    maxAlarm = (ser[80] << 8) | ser[81];
 
     lastState = state;
   }
@@ -115,6 +125,24 @@ uint16_t Output::getMaxPower() {
   return maxPower;
 }
 
+void Output::setMinAlarm(uint16_t _minAlarm) {
+  minAlarm = _minAlarm;
+  dirty = true;
+}
+
+uint16_t Output::getMinAlarm() {
+  return minAlarm;
+}
+
+void Output::setMaxAlarm(uint16_t _maxAlarm) {
+  maxAlarm = _maxAlarm;
+  dirty = true;
+}
+
+uint16_t Output::getMaxAlarm() {
+  return maxAlarm;
+}
+
 void Output::setBootState(BootState _bootState) {
   bootState = _bootState;
   dirty = true;
@@ -122,6 +150,10 @@ void Output::setBootState(BootState _bootState) {
 
 BootState Output::getBootState() {
   return bootState;
+}
+
+OutputState Output::getOutputState() {
+  return outputState;
 }
 
 bool Output::getState() {
@@ -148,33 +180,77 @@ void Output::setRelayState(const char* user, bool state) {
   if (idx < 16 && state != relayState) {
     relayState = state;
 
+    if (state) lastTurnedOn = esp_timer_get_time();
+
     LogLine* msg = new LogLine();
     msg->type = OUTLET_STATE;
     if (user != NULL) strncpy(msg->user, user, 64);
     snprintf(msg->message, sizeof(msg->message), "%s was turned %s", name, state ? "ON" : "OFF");
-    config.storeOutputState(idx, state);
     logger.msg(msg);
+
+    config.storeOutputState(idx, state);
   }
 }
 
 void Output::setFromJson(String user, JsonDocument* doc) {
   JsonVariant state = (*doc)["state"];
-    if (!state.isNull()) setState(user.c_str(), state);
+  if (!state.isNull()) setState(user.c_str(), state);
 
-    if ((*doc)["name"]) setName((*doc)["name"]);
-    if ((*doc)["priority"]) setPriority((*doc)["priority"]);
-    if ((*doc)["address"]) setAddress((*doc)["address"]);
+  if ((*doc)["name"]) setName((*doc)["name"]);
+  if ((*doc)["priority"]) setPriority((*doc)["priority"]);
+  if ((*doc)["address"]) setAddress((*doc)["address"]);
 
-    JsonVariant bootState = (*doc)["bootState"];
-    if (!bootState.isNull()) setBootState((BootState)(uint8_t)bootState);
+  JsonVariant bootState = (*doc)["bootState"];
+  if (!bootState.isNull()) setBootState((BootState)(uint8_t)bootState);
 
-    JsonVariant bootDelay = (*doc)["bootDelay"];
-    if (!bootDelay.isNull()) setBootDelay(bootDelay);
+  JsonVariant bootDelay = (*doc)["bootDelay"];
+  if (!bootDelay.isNull()) setBootDelay(bootDelay);
 
-    JsonVariant maxPower = (*doc)["maxPower"];
-    if (!maxPower.isNull()) setMaxPower(maxPower);
+  JsonVariant maxPower = (*doc)["maxPower"];
+  if (!maxPower.isNull()) setMaxPower(maxPower);
 
-    if (isDirty()) config.save();
+  JsonVariant minAlarm = (*doc)["minAlarm"];
+  if (!minAlarm.isNull()) setMinAlarm(minAlarm);
+
+  JsonVariant maxAlarm = (*doc)["maxAlarm"];
+  if (!maxAlarm.isNull()) setMaxAlarm(maxAlarm);
+
+  if (isDirty()) config.save();
+}
+
+void Output::handleAlarms(float power, uint64_t time) {
+  bool alarmsValid = (time - lastTurnedOn) > 5000000 && outputState != OutputState::ALARM;
+
+  if (maxPower > 0 && power > maxPower) {
+    outputState = OutputState::TRIP;
+
+    LogLine* msg = new LogLine();
+    msg->type = TRIP;
+    snprintf(msg->message, sizeof(msg->message), "%s over max power (%.1f W)", name, power);
+    logger.msg(msg);
+
+    setRelayState(NULL, false);
+  } else if (minAlarm > 0 && power < minAlarm) {
+    if (!alarmsValid) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = ALARM;
+    snprintf(msg->message, sizeof(msg->message), "%s under min alarm power (%.1f W)", name, power);
+    logger.msg(msg);
+
+    outputState = OutputState::ALARM;
+  } else if (maxAlarm > 0 && power > maxAlarm) {
+    if (!alarmsValid) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = ALARM;
+    snprintf(msg->message, sizeof(msg->message), "%s over max alarm power (%.1f W)", name, power);
+    logger.msg(msg);
+
+    outputState = OutputState::ALARM;
+  } else {
+    outputState = OutputState::NORMAL;
+  }
 }
 
 void Output::tick(uint64_t time) {
@@ -182,14 +258,18 @@ void Output::tick(uint64_t time) {
     onAt = 0;
     setRelayState(onAtUser.c_str(), true);
     onAtUser = "";
-  } else if (!relayState) {
-    bus.setLed(idx, true, false);
-  } else {
+  }
+
+  if (relayState) {
     float power = getPower();
+    handleAlarms(power, time);
+
     if (abs(lastPower - power) > 20) {
       lastPower = power;
       bus.setLed(idx, LedState::OFF, LedState::FLASHING, 100 / power, 0.5);
     }
+  } else {
+    bus.setLed(idx, true, false);
   }
 }
 

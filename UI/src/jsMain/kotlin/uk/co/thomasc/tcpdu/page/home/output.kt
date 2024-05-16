@@ -19,6 +19,7 @@ import react.dom.i
 import react.dom.input
 import react.dom.label
 import react.dom.option
+import react.dom.p
 import react.dom.select
 import react.fc
 import react.router.useNavigate
@@ -26,6 +27,7 @@ import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.page.BootState
+import uk.co.thomasc.tcpdu.page.OutputState
 import uk.co.thomasc.tcpdu.page.PDUDeviceState
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.util.fixed
@@ -45,7 +47,9 @@ data class DeviceStateUpdate(
     val priority: UByte? = null,
     val bootDelay: UByte? = null,
     val bootState: BootState? = null,
-    val maxPower: UShort? = null
+    val maxPower: UShort? = null,
+    val minAlarm: UShort? = null,
+    val maxAlarm: UShort? = null
 )
 
 val output = fc<OutputProps> { props ->
@@ -60,9 +64,11 @@ val output = fc<OutputProps> { props ->
     val addressRef = useRef<HTMLInputElement>()
     val bootDelayRef = useRef<HTMLInputElement>()
     val maxPowerRef = useRef<HTMLInputElement>()
+    val minAlarmRef = useRef<HTMLInputElement>()
+    val maxAlarmRef = useRef<HTMLInputElement>()
 
     div("card border-primary") {
-        div("card-header") {
+        div("card-header ${if (dev.outputState != OutputState.NORMAL) "bg-warning" else ""}") {
             if (editing) {
                 input(InputType.text, classes = "form-control") {
                     attrs.placeholder = "Output ${props.idx}"
@@ -140,6 +146,32 @@ val output = fc<OutputProps> { props ->
                             ref = maxPowerRef
                         }
                     }
+                    div("form-group w-75") {
+                        label("form-label") {
+                            attrs.htmlFor = "output-${props.idx}-minAlarm"
+                            +"Min Alarm"
+                        }
+                        input(InputType.number, classes = "form-control") {
+                            attrs.placeholder = "5"
+                            attrs.defaultValue = dev.minAlarm.toString()
+                            attrs.id = "output-${props.idx}-minAlarm"
+                            attrs.disabled = loading
+                            ref = minAlarmRef
+                        }
+                    }
+                    div("form-group w-75") {
+                        label("form-label") {
+                            attrs.htmlFor = "output-${props.idx}-maxAlarm"
+                            +"Max Alarm"
+                        }
+                        input(InputType.number, classes = "form-control") {
+                            attrs.placeholder = "5"
+                            attrs.defaultValue = dev.maxAlarm.toString()
+                            attrs.id = "output-${props.idx}-maxAlarm"
+                            attrs.disabled = loading
+                            ref = maxAlarmRef
+                        }
+                    }
                 }
                 div("form-group") {
                     label("form-label") {
@@ -176,6 +208,11 @@ val output = fc<OutputProps> { props ->
                 div("stat") {
                     +"λ ${(dev.power / dev.va).fixed(2)}"
                 }
+                when (dev.outputState) {
+                    OutputState.ALARM -> p("mt-2") { +"ALARMING" }
+                    OutputState.TRIP -> p("mt-2") { +"TRIPPED" }
+                    else -> {}
+                }
             }
 
             hr {}
@@ -193,7 +230,9 @@ val output = fc<OutputProps> { props ->
                             address = addressRef.current?.value?.toUByteOrNull(),
                             bootDelay = bootDelayRef.current?.value?.toUByteOrNull(),
                             maxPower = maxPowerRef.current?.value?.toUShortOrNull(),
-                            bootState = bootState
+                            bootState = bootState,
+                            minAlarm = minAlarmRef.current?.value?.toUShortOrNull(),
+                            maxAlarm = maxAlarmRef.current?.value?.toUShortOrNull()
                         )
                         Axios.post<String>("$apiRoot/state", update, generateConfig<DeviceStateUpdate, String>()).then {
                             props.callback(update)

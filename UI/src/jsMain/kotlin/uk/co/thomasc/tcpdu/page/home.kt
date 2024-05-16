@@ -34,7 +34,10 @@ data class PDUDeviceState(
     val bootState: BootState,
     val bootDelay: UByte,
     val priority: UByte,
-    val maxPower: UShort
+    val maxPower: UShort,
+    val minAlarm: UShort,
+    val maxAlarm: UShort,
+    val outputState: OutputState
 ) {
     fun apply(update: DeviceStateUpdate) = copy(
         state = update.state ?: state,
@@ -43,7 +46,9 @@ data class PDUDeviceState(
         address = update.address ?: address,
         bootState = update.bootState ?: bootState,
         bootDelay = update.bootDelay ?: bootDelay,
-        maxPower = update.maxPower ?: maxPower
+        maxPower = update.maxPower ?: maxPower,
+        minAlarm = update.minAlarm ?: minAlarm,
+        maxAlarm = update.maxAlarm ?: maxAlarm
     )
 }
 
@@ -59,6 +64,21 @@ enum class BootState(val enc: Long) {
         "BootState",
         { it.enc },
         { v -> BootState.entries.first { it.enc == v } }
+    )
+}
+
+@Serializable(with = OutputState.OutputStateSerializer::class)
+enum class OutputState(val enc: Long) {
+    NORMAL(0), ALARM(1), TRIP(2);
+
+    companion object {
+        fun of(v: Long?) = OutputState.entries.firstOrNull { it.enc == v }
+    }
+
+    class OutputStateSerializer : EnumAsLongSerializer<OutputState>(
+        "OutputState",
+        { it.enc },
+        { v -> OutputState.entries.first { it.enc == v } }
     )
 }
 

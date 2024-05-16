@@ -29,6 +29,9 @@ void PDUWeb::controlEndpoints() {
       object["bootDelay"] = output->getBootDelay();
       object["priority"] = output->getPriority();
       object["maxPower"] = output->getMaxPower();
+      object["minAlarm"] = output->getMinAlarm();
+      object["maxAlarm"] = output->getMaxAlarm();
+      object["outputState"] = (uint8_t) output->getOutputState();
     }
 
     String json;

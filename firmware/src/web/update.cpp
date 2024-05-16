@@ -6,6 +6,8 @@ void PDUWeb::updateEndpoints() {
   server->on("/update", HTTP_POST, [&]() {
     sendStaticHeaders();
     server->send(200, textPlain, (Update.hasError()) ? "FAIL" : "OK");
+
+    delay(1000);
     ESP.restart();
   }, [&]() {
     HTTPUpload& upload = server->upload();

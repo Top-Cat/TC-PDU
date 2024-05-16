@@ -3,8 +3,8 @@
 
 #include <time.h>
 
-enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH, LOGIN_SUCCESS, LOGIN_FAILURE, CONFIG, OVERLOAD };
-extern const char* LOGTYPE[8];
+enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH, LOGIN_SUCCESS, LOGIN_FAILURE, CONFIG, OVERLOAD, TRIP, ALARM };
+extern const char* LOGTYPE[10];
 
 struct LogLine {
   time_t time = 0;
