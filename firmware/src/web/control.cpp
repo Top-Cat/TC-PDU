@@ -44,6 +44,9 @@ void PDUWeb::controlEndpoints() {
   });
 
   server->on("/api/system", HTTP_GET, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     doc["time"] = network.getFormattedTime();
