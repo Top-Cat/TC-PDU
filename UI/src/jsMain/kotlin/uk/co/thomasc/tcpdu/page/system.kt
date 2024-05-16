@@ -17,6 +17,7 @@ import uk.co.thomasc.tcpdu.page.system.wifiStatus
 data class PDUSystem(
     val power: Float,
     val fw: String = "Unknown",
+    val mem: Long,
     val uptime: Long,
     val time: String,
     val offset: Int,

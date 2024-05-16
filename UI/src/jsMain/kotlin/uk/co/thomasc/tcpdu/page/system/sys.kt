@@ -15,6 +15,8 @@ val sysStatus = fc<SystemProps> { props ->
             }
             div("card-body") {
                 p {
+                    +"Free heap: ${(system.mem / 1024.0).asDynamic().toFixed(2)} kB"
+                    br {}
                     +"Uptime: "
                     TimeAgo.default {
                         attrs.date = Date.now() - (system.uptime * 1000)
