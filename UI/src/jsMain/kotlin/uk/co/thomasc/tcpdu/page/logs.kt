@@ -35,7 +35,7 @@ import kotlin.math.min
 @Serializable
 data class LogLine(val time: Long, val type: LogType, val user: String, val message: String) {
     fun formattedTime() = Instant
-        .fromEpochSeconds(time)
+        .fromEpochMilliseconds(time)
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .format(dtf)
 

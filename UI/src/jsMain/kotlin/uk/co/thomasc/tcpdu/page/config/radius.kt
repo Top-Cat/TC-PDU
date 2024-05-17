@@ -137,7 +137,10 @@ val radiusConfig = fc<ConfigProps> { props ->
                                 retriesRef.current?.value?.toIntOrNull()
                             )
                             Axios.post<String>("$apiRoot/config/radius", newConfig, generateConfig<RadiusConfig, String>())
-                                .then { setSuccess(true) }
+                                .then {
+                                    setSuccess(true)
+                                    props.updateCallback(config.copy(radius = newConfig))
+                                }
                                 .handleForbidden(history)
                                 .catch {
                                     setSuccess(false)

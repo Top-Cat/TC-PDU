@@ -151,13 +151,15 @@ val mqttConfig = fc<ConfigProps> { props ->
                                 clientIdRef.current?.value,
                                 prefixRef.current?.value
                             )
-                            Axios.post<String>(
-                                "$apiRoot/config/mqtt",
-                                mqttConfig,
-                                generateConfig<MqttConfig, String>()
-                            ).then { setSuccess(true) }.handleForbidden(history).catch {
-                                setSuccess(false)
-                            }
+                            Axios.post<String>("$apiRoot/config/mqtt", mqttConfig, generateConfig<MqttConfig, String>())
+                                .then {
+                                    setSuccess(true)
+                                    props.updateCallback(config.copy(mqtt = mqttConfig))
+                                }
+                                .handleForbidden(history)
+                                .catch {
+                                    setSuccess(false)
+                                }
                         }
                         +"Save"
                     }

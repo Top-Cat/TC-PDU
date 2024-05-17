@@ -5,4 +5,5 @@ import uk.co.thomasc.tcpdu.page.PDUConfig
 
 external interface ConfigProps : Props {
     var config: PDUConfig?
+    var updateCallback: (PDUConfig) -> Unit
 }

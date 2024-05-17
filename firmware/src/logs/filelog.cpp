@@ -7,8 +7,8 @@ void FileLogger::process(LogProcess* state) {
 
   LogLine* msg = state->msg;
 
-  if (msg->time < 10000) {
-    msg->time += network.getEpochTime() - (millis() / 1000);
+  if (msg->time < 10000000) {
+    msg->time += network.getEpochMs() - millis();
   }
 
   rotate();

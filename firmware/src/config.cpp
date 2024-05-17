@@ -116,6 +116,14 @@ void PDUConfig::load() {
     addr += mqtt.prefix.length() + 1;
   }
 
+  if (version >= 8) {
+    slog.host = EEPROM.readString(addr);
+    addr += slog.host.length() + 1;
+
+    slog.port = EEPROM.readUShort(addr);
+    addr += 2;
+  }
+
   uint8_t ser[128];
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
     addr += EEPROM.readBytes(addr, ser, 128);
@@ -157,6 +165,10 @@ LogConfig* PDUConfig::getLog() {
 
 MqttConfig* PDUConfig::getMqtt() {
   return &mqtt;
+}
+
+SyslogConfig* PDUConfig::getSyslog() {
+  return &slog;
 }
 
 void PDUConfig::regenerateJWTKey() {
@@ -219,6 +231,9 @@ void PDUConfig::save() {
   addr += EEPROM.writeString(addr, mqtt.password) + 1;
   addr += EEPROM.writeString(addr, mqtt.clientId) + 1;
   addr += EEPROM.writeString(addr, mqtt.prefix) + 1;
+
+  addr += EEPROM.writeString(addr, slog.host) + 1;
+  addr += EEPROM.writeUShort(addr, slog.port);
 
   for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
     uint8_t ser[128];

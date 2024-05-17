@@ -151,13 +151,15 @@ val smtpConfig = fc<ConfigProps> { props ->
                                 fromRef.current?.value,
                                 toRef.current?.value
                             )
-                            Axios.post<String>(
-                                "$apiRoot/config/smtp",
-                                newSmtpConfig,
-                                generateConfig<SmtpConfig, String>()
-                            ).then { setSuccess(true) }.handleForbidden(history).catch {
-                                setSuccess(false)
-                            }
+                            Axios.post<String>("$apiRoot/config/smtp", newSmtpConfig, generateConfig<SmtpConfig, String>())
+                                .then {
+                                    setSuccess(true)
+                                    props.updateCallback(config.copy(log = config.log.copy(smtp = newSmtpConfig)))
+                                }
+                                .handleForbidden(history)
+                                .catch {
+                                    setSuccess(false)
+                                }
                         }
                         +"Save"
                     }

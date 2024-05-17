@@ -5,7 +5,7 @@
 #include <WString.h>
 #include "output.h"
 
-#define CONFIG_VERSION 7
+#define CONFIG_VERSION 8
 #define MAX_OUTPUTS 8
 
 struct RadiusConfig {
@@ -55,6 +55,11 @@ struct MqttConfig {
   String prefix = "";
 };
 
+struct SyslogConfig {
+  String host = "";
+  uint16_t port = 5140;
+};
+
 class PDUConfig {
   public:
     void load();
@@ -65,6 +70,7 @@ class PDUConfig {
     NTPConfig* getNTP();
     LogConfig* getLog();
     MqttConfig* getMqtt();
+    SyslogConfig* getSyslog();
     Output* getOutput(uint8_t idx);
     void storeOutputState(uint8_t idx, bool state);
 
@@ -79,6 +85,7 @@ class PDUConfig {
     NTPConfig ntp;
     LogConfig log;
     MqttConfig mqtt;
+    SyslogConfig slog;
     Output outputs[MAX_OUTPUTS];
     EEPROMClass* OutputStates = new EEPROMClass("output-states");
 };

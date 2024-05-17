@@ -14,10 +14,11 @@ import uk.co.thomasc.tcpdu.page.config.mqttConfig
 import uk.co.thomasc.tcpdu.page.config.ntpConfig
 import uk.co.thomasc.tcpdu.page.config.radiusConfig
 import uk.co.thomasc.tcpdu.page.config.smtpConfig
+import uk.co.thomasc.tcpdu.page.config.syslogConfig
 import uk.co.thomasc.tcpdu.page.config.wifiConfig
 
 @Serializable
-data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig, val mqtt: MqttConfig)
+data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig, val mqtt: MqttConfig, val syslog: SyslogConfig)
 
 @Serializable
 data class WifiConfig(val ssid: String? = null, val pass: String? = null)
@@ -40,6 +41,9 @@ data class SmtpConfig(val host: String? = null, val port: Int? = null, val user:
 @Serializable
 data class MqttConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null)
 
+@Serializable
+data class SyslogConfig(val host: String? = null, val port: Int? = null)
+
 val configPage = fc<Props> {
     val (config, setConfig) = useState<PDUConfig>()
     val history = useNavigate()
@@ -58,13 +62,17 @@ val configPage = fc<Props> {
                 mqttConfig to "col",
                 smtpConfig to "col",
                 radiusConfig to "col",
-                logsConfig to "col" // col-md-12
+                syslogConfig to "col",
+                logsConfig to "col-md-12"
             )
 
             configBlocks.forEach { (fc, clazz) ->
                 div(clazz) {
                     fc.invoke {
                         attrs.config = config
+                        attrs.updateCallback = {
+                            setConfig(it)
+                        }
                     }
                 }
             }

@@ -145,6 +145,12 @@ time_t Network::getEpochTime() const {
   return mktime(&timeinfo);
 }
 
+uint64_t Network::getEpochMs() const {
+  struct timeval tv;
+	gettimeofday(&tv, NULL);
+  return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
+}
+
 bool Network::hasTime() const {
   struct tm timeinfo;
   return getLocalTime(&timeinfo);

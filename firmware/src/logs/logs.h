@@ -7,7 +7,7 @@ enum LogType { OUTLET_STATE, DEVICE_IP, FIRMWARE, CRASH, LOGIN_SUCCESS, LOGIN_FA
 extern const char* LOGTYPE[10];
 
 struct LogLine {
-  time_t time = 0;
+  uint64_t time = 0;
   LogType type;
   char user[64] = "SYSTEM";
   char message[128];

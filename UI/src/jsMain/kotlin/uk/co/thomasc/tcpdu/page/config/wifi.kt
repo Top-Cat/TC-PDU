@@ -72,13 +72,16 @@ val wifiConfig = fc<ConfigProps> { props ->
                     button(type = ButtonType.submit, classes = "btn btn-primary") {
                         attrs.onClickFunction = { ev ->
                             ev.preventDefault()
-                            Axios.post<String>(
-                                "$apiRoot/config/wifi",
-                                WifiConfig(ssidRef.current?.value, wifiPwRef.current?.value),
-                                generateConfig<WifiConfig, String>()
-                            ).then { setSuccess(true) }.handleForbidden(history).catch {
-                                setSuccess(false)
-                            }
+                            val newConfig = WifiConfig(ssidRef.current?.value, wifiPwRef.current?.value)
+                            Axios.post<String>("$apiRoot/config/wifi", newConfig, generateConfig<WifiConfig, String>())
+                                .then {
+                                    setSuccess(true)
+                                    props.updateCallback(config.copy(wifi = newConfig))
+                                }
+                                .handleForbidden(history)
+                                .catch {
+                                    setSuccess(false)
+                                }
                         }
                         +"Save"
                     }

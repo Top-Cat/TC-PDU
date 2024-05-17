@@ -47,6 +47,7 @@ class Network {
     bool hasTime() const;
     String getFormattedTime() const;
     time_t getEpochTime() const;
+    uint64_t getEpochMs() const;
     uint16_t getOffset() const;
   private:
     static constexpr const char* APssid = "PDU-SETUP";

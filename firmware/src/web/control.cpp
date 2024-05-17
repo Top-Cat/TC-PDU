@@ -50,6 +50,7 @@ void PDUWeb::controlEndpoints() {
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
     doc["time"] = network.getFormattedTime();
+    doc["timeMs"] = network.getEpochMs();
     doc["offset"] = network.getOffset();
     doc["fw"] = "0.0." STRING(BUILD_NUMBER) STRING(SNAPSHOT);
     doc["uptime"] = control.getUptime();

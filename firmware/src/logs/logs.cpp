@@ -2,15 +2,14 @@
 #include "logs.h"
 #include "filelog.h"
 #include "email.h"
+#include "syslog.h"
 #include "config.h"
 #include "network.h"
 
 const char* LOGTYPE[10] = {"Outlet State", "IP", "Firmware", "Crash", "Login", "Login Failure", "Config", "Overload", "Outlet Trip", "Outlet Alarm"};
 
-QueueHandle_t EmailQueue;
-TaskHandle_t EmailTask;
-QueueHandle_t FileQueue;
-TaskHandle_t FileTask;
+QueueHandle_t EmailQueue, FileQueue, SyslogQueue;
+TaskHandle_t EmailTask, FileTask, SyslogTask;
 
 void handleDelete(LogProcess* state) {
   if (state->emailComplete && state->serialComplete && state->syslogComplete && state->fileComplete) {
@@ -21,7 +20,8 @@ void handleDelete(LogProcess* state) {
 
 void PDULogs::printLog(LogProcess* state) {
   LogLine* msg = state->msg;
-  struct tm *ptm = gmtime((time_t*) &msg->time);
+  time_t time = msg->time / 1000;
+  struct tm *ptm = gmtime(&time);
 
   char buffer[100];
   strftime(buffer, sizeof(buffer), "%F %T", ptm);
@@ -40,10 +40,7 @@ void PDULogs::printLog(LogProcess* state) {
 }
 
 void PDULogs::sendToSyslog(LogProcess* state) {
-  // TODO
-
-  state->syslogComplete = true;
-  handleDelete(state);
+  xQueueSend(SyslogQueue, &state, 0);
 }
 
 void PDULogs::sendEmail(LogProcess* state) {
@@ -56,7 +53,7 @@ void PDULogs::toFile(LogProcess* state) {
 
 void PDULogs::msg(LogLine* msg) {
   if (msg->time == 0) {
-    msg->time = network.getEpochTime();
+    msg->time = network.getEpochMs();
   }
 
   LogConfig* logConf = config.getLog();
@@ -122,12 +119,29 @@ void fileTask(void * parameter) {
   }
 }
 
+///// Syslog Task
+
+void syslogTask(void * parameter) {
+  LogProcess* state;
+
+  while (1) {
+    if (xQueueReceive(SyslogQueue, &(state), 10) != pdPASS) continue;
+
+    syslog.process(state);
+
+    state->syslogComplete = true;
+    handleDelete(state);
+  }
+}
+
 void PDULogs::setupTask() {
   SPIFFS.begin(true);
 
   LogProcess* test;
   EmailQueue = xQueueCreate(5, sizeof(&test));
   FileQueue = xQueueCreate(5, sizeof(&test));
+  SyslogQueue = xQueueCreate(5, sizeof(&test));
   xTaskCreatePinnedToCore(emailTask, "Log2Email", 8192, NULL, 0, &EmailTask, tskNO_AFFINITY);
   xTaskCreatePinnedToCore(fileTask, "Log2File", 8192, NULL, 0, &FileTask, tskNO_AFFINITY);
+  xTaskCreatePinnedToCore(syslogTask, "Log2Syslog", 8192, NULL, 0, &SyslogTask, tskNO_AFFINITY);
 }

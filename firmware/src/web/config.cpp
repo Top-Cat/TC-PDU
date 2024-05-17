@@ -46,6 +46,10 @@ void PDUWeb::configEndpoints() {
     doc["mqtt"]["clientId"] = mqttConf->clientId;
     doc["mqtt"]["prefix"] = mqttConf->prefix;
 
+    SyslogConfig* slogConf = config.getSyslog();
+    doc["syslog"]["host"] = slogConf->host;
+    doc["syslog"]["port"] = slogConf->port;
+
     String json;
     serializeJson(doc, json);
 
@@ -219,6 +223,28 @@ void PDUWeb::configEndpoints() {
     if (doc["password"]) mqttConf->password = (const char*) doc["password"];
     if (doc["clientId"]) mqttConf->clientId = (const char*) doc["clientId"];
     if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
+
+    config.save();
+    sendStaticHeaders();
+    server->send(200, textPlain, "DONE");
+  }, [&]() { });
+
+  server->on("/api/config/syslog", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    JsonDocument doc;
+    if (!deserializeOrError(server, &doc)) return;
+
+    LogLine* msg = new LogLine();
+    msg->type = CONFIG;
+    strncpy(msg->user, user.c_str(), sizeof(msg->user));
+    strncpy(msg-> message, "Syslog config updated", sizeof(msg->message));
+    logger.msg(msg);
+
+    SyslogConfig* slogConf = config.getSyslog();
+    if (doc["host"]) slogConf->host = (const char*) doc["host"];
+    if (doc["port"]) slogConf->port = doc["port"];
 
     config.save();
     sendStaticHeaders();

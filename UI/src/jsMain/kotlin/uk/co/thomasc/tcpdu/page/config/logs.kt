@@ -131,7 +131,12 @@ val logsConfig = fc<ConfigProps> { props ->
                     val newDays = daysRef.current?.value?.toIntOrNull() ?: 3
                     val newConfig = LogConfig(serialMask, syslogMask, emailMask, days = newDays)
                     Axios.post<String>("$apiRoot/config/log", newConfig, generateConfig<LogConfig, String>())
-                        .then { setSuccess(true) }
+                        .then {
+                            setSuccess(true)
+                            props.config?.let {
+                                props.updateCallback(it.copy(log = newConfig.copy(smtp = it.log.smtp)))
+                            }
+                        }
                         .handleForbidden(history)
                         .catch {
                             setSuccess(false)
