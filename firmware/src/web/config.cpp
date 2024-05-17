@@ -1,11 +1,14 @@
 #include "web.h"
 #include "config.h"
 #include "../logs/logs.h"
+#include "mqtt.h"
+#include "network.h"
 
 void PDUWeb::configEndpoints() {
   server->on("/api/config", HTTP_GET, [&]() {
     JsonDocument doc;
     WifiConfig* wifiConf = config.getWifi();
+    doc["wifi"]["enabled"] = wifiConf->enabled;
     doc["wifi"]["ssid"] = wifiConf->ssid;
     doc["wifi"]["pass"] = wifiConf->password;
 
@@ -39,6 +42,7 @@ void PDUWeb::configEndpoints() {
     doc["log"]["smtp"]["to"] = logConf->smtpTo;
 
     MqttConfig* mqttConf = config.getMqtt();
+    doc["mqtt"]["enabled"] = mqttConf->enabled;
     doc["mqtt"]["host"] = mqttConf->host;
     doc["mqtt"]["port"] = mqttConf->port;
     doc["mqtt"]["user"] = mqttConf->username;
@@ -71,11 +75,16 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     WifiConfig* wifiConf = config.getWifi();
+
+    JsonVariant enabled = doc["enabled"];
+    if (!enabled.isNull()) wifiConf->enabled = enabled;
+
     wifiConf->ssid = (const char*) doc["ssid"];
     wifiConf->password = (const char*) doc["pass"];
 
     config.save();
 
+    network.reconfigureWifi();
     sendStaticHeaders();
     server->send(200, textPlain, "DONE");
   }, []() { });
@@ -217,6 +226,8 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     MqttConfig* mqttConf = config.getMqtt();
+    JsonVariant enabled = doc["enabled"];
+    if (!enabled.isNull()) mqttConf->enabled = enabled;
     if (doc["host"]) mqttConf->host = (const char*) doc["host"];
     if (doc["port"]) mqttConf->port = doc["port"];
     if (doc["user"]) mqttConf->username = (const char*) doc["user"];
@@ -225,6 +236,7 @@ void PDUWeb::configEndpoints() {
     if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
 
     config.save();
+    mqtt.triggerChanges();
     sendStaticHeaders();
     server->send(200, textPlain, "DONE");
   }, [&]() { });

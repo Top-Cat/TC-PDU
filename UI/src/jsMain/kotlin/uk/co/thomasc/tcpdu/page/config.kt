@@ -21,7 +21,7 @@ import uk.co.thomasc.tcpdu.page.config.wifiConfig
 data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig, val mqtt: MqttConfig, val syslog: SyslogConfig)
 
 @Serializable
-data class WifiConfig(val ssid: String? = null, val pass: String? = null)
+data class WifiConfig(val enabled: Boolean? = null, val ssid: String? = null, val pass: String? = null)
 
 @Serializable
 data class RadiusConfig(val ip: String? = null, val port: Int? = null, val secret: String? = null, val timeout: Int? = null, val retries: Int? = null)
@@ -39,7 +39,7 @@ data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = nul
 data class SmtpConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val from: String? = null, val to: String? = null)
 
 @Serializable
-data class MqttConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null)
+data class MqttConfig(val enabled: Boolean? = null, val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null)
 
 @Serializable
 data class SyslogConfig(val host: String? = null, val port: Int? = null)

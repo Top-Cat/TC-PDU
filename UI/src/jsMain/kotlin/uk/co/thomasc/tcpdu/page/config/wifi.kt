@@ -29,6 +29,7 @@ val wifiConfig = fc<ConfigProps> { props ->
 
     val ssidRef = useRef<HTMLInputElement>()
     val wifiPwRef = useRef<HTMLInputElement>()
+    val enabledRef = useRef<HTMLInputElement>()
 
     props.config?.let { config ->
         div("card border-primary") {
@@ -43,6 +44,18 @@ val wifiConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
+                    div("form-check") {
+                        input(InputType.checkBox, classes = "form-check-input") {
+                            attrs.defaultChecked = config.wifi.enabled == true
+                            attrs.id = "wifi-enabled"
+                            ref = enabledRef
+                        }
+                        label("form-check-label") {
+                            attrs.htmlFor = "wifi-enabled"
+                            +"Enabled"
+                        }
+                    }
+
                     div("form-group") {
                         label("form-label") {
                             attrs.htmlFor = "wifi-ssid"
@@ -72,7 +85,7 @@ val wifiConfig = fc<ConfigProps> { props ->
                     button(type = ButtonType.submit, classes = "btn btn-primary") {
                         attrs.onClickFunction = { ev ->
                             ev.preventDefault()
-                            val newConfig = WifiConfig(ssidRef.current?.value, wifiPwRef.current?.value)
+                            val newConfig = WifiConfig(enabledRef.current?.checked, ssidRef.current?.value, wifiPwRef.current?.value)
                             Axios.post<String>("$apiRoot/config/wifi", newConfig, generateConfig<WifiConfig, String>())
                                 .then {
                                     setSuccess(true)

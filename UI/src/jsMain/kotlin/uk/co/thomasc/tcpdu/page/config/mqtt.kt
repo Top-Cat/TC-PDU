@@ -36,6 +36,7 @@ val mqttConfig = fc<ConfigProps> { props ->
     val passRef = useRef<HTMLInputElement>()
     val clientIdRef = useRef<HTMLInputElement>()
     val prefixRef = useRef<HTMLInputElement>()
+    val enabledRef = useRef<HTMLInputElement>()
 
     val (showMqttPassword, setShowMqttPassword) = useState(false)
 
@@ -52,6 +53,18 @@ val mqttConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
+                    div("form-check") {
+                        input(InputType.checkBox, classes = "form-check-input") {
+                            attrs.defaultChecked = config.mqtt.enabled == true
+                            attrs.id = "mqtt-enabled"
+                            ref = enabledRef
+                        }
+                        label("form-check-label") {
+                            attrs.htmlFor = "mqtt-enabled"
+                            +"Enabled"
+                        }
+                    }
+
                     div("form-group") {
                         label("form-label") {
                             attrs.htmlFor = "mqtt-host"
@@ -144,6 +157,7 @@ val mqttConfig = fc<ConfigProps> { props ->
                         attrs.onClickFunction = { ev ->
                             ev.preventDefault()
                             val mqttConfig = MqttConfig(
+                                enabledRef.current?.checked,
                                 hostRef.current?.value,
                                 portRef.current?.value?.toIntOrNull(),
                                 userRef.current?.value,

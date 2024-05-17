@@ -5,7 +5,7 @@
 #include <WString.h>
 #include "output.h"
 
-#define CONFIG_VERSION 8
+#define CONFIG_VERSION 10
 #define MAX_OUTPUTS 8
 
 struct RadiusConfig {
@@ -17,6 +17,7 @@ struct RadiusConfig {
 };
 
 struct WifiConfig {
+  bool enabled = false;
   String ssid;
   String password;
 };
@@ -47,6 +48,7 @@ struct LogConfig {
 };
 
 struct MqttConfig {
+  bool enabled = false;
   String host = "";
   uint16_t port = 1883;
   String clientId = "esp32-tcpdu";

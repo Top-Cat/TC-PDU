@@ -13,7 +13,7 @@ void PDUMqtt::onMqttConnect(bool sessionPresent) {
   strcpy(result, conf->prefix.c_str());
   strcat(result, "#");
 
-  mqttClient.subscribe(result, 2);
+  mqttClient->subscribe(result, 2);
 
   connected = true;
 }
@@ -45,16 +45,18 @@ void PDUMqtt::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessagePr
   }
 }
 
+void PDUMqtt::triggerChanges() {
+  configChanges = true;
+}
+
+void PDUMqtt::registerCallbacks() {
+  mqttClient->onConnect([this](bool s) { this->onMqttConnect(s); });
+  mqttClient->onDisconnect([this](AsyncMqttClientDisconnectReason r) { this->onMqttDisconnect(r); });
+  mqttClient->onMessage([this](char* t, char* p, AsyncMqttClientMessageProperties q, size_t l, size_t i, size_t u) { this->onMqttMessage(t, p, q, l, i, u); });
+}
+
 void PDUMqtt::task() {
   MqttConfig* conf = config.getMqtt();
-
-  // Register callbacks
-  mqttClient.onConnect([this](bool s) { this->onMqttConnect(s); });
-  mqttClient.onDisconnect([this](AsyncMqttClientDisconnectReason r) { this->onMqttDisconnect(r); });
-  //mqttClient.onSubscribe(onMqttSubscribe);
-  //mqttClient.onUnsubscribe(onMqttUnsubscribe);
-  mqttClient.onMessage([this](char* t, char* p, AsyncMqttClientMessageProperties q, size_t l, size_t i, size_t u) { this->onMqttMessage(t, p, q, l, i, u); });
-  //mqttClient.onPublish(onMqttPublish);
 
   uint8_t backOff = 5;
   while (true) {
@@ -63,9 +65,13 @@ void PDUMqtt::task() {
       delay(100);
     }
 
-    // TODO: Detect config changes
     if (connected) {
       delay(5000);
+
+      if (configChanges) {
+        mqttClient->disconnect();
+        continue;
+      }
 
       JsonDocument doc;
       doc["power"] = control.getTotalPower();
@@ -89,15 +95,24 @@ void PDUMqtt::task() {
       serializeJson(doc, json);
 
       String topic = conf->prefix + "state";
-      mqttClient.publish(topic.c_str(), 0, false, json.c_str());
+      mqttClient->publish(topic.c_str(), 0, false, json.c_str());
     } else {
-      if (conf->host.length() > 0) {
-        // Setup config
-        mqttClient.setServer(conf->host.c_str(), conf->port);
-        mqttClient.setClientId(conf->clientId.c_str());
-        mqttClient.setCredentials(conf->username.c_str(), conf->password.c_str());
+      if (conf->host.length() > 0 && conf->enabled) {
+        if (mqttClient == NULL) {
+          mqttClient = new AsyncMqttClient();
+          registerCallbacks();
+        }
 
-        mqttClient.connect();
+        // Setup config
+        configChanges = false;
+        mqttClient->setServer(conf->host.c_str(), conf->port);
+        mqttClient->setClientId(conf->clientId.c_str());
+        mqttClient->setCredentials(conf->username.c_str(), conf->password.c_str());
+
+        mqttClient->connect();
+      } else if (mqttClient != NULL) {
+        delete mqttClient;
+        mqttClient = NULL;
       }
 
       delay(backOff * 1000);

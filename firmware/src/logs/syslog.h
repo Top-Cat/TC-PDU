@@ -8,7 +8,7 @@ class SyslogLogger {
   public:
     void process(LogProcess* state);
   private:
-    WiFiUDP udp;
+    WiFiUDP* udp;
 };
 
 extern SyslogLogger syslog;

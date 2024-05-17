@@ -44,6 +44,11 @@ class Output {
     bool getState();
     void setState(const char* user, bool state);
     void tick(uint64_t time);
+
+    void calibrateVoltage(float correction);
+    void calibrateCurrent(float correction);
+    void setVoltageCalibration(float correction);
+    void setCurrentCalibration(float correction);
   private:
     char name[64] = {};
     uint8_t address = 0xFF;
@@ -74,8 +79,6 @@ class Output {
     float CFC = 1;
     static void storeFloat(void* arr, float v);
     static void readFloat(void* arr, float* v);
-    void calibrateVoltage(float correction);
-    void calibrateCurrent(float correction);
 
     // Constant
     //uint32_t VolR1 = 1880000; // 4x 470k ohm

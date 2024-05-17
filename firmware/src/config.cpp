@@ -9,6 +9,12 @@ void PDUConfig::load() {
   uint16_t version = EEPROM.readUShort(addr);
   addr += 2;
 
+  if (version >= 9) {
+    wifi.enabled = EEPROM.readBool(addr++);
+  } else {
+    wifi.enabled = true;
+  }
+
   wifi.ssid = EEPROM.readString(addr);
   addr += wifi.ssid.length() + 1;
 
@@ -94,6 +100,10 @@ void PDUConfig::load() {
     addr += log.smtpTo.length() + 1;
 
     log.daysToKeep = EEPROM.readByte(addr++);
+  }
+
+  if (version >= 10) {
+    mqtt.enabled = EEPROM.readBool(addr++);
   }
 
   if (version >= 7) {
@@ -196,6 +206,7 @@ void PDUConfig::save() {
   uint16_t addr = 0;
 
   addr += EEPROM.writeUShort(addr, CONFIG_VERSION);
+  addr += EEPROM.writeBool(addr, wifi.enabled);
   addr += EEPROM.writeString(addr, wifi.ssid) + 1;
   addr += EEPROM.writeString(addr, wifi.password) + 1;
 
@@ -225,6 +236,7 @@ void PDUConfig::save() {
   addr += EEPROM.writeString(addr, log.smtpTo) + 1;
   addr += EEPROM.writeByte(addr, log.daysToKeep);
 
+  addr += EEPROM.writeBool(addr, mqtt.enabled);
   addr += EEPROM.writeString(addr, mqtt.host) + 1;
   addr += EEPROM.writeUShort(addr, mqtt.port);
   addr += EEPROM.writeString(addr, mqtt.username) + 1;

@@ -49,10 +49,13 @@ class Network {
     time_t getEpochTime() const;
     uint64_t getEpochMs() const;
     uint16_t getOffset() const;
+
+    void reconfigureWifi();
   private:
     static constexpr const char* APssid = "PDU-SETUP";
     static constexpr const char* APpass = "123456789";
 
+    bool wifiReconfigured = false;
     bool ap = false;
     bool wifi = false;
     bool eth = false;

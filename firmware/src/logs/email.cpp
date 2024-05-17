@@ -15,9 +15,12 @@ Session_Config EmailLogger::setupConfig(LogConfig* logConf) {
 void EmailLogger::process(LogProcess* state) {
   while (!(network.setupComplete && network.hasTime())) delay(500);
 
-  LogLine* msg = state->msg;
   LogConfig* logConf = config.getLog();
-  smtp.setSystemTime(network.getEpochTime(), 0);
+  if (logConf->smtpServer.length() <= 0) return;
+  if (smtp == NULL) smtp = new SMTPSession();
+
+  LogLine* msg = state->msg;
+  smtp->setSystemTime(network.getEpochTime(), 0);
 
   Session_Config config = setupConfig(logConf);
   SMTP_Message message;
@@ -30,12 +33,12 @@ void EmailLogger::process(LogProcess* state) {
   message.addRecipient(F("Admin"), logConf->smtpTo);
   message.text.content = msg->message;
 
-  if (!smtp.connected()) {
-    if (!smtp.connect(&config)) return;
+  if (!smtp->connected()) {
+    if (!smtp->connect(&config)) return;
   }
 
-  MailClient.sendMail(&smtp, &message);
-  smtp.closeSession();
+  MailClient.sendMail(smtp, &message);
+  smtp->closeSession();
 }
 
 ///// Global object

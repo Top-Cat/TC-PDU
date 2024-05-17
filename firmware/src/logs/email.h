@@ -10,7 +10,7 @@ class EmailLogger {
   public:
     void process(LogProcess* state);
   private:
-    SMTPSession smtp;
+    SMTPSession* smtp;
     Session_Config setupConfig(LogConfig* logConf);
 };
 

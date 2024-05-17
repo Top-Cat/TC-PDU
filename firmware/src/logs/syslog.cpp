@@ -7,6 +7,7 @@ void SyslogLogger::process(LogProcess* state) {
 
   SyslogConfig* conf = config.getSyslog();
   if (conf->host.length() <= 0) return;
+  if (udp == NULL) udp = new WiFiUDP();
 
   LogLine* log = state->msg;
 
@@ -23,9 +24,9 @@ void SyslogLogger::process(LogProcess* state) {
   p += snprintf(&buffer[p], sizeof(buffer) - p, ".%03d", rem);
   strftime(&buffer[p], sizeof(buffer) - p, "%z", lt);
 
-  udp.beginPacket(conf->host.c_str(), conf->port);
-  udp.printf("<%d>%d %s %s tc-pdu - - - [%s] [%s] %s\n", priority, version, buffer, hostname, log->user, LOGTYPE[log->type], log->message);
-  udp.endPacket();
+  udp->beginPacket(conf->host.c_str(), conf->port);
+  udp->printf("<%d>%d %s %s tc-pdu - - - [%s] [%s] %s\n", priority, version, buffer, hostname, log->user, LOGTYPE[log->type], log->message);
+  udp->endPacket();
 }
 
 ///// Global object

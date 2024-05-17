@@ -14,8 +14,11 @@ class PDUMqtt {
 
     static void setupTask();
     void task();
+    void triggerChanges();
   private:
-    AsyncMqttClient mqttClient;
+    bool configChanges = false;
+    void registerCallbacks();
+    AsyncMqttClient* mqttClient;
     bool connected;
 };
 

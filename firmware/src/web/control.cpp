@@ -105,7 +105,7 @@ void PDUWeb::controlEndpoints() {
     server->send(200, textPlain, "DONE");
   }, [&]() { });
 
-  server->on("/reboot", HTTP_POST, [&]() {
+  server->on("/api/reboot", HTTP_POST, [&]() {
     String user;
     if (!currentUser(user)) return;
 
@@ -115,5 +115,23 @@ void PDUWeb::controlEndpoints() {
     server->send(200, textPlain, "REBOOTING");
   }, [&]() { });
 
-  // TODO: Calibration endpoint / allow calibration via /state
+  server->on("/api/calibrate", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    JsonDocument doc;
+    if (!deserializeOrError(server, &doc)) return;
+
+    uint8_t idx = doc["idx"];
+    Output* output = config.getOutput(idx);
+
+    if (doc["current"]) output->calibrateCurrent(doc["current"]);
+    if (doc["voltage"]) output->calibrateVoltage(doc["voltage"]);
+
+    if (doc["currentDirect"]) output->setCurrentCalibration(doc["currentDirect"]);
+    if (doc["voltageDirect"]) output->setVoltageCalibration(doc["voltageDirect"]);
+
+    sendStaticHeaders();
+    server->send(200, textPlain, "DONE");
+  }, [&]() { });
 }

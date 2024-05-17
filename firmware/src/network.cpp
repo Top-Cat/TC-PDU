@@ -11,6 +11,7 @@ void Network::task() {
   delay(1);
 
   NTPConfig* ntpConf = config.getNTP();
+  WifiConfig* wifiConf = config.getWifi();
   const char* tz = "GMT0BST,M3.5.0/1,M10.5.0";
   const char* ntpHost = "pool.ntp.org";
   if (ntpConf->host.length() > 0) {
@@ -31,12 +32,17 @@ void Network::task() {
       setupAP();
     }
 
-    if (ap && eth) {
+    if ((ap && eth) || wifiReconfigured) {
+      wifiReconfigured = false;
       setupWifi();
     }
 
     delay(500);
   }
+}
+
+void Network::reconfigureWifi() {
+  wifiReconfigured = true;
 }
 
 void Network::setupWifi() {
@@ -47,7 +53,7 @@ void Network::setupWifi() {
   WiFi.setHostname("TC-pdu-wifi");
 
   WifiConfig* wifiConf = config.getWifi();
-  if (wifiConf->ssid.length() > 0) {
+  if (wifiConf->ssid.length() > 0 && wifiConf->enabled) {
     WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
   }
 }

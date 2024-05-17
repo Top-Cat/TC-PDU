@@ -54,9 +54,6 @@ void Output::deserialize(uint8_t* ser, uint8_t idx, bool state) {
 
     readFloat(&ser[70], &voltageCalibration);
     readFloat(&ser[74], &currentCalibration);
-    // TODO: Remove when endpoint exists
-    voltageCalibration = 0.98334;
-    currentCalibration = 0.90850;
 
     minAlarm = (ser[78] << 8) | ser[79];
     maxAlarm = (ser[80] << 8) | ser[81];
@@ -327,15 +324,23 @@ bool Output::isDirty() {
 }
 
 void Output::calibrateVoltage(float correction) {
-  voltageCalibration *= correction;
-  VFC = VF * voltageCalibration;
-  dirty |= correction != 1;
+  setVoltageCalibration(voltageCalibration * correction);
 }
 
 void Output::calibrateCurrent(float correction) {
-  currentCalibration *= correction;
+  setCurrentCalibration(currentCalibration * correction);
+}
+
+void Output::setVoltageCalibration(float newVC) {
+  dirty |= voltageCalibration - newVC > 0.0001;
+  voltageCalibration = newVC;
+  VFC = VF * voltageCalibration;
+}
+
+void Output::setCurrentCalibration(float newCC) {
+  dirty |= currentCalibration - newCC > 0.0001;
+  currentCalibration = newCC;
   CFC = CF * currentCalibration;
-  dirty |= correction != 1;
 }
 
 void Output::storeFloat(void* arr, float v) {
