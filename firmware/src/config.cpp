@@ -255,9 +255,9 @@ void PDUConfig::save() {
   }
   EEPROM.commit();
 
-  Serial.print("Saved ");
+  /*Serial.print("Saved ");
   Serial.print(addr);
-  Serial.println(" bytes to EEPROM");
+  Serial.println(" bytes to EEPROM");*/
 }
 
 PDUConfig config;

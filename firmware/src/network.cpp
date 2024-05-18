@@ -26,9 +26,9 @@ void Network::task() {
 
   while (true) {
     if (!ap && !wifi && !eth && (esp_timer_get_time() - lastConnected) >= TIMEOUT) {
-      Serial.println();
+      //Serial.println();
       Serial.println(F("Timeout waiting for connection"));
-      
+
       setupAP();
     }
 
@@ -88,7 +88,7 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_ETH_CONNECTED:
-      Serial.println(F("ETH Connected"));
+      //Serial.println(F("ETH Connected"));
       break;
 
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
@@ -116,19 +116,19 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      Serial.println(F("Lost wifi connection"));
+      //Serial.println(F("Lost wifi connection"));
       if (wifi) disconnected();
       wifi = false;
       break;
 
     case ARDUINO_EVENT_ETH_DISCONNECTED:
-      Serial.println("ETH Disconnected");
+      //Serial.println("ETH Disconnected");
       if (eth) disconnected();
       eth = false;
       break;
 
     case ARDUINO_EVENT_ETH_STOP:
-      Serial.println("\nETH Stopped");
+      //Serial.println("\nETH Stopped");
       if (eth) disconnected();
       eth = false;
       break;
