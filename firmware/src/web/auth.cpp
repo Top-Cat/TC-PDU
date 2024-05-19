@@ -1,6 +1,5 @@
 #include "web.h"
 #include "../auth/radius.h"
-#include "config.h"
 #include "network.h"
 #include "../logs/logs.h"
 
@@ -52,9 +51,17 @@ bool PDUWeb::currentUser(String& user) {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, payload);
 
-        if (!error && doc["exp"] > network.getEpochTime() && doc["iat"] <= network.getEpochTime()) {
+        time_t now = network.getEpochTime();
+        time_t exp = doc["exp"];
+        if (!error && exp > now && doc["iat"] <= now) {
           String sub = doc["sub"];
           user = sub;
+
+          JWTConfig* jwtConf = config.getJWT();
+          if ((exp - now) < (jwtConf->validityPeriod / 2)) {
+            setSession(jwtConf, now, sub.c_str());
+          }
+
           return true;
         }
       }
@@ -88,18 +95,10 @@ void PDUWeb::authEndpoints() {
     sendStaticHeaders();
     if (checkCredentials(user, pass)) {
       msg->type = LOGIN_SUCCESS;
-      JWTConfig* jwtConf = config.getJWT();
 
-      JsonDocument payload;
-      payload["sub"] = user;
-      payload["iat"] = network.getEpochTime();
-      payload["exp"] = network.getEpochTime() + jwtConf->validityPeriod;
-
-      String json;
-      serializeJson(payload, json);
+      setSession(config.getJWT(), network.getEpochTime(), user);
 
       server->sendHeader("Location", "/api/me");
-      server->sendHeader("Set-Cookie", "PDUJWT=" + jwt.encodeJWT(json) + "; Path=/");
       server->send(302);
     } else {
       msg->type = LOGIN_FAILURE;
@@ -108,4 +107,16 @@ void PDUWeb::authEndpoints() {
 
     logger.msg(msg);
   }, [&]() { });
+}
+
+void PDUWeb::setSession(JWTConfig* conf, time_t now, const char* user) {
+  JsonDocument payload;
+  payload["sub"] = user;
+  payload["iat"] = now;
+  payload["exp"] = now + conf->validityPeriod;
+
+  String json;
+  serializeJson(payload, json);
+
+  server->sendHeader("Set-Cookie", "PDUJWT=" + jwt.encodeJWT(json) + "; Path=/");
 }

@@ -1,6 +1,7 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include "auth/jwt.h"
+#include "config.h"
 
 class PDUWeb {
   public:
@@ -21,6 +22,7 @@ class PDUWeb {
     void sendStaticHeaders();
     bool checkCredentials(const char* user, const char* pass);
     bool currentUser(String& user);
+    void setSession(JWTConfig* conf, time_t now, const char* user);
 
     static bool deserializeOrError(WebServer* server, JsonDocument* doc);
     static constexpr const uint8_t pageSize = 16;
