@@ -85,6 +85,10 @@ size_t PDULogs::readRows(LogLine* output, time_t day, size_t skip, size_t maxCou
   return fileLog.readRows(output, day, skip, maxCount);
 }
 
+void PDULogs::format() {
+  fileLog.format();
+}
+
 ///// Global object
 
 PDULogs logger;

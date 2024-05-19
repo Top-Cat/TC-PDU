@@ -26,6 +26,8 @@ class PDULogs {
     void msg(LogLine* msg);
     void setupTask();
 
+    void format();
+
     size_t getSize();
     size_t readRows(LogLine* output, size_t startIdx, size_t maxCount);
 

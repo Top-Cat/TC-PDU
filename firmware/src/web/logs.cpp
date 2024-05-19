@@ -86,4 +86,14 @@ void PDUWeb::logEndpoints() {
     sendStaticHeaders();
     server->send(200, "text/html", json);
   });
+
+  server->on("/api/format", HTTP_POST, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    logger.format();
+
+    sendStaticHeaders();
+    server->send(200, textPlain, "Done");
+  }, [&]() { });
 }

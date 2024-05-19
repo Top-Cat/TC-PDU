@@ -8,6 +8,7 @@
 class FileLogger {
   public:
     void process(LogProcess* msg);
+    void format();
 
     size_t rowCount();
     size_t readRows(LogLine* output, size_t startIdx, size_t maxCount);

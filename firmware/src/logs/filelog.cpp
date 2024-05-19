@@ -18,6 +18,10 @@ void FileLogger::process(LogProcess* state) {
   f.close();
 }
 
+void FileLogger::format() {
+  SPIFFS.format();
+}
+
 size_t FileLogger::readRows(LogLine* output, time_t time, size_t startIdx, size_t maxCount) {
     char path[32];
     pathFromDate(path, sizeof(path), time);
