@@ -118,11 +118,11 @@ size_t FileLogger::readRows(LogLine* output, size_t skip, size_t maxCount) {
     } else if (fileCount < skip) {
       skip -= fileCount;
     } else {
-        int16_t tmpIndex = max((int16_t) 0, (int16_t) (maxCount - (fileCount - skip)));
-        size_t count = min(fileCount - skip, maxCount);
-        uint8_t rows = readRows(&output[tmpIndex], fileTime, fileCount - skip - count, count);
-        maxCount -= rows;
-        skip = max((int16_t) 0, (int16_t) (skip - count));
+      int16_t tmpIndex = max((int16_t) 0, (int16_t) (maxCount - (fileCount - skip)));
+      size_t count = min(fileCount - skip, maxCount);
+      uint8_t rows = readRows(&output[tmpIndex], fileTime, fileCount - skip - count, count);
+      maxCount -= rows;
+      skip = max((int16_t) 0, (int16_t) (skip - fileCount));
     }
   }
 
