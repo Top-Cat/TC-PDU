@@ -91,6 +91,7 @@ void PDUWeb::authEndpoints() {
 
     LogLine* msg = new LogLine();
     strncpy(msg->user, user, 64);
+    snprintf(msg->message, sizeof(msg->message), "From %s", server->client().remoteIP().toString());
 
     sendStaticHeaders();
     if (checkCredentials(user, pass)) {
