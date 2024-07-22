@@ -73,9 +73,9 @@ void Output::init() {
 
   // On at boot
   if (bootState == BootState::LAST && reason != ESP_RST_BROWNOUT) {
-    setState(NULL, lastState);
+    setState(NULL, lastState, true);
   } else {
-    setState(NULL, bootState == BootState::ON);
+    setState(NULL, bootState == BootState::ON, true);
   }
 }
 
@@ -161,13 +161,22 @@ bool Output::getState() {
 }
 
 void Output::setState(const char* user, bool state) {
-  if (state && bootDelay && !relayState) {
+  setState(user, state, false);
+}
+
+void Output::setState(const char* user, bool state, bool boot) {
+  if (state && boot && bootDelay && !relayState) {
     // Ensure consistent state
     setRelayState(NULL, relayState);
+
     uint64_t time = esp_timer_get_time();
     onAt = time + ((uint64_t) bootDelay * 1000 * 1000);
     onAtUser = user;
     return;
+  } else if (state && !relayState) {
+    // If output is turned on manually cancel boot delay
+    onAt = 0;
+    onAtUser = "";
   }
 
   setRelayState(user, state);
@@ -219,9 +228,12 @@ void Output::setFromJson(String user, JsonDocument* doc) {
 }
 
 void Output::handleAlarms(float power, uint64_t time) {
-  bool alarmsValid = (time - lastTurnedOn) > 5000000 && outputState != OutputState::ALARM;
+  bool bootstraped = (time - lastTurnedOn) > 5000000;
+  bool alarmsValid = bootstraped && outputState != OutputState::ALARM;
 
-  if (maxPower > 0 && power > maxPower) {
+  if (bootstraped && maxPower > 0 && power > maxPower) {
+    if (!alarmsValid) return;
+
     outputState = OutputState::TRIP;
 
     LogLine* msg = new LogLine();

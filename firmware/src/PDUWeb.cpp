@@ -34,6 +34,12 @@ void logStartupError() {
     case ESP_RST_TASK_WDT:
       logStartupError("task watchdog");
       break;
+    case ESP_RST_UNKNOWN:
+      logStartupError("unknown");
+      break;
+    case ESP_RST_WDT:
+      logStartupError("other watchdog");
+      break;
   }
 }
 
