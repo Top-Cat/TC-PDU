@@ -228,10 +228,10 @@ void Output::setFromJson(String user, JsonDocument* doc) {
 }
 
 void Output::handleAlarms(float power, uint64_t time) {
-  bool bootstraped = (time - lastTurnedOn) > 5000000;
+  bool bootstraped = time > lastTurnedOn && (time - lastTurnedOn) > 5000000;
   bool alarmsValid = bootstraped && outputState != OutputState::ALARM;
 
-  if (bootstraped && maxPower > 0 && power > maxPower) {
+  if (maxPower > 0 && power > maxPower) {
     if (!alarmsValid) return;
 
     outputState = OutputState::TRIP;

@@ -47,12 +47,13 @@ void Network::reconfigureWifi() {
 
 void Network::setupWifi() {
   ap = false;
-  WiFi.mode(WIFI_STA);
+
+  WifiConfig* wifiConf = config.getWifi();
+  WiFi.mode(wifiConf->enabled ? WIFI_STA : WIFI_OFF);
   WiFi.disconnect();
 
   WiFi.setHostname("TC-pdu-wifi");
 
-  WifiConfig* wifiConf = config.getWifi();
   if (wifiConf->ssid.length() > 0 && wifiConf->enabled) {
     WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
   }
