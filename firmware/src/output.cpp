@@ -4,6 +4,8 @@
 #include "logs/logs.h"
 #include "config.h"
 
+#define ALARM_DELAY 6
+
 void Output::serialize(uint8_t* ser) {
   strncpy((char*) ser, name, sizeof(name));
   ser[64] = address;
@@ -228,7 +230,7 @@ void Output::setFromJson(String user, JsonDocument* doc) {
 }
 
 void Output::handleAlarms(float power, uint64_t time) {
-  bool bootstraped = time > lastTurnedOn && (time - lastTurnedOn) > 5000000;
+  bool bootstraped = time > lastTurnedOn && (time - lastTurnedOn) > (ALARM_DELAY * 1000000);
   bool alarmsValid = bootstraped && outputState != OutputState::ALARM;
 
   if (maxPower > 0 && power > maxPower) {
