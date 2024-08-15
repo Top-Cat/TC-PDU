@@ -1,3 +1,5 @@
+#include <esp_task_wdt.h>
+
 #include "web.h"
 #include <Update.h>
 #include "logs/logs.h"
@@ -12,6 +14,9 @@ void PDUWeb::updateEndpoints() {
   }, [&]() {
     HTTPUpload& upload = server->upload();
     if (upload.status == UPLOAD_FILE_START) {
+      esp_task_wdt_delete(NULL);
+      esp_task_wdt_deinit();
+
       LogLine* msg = new LogLine();
       msg->type = FIRMWARE;
       snprintf(msg->message, sizeof(msg->message), "Firmware upgrade started: %s", upload.filename.c_str());

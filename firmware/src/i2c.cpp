@@ -37,7 +37,7 @@ uint8_t ModuleBus::indexFor(uint8_t addr) {
   return 0xFF;
 }
 
-void ModuleBus::parseBuffer(uint8_t* buff, PowerInfo *info) {
+void ModuleBus::parseBuffer(uint8_t* buff, PowerInfo *info, bool isOn) {
   // uint8_t checksum = 0;
   // for (uint8_t i = 2; i < 23; i++) checksum += buff[i];
   // if (checksum != buff[23]) return;
@@ -64,7 +64,7 @@ void ModuleBus::parseBuffer(uint8_t* buff, PowerInfo *info) {
   // Data is not valid
   if ((buff[0] & 0xF0) == 0xF0 && bitRead(buff[0], 0) == 0) {
     if (bitRead(buff[0], 1) == 1) info->PowerData = 0;
-    if (bitRead(buff[0], 2) == 1) info->CurrentData = 0;
+    if (bitRead(buff[0], 2) == 1 || !isOn) info->CurrentData = 0;
     if (bitRead(buff[0], 3) == 1) info->VolData = 0;
   } else if (buff[0] != 0x55) {
     info->VolData = info->CurrentData = info->PowerData = 0;
@@ -138,7 +138,7 @@ void ModuleBus::task() {
     uint8_t bytesReceived = Wire.requestFrom(addresses[idx], sizeof(buffer));
     if (bytesReceived == sizeof(buffer)) {
       Wire.readBytes(buffer, sizeof(buffer));
-      parseBuffer(buffer, &powerInfo[idx]);
+      parseBuffer(buffer, &powerInfo[idx], controlInfo[idx].relayState);
     }
 
     // Wait between requesting power updates

@@ -56,7 +56,7 @@ class ModuleBus {
     bool controlUpdate[MAX_DEVICES] = {false};
     uint8_t addresses[MAX_DEVICES] = {0};
 
-    void parseBuffer(uint8_t buff[], PowerInfo *info);
+    void parseBuffer(uint8_t buff[], PowerInfo *info, bool isOn);
     void sendUpdates();
 };
 

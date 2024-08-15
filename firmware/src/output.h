@@ -73,6 +73,7 @@ class Output {
     float lastPower = 0;
     bool lastState = false;
     bool relayState = false;
+    void setState(const char* user, bool state, bool boot);
 
     // Calibrated values
     float VFC = 1;
