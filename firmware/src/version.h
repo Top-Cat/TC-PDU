@@ -7,7 +7,7 @@
   #warning "Build number not set"
   #undef BUILD_NUMBER
   #define SNAPSHOT -SNAPSHOT
-  #define ASSET_VERSION 22
+  #define ASSET_VERSION 23
   #define BUILD_NUMBER ASSET_VERSION
 #else
   #define ASSET_VERSION BUILD_NUMBER
