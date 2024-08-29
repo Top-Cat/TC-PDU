@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "version.h"
+#include "logs/logs.h"
 
 const char* serverIndex = "<!DOCTYPE HTML><html lang=\"en\"><head><title>TC-PDU</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><link href=\"https://use.fontawesome.com/releases/v5.15.4/css/all.css\" rel=\"stylesheet\"><link href=\"https://pdu.topc.at/" STRING(ASSET_VERSION) "/main.css\" rel=\"stylesheet\"><script src=\"https://pdu.topc.at/" STRING(ASSET_VERSION) "/ext.js\"></script><script src=\"https://pdu.topc.at/" STRING(ASSET_VERSION) "/output.js\"></script></head><body><main class=\"container\" id=\"root\"></main></body></html>";
 
@@ -44,6 +45,11 @@ void PDUWeb::setup() {
   server->collectHeaders(headerKeys, headerKeysSize);
 
   server->begin();
+
+  LogLine* msg = new LogLine();
+  msg->type = BOOT;
+  snprintf(msg->message, sizeof(msg->message), "Web setup complete");
+  logger.msg(msg);
 }
 
 void PDUWeb::task() {

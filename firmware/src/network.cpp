@@ -11,7 +11,6 @@ void Network::task() {
   delay(1);
 
   NTPConfig* ntpConf = config.getNTP();
-  WifiConfig* wifiConf = config.getWifi();
   const char* tz = "GMT0BST,M3.5.0/1,M10.5.0";
   const char* ntpHost = "pool.ntp.org";
   if (ntpConf->host.length() > 0) {
@@ -23,6 +22,11 @@ void Network::task() {
   configTzTime(tz, ntpHost);
 
   setupComplete = true;
+
+  LogLine* msg = new LogLine();
+  msg->type = BOOT;
+  snprintf(msg->message, sizeof(msg->message), "Network setup complete");
+  logger.msg(msg);
 
   while (true) {
     if (!ap && !wifi && !eth && (esp_timer_get_time() - lastConnected) >= TIMEOUT) {

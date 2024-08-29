@@ -1,4 +1,5 @@
 #include "i2c.h"
+#include "logs/logs.h"
 
 void ModuleBus::setRelay(uint8_t idx, bool on) {
   if (idx >= MAX_DEVICES) return;
@@ -122,11 +123,14 @@ void ModuleBus::task() {
     }
   }
 
-  Serial.print("Found ");
-  Serial.print(idx);
-  Serial.println(" device(s)");
   totalDevices = idx;
   initComplete = true;
+
+  LogLine* msg = new LogLine();
+  msg->type = BOOT;
+  snprintf(msg->message, sizeof(msg->message), "Bus setup complete (%d)", totalDevices);
+  logger.msg(msg);
+
   while (true) {
     idx++;
 
