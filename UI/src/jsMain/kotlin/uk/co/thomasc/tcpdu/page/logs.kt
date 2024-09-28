@@ -61,7 +61,8 @@ enum class LogType(val enc: Long, val color: String, val human: String) {
     OVERLOAD(7, "danger", "Overload"),
     TRIP(8, "danger", "Output Trip"),
     ALARM(9, "danger", "Output Alarm"),
-    BOOT(10, "warning", "Boot Info");
+    BOOT(10, "warning", "Boot Info"),
+    NETWORK(11, "warning", "Network");
 
     class LogTypeSerializer : EnumAsLongSerializer<LogType>(
         "LogType",

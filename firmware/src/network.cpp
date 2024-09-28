@@ -36,7 +36,8 @@ void Network::task() {
       setupAP();
     }
 
-    if ((ap && eth) || wifiReconfigured) {
+    if ((ap && eth) || wifiReconfigured || (!wifi && esp_timer_get_time() > nextWifi)) {
+      nextWifi = esp_timer_get_time() + TIMEOUT;
       wifiReconfigured = false;
       setupWifi();
     }
@@ -93,11 +94,26 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_ETH_CONNECTED:
-      //Serial.println(F("ETH Connected"));
+      {
+        LogLine* msg = new LogLine();
+        msg->type = NETWORK;
+        snprintf(msg->message, sizeof(msg->message), "ETH connected");
+        logger.msg(msg);
+      }
       break;
 
+    case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+      {
+        LogLine* msg = new LogLine();
+        msg->type = NETWORK;
+        snprintf(msg->message, sizeof(msg->message), "WiFi connected");
+        logger.msg(msg);
+      }
+
+       break;
+
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-      if (!wifi) {
+      {
         wifi = true;
 
         WifiConfig* wifiConfig = config.getWifi();
@@ -109,7 +125,7 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_ETH_GOT_IP:
-      if (!eth) {
+      {
         eth = true;
 
         LogLine* msg = new LogLine();
@@ -121,28 +137,46 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      //Serial.println(F("Lost wifi connection"));
-      if (wifi) disconnected();
-      wifi = false;
+      {
+        if (wifi) disconnected();
+        wifi = false;
+
+        LogLine* msg = new LogLine();
+        msg->type = NETWORK;
+        snprintf(msg->message, sizeof(msg->message), "WiFi disconnected");
+        logger.msg(msg);
+      }
       break;
 
     case ARDUINO_EVENT_ETH_DISCONNECTED:
-      //Serial.println("ETH Disconnected");
-      if (eth) disconnected();
-      eth = false;
+      {
+        if (eth) disconnected();
+        eth = false;
+
+        LogLine* msg = new LogLine();
+        msg->type = NETWORK;
+        snprintf(msg->message, sizeof(msg->message), "ETH disconnected");
+        logger.msg(msg);
+      }
       break;
 
     case ARDUINO_EVENT_ETH_STOP:
-      //Serial.println("\nETH Stopped");
-      if (eth) disconnected();
-      eth = false;
+      {
+        if (eth) disconnected();
+        eth = false;
+
+        LogLine* msg = new LogLine();
+        msg->type = NETWORK;
+        snprintf(msg->message, sizeof(msg->message), "ETH stopped");
+        logger.msg(msg);
+      }
       break;
   }
 }
 
 String Network::getFormattedTime() const {
   struct tm ptm;
-  getLocalTime(&ptm);
+  getLocalTime(&ptm, 1000);
 
   char buffer[100];
   strftime(buffer, sizeof(buffer), "%F %T", &ptm);
@@ -152,7 +186,7 @@ String Network::getFormattedTime() const {
 
 time_t Network::getEpochTime() const {
   struct tm timeinfo;
-  getLocalTime(&timeinfo);
+  getLocalTime(&timeinfo, 1000);
   return mktime(&timeinfo);
 }
 
@@ -164,7 +198,7 @@ uint64_t Network::getEpochMs() const {
 
 bool Network::hasTime() const {
   struct tm timeinfo;
-  return getLocalTime(&timeinfo);
+  return getLocalTime(&timeinfo, 1000);
 }
 
 uint16_t Network::getOffset() const {
