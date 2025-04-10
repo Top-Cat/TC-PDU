@@ -5,12 +5,15 @@
 #include <avr/io.h>
 #include <avr/eeprom.h>
 
+#define RELAY_PIN_OFF DDA7
 #define RELAY_PIN DDA1
+#define RELAY_PINS (RELAY_PIN_OFF | RELAY_PIN)
 // Need to remap timer if these are changed
 #define RED_PIN DDA2
 #define GREEN_PIN DDA3
 
 uint8_t EEMEM i2cAddr = 0x08;
+uint32_t relayCounter = 0xFFFFFFFF;
 HLW8032 HL;
 
 void setPWM(uint8_t RxByte) {
@@ -34,7 +37,10 @@ void I2C_RxHandler(unsigned int numBytes)
 	if (numBytes != 3) return;
 
 	uint8_t RxByte = TinyWireS.read();
-	setPin(RELAY_PIN, bitRead(RxByte, 0));
+	bool relayOn = bitRead(RxByte, 0);
+    relayCounter = 0xFFFFFFFF; // Tunable duty cycle
+    setPin(RELAY_PIN, relayOn);
+    setPin(RELAY_PIN_OFF, !relayOn);
 
 	setPin(RED_PIN, bitRead(RxByte, 1));
 	setPin(GREEN_PIN, bitRead(RxByte, 2));
@@ -67,8 +73,8 @@ int main(void)
 	PRR = _BV(PRUSART1) | _BV(PRTIM2) | _BV(PRTIM0) | _BV(PRADC); // Turn off features we're not using
 	sei(); // Enable interrupts or serial won't work
 	HL.begin(Serial);
-	
-    DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | (1<<RELAY_PIN); // Set pins to output
+
+    DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | (1<<RELAY_PIN) | (1<<RELAY_PIN_OFF); // Set pins to output
 	PORTA = 0; // Outputs low
     TOCPMSA0 = (1<<TOCC1S0) | (1<<TOCC2S0); // Enable mapping TIMER1 to LEDS
     //TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
@@ -81,15 +87,23 @@ int main(void)
     ICR1 = 0x03FF;
     OCR1A = 0x01FF;
     OCR1B = 0x01FF;
-	
+
 	// i2c init
 	uint8_t addr = eeprom_read_byte(&i2cAddr);
 	TinyWireS.begin(addr);
 	TinyWireS.onReceive(I2C_RxHandler);
 	TinyWireS.onRequest(I2C_TxHandler);
-    
+
     while(1)
     {
 	    HL.SerialReadLoop();
+
+		if (relayCounter < 10) {
+			if ((PORTA & RELAY_PINS) != 0) {
+				PORTA &= ~RELAY_PINS;
+			}
+		} else {
+			relayCounter--;
+		}
     }
 }
