@@ -13,8 +13,12 @@
 #define GREEN_PIN DDA3
 
 uint8_t EEMEM i2cAddr = 0x08;
-uint32_t relayCounter = 0;
 HLW8032 HL;
+
+ISR(TIMER2_OVF_vect) {
+	PORTA &= ~RELAY_PINS;
+	TCCR2B &= ~(_BV(CS22)); // Stop timer 2
+}
 
 void setPWM(uint8_t RxByte) {
 	// Bits 3 and 4 enable PWM
@@ -38,7 +42,11 @@ void I2C_RxHandler(unsigned int numBytes)
 
 	uint8_t RxByte = TinyWireS.read();
 	bool relayOn = bitRead(RxByte, 0);
-	relayCounter = 0xFFFFFFFF; // Tunable duty cycle
+
+	// Start timer 2
+	TCNT2 = 0;
+	TCCR2B |= _BV(CS22);
+
 	setPin(RELAY_PIN, relayOn);
 	setPin(RELAY_PIN_OFF, !relayOn);
 
@@ -70,7 +78,7 @@ int main(void)
 {
 	REMAP = 1; // Remap TX0 to alternate pin, we're using the normal one for the relay
 	ADCSRA = 0; // Disable ADC
-	PRR = _BV(PRUSART1) | _BV(PRTIM2) | _BV(PRTIM0) | _BV(PRADC); // Turn off features we're not using
+	PRR = _BV(PRUSART1) | _BV(PRTIM0) | _BV(PRADC); // Turn off features we're not using
 	sei(); // Enable interrupts or serial won't work
 	HL.begin(Serial);
 
@@ -78,8 +86,9 @@ int main(void)
 	PORTA = 0; // Outputs low
 	TOCPMSA0 = (1<<TOCC1S0) | (1<<TOCC2S0); // Enable mapping TIMER1 to LEDS
 	TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
-	TIMSK1 = 0;
 
+	// LED Timer
+	TIMSK1 = 0;
 	TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(COM1B0) | _BV(WGM11); // Clear on match, High at BOTTOM
 	// 1110 = Fast PWM using ICRn
 	// 0100 = CTC
@@ -87,6 +96,12 @@ int main(void)
 	ICR1 = 0x03FF;
 	OCR1A = 0x01FF;
 	OCR1B = 0x01FF;
+
+	// Relay reset timer
+	TIMSK2 = 1; // Enable interrupt
+	TCCR2A = _BV(WGM21);
+	TCCR2B = _BV(WGM23) | _BV(WGM22) | _BV(CS22);
+	ICR2 = 0x03FF; // Tunable to change how long relay is energised
 
 	// i2c init
 	uint8_t addr = eeprom_read_byte(&i2cAddr);
@@ -97,13 +112,5 @@ int main(void)
 	while(1)
 	{
 		HL.SerialReadLoop();
-
-		if (relayCounter < 10) {
-			if ((PORTA & RELAY_PINS) != 0) {
-				PORTA &= ~RELAY_PINS;
-			}
-		} else {
-			relayCounter--;
-		}
 	}
 }
