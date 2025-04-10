@@ -13,7 +13,7 @@
 #define GREEN_PIN DDA3
 
 uint8_t EEMEM i2cAddr = 0x08;
-uint32_t relayCounter = 0xFFFFFFFF;
+uint32_t relayCounter = 0;
 HLW8032 HL;
 
 void setPWM(uint8_t RxByte) {
@@ -38,9 +38,9 @@ void I2C_RxHandler(unsigned int numBytes)
 
 	uint8_t RxByte = TinyWireS.read();
 	bool relayOn = bitRead(RxByte, 0);
-    relayCounter = 0xFFFFFFFF; // Tunable duty cycle
-    setPin(RELAY_PIN, relayOn);
-    setPin(RELAY_PIN_OFF, !relayOn);
+	relayCounter = 0xFFFFFFFF; // Tunable duty cycle
+	setPin(RELAY_PIN, relayOn);
+	setPin(RELAY_PIN_OFF, !relayOn);
 
 	setPin(RED_PIN, bitRead(RxByte, 1));
 	setPin(GREEN_PIN, bitRead(RxByte, 2));
@@ -74,19 +74,19 @@ int main(void)
 	sei(); // Enable interrupts or serial won't work
 	HL.begin(Serial);
 
-    DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | (1<<RELAY_PIN) | (1<<RELAY_PIN_OFF); // Set pins to output
+	DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | (1<<RELAY_PIN) | (1<<RELAY_PIN_OFF); // Set pins to output
 	PORTA = 0; // Outputs low
-    TOCPMSA0 = (1<<TOCC1S0) | (1<<TOCC2S0); // Enable mapping TIMER1 to LEDS
-    //TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
-    TIMSK1 = 0;
+	TOCPMSA0 = (1<<TOCC1S0) | (1<<TOCC2S0); // Enable mapping TIMER1 to LEDS
+	TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
+	TIMSK1 = 0;
 
-    TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(COM1B0) | _BV(WGM11); // Clear on match, High at BOTTOM
-    // 1110 = Fast PWM using ICRn
-    // 0100 = CTC
-    TCCR1B = _BV(WGM13) | _BV(WGM12) | _BV(CS12); // 256 prescaled, CTC via OCR1A
-    ICR1 = 0x03FF;
-    OCR1A = 0x01FF;
-    OCR1B = 0x01FF;
+	TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(COM1B0) | _BV(WGM11); // Clear on match, High at BOTTOM
+	// 1110 = Fast PWM using ICRn
+	// 0100 = CTC
+	TCCR1B = _BV(WGM13) | _BV(WGM12) | _BV(CS12); // 256 prescaled, CTC via OCR1A
+	ICR1 = 0x03FF;
+	OCR1A = 0x01FF;
+	OCR1B = 0x01FF;
 
 	// i2c init
 	uint8_t addr = eeprom_read_byte(&i2cAddr);
@@ -94,9 +94,9 @@ int main(void)
 	TinyWireS.onReceive(I2C_RxHandler);
 	TinyWireS.onRequest(I2C_TxHandler);
 
-    while(1)
-    {
-	    HL.SerialReadLoop();
+	while(1)
+	{
+		HL.SerialReadLoop();
 
 		if (relayCounter < 10) {
 			if ((PORTA & RELAY_PINS) != 0) {
@@ -105,5 +105,5 @@ int main(void)
 		} else {
 			relayCounter--;
 		}
-    }
+	}
 }

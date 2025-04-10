@@ -44,5 +44,5 @@ void HLW8032::SerialReadLoop()
 }
 
 uint8_t *HLW8032::GetRaw() {
-  return BufferA ? SerialTempsB : SerialTempsA;
+	return BufferA ? SerialTempsB : SerialTempsA;
 }

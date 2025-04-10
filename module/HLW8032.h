@@ -33,5 +33,4 @@ class HLW8032
 		uint8_t *GetBuffer();
 };
 
-
 #endif
