@@ -9,6 +9,9 @@ void PDUConfig::load() {
   uint16_t version = EEPROM.readUShort(addr);
   addr += 2;
 
+  // EEPROM defaults to 0xFF not 0x00?
+  if (version == 0xFFFF) version = 0;
+
   if (version >= 9) {
     wifi.enabled = EEPROM.readBool(addr++);
   } else {

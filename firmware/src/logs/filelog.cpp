@@ -94,13 +94,13 @@ size_t FileLogger::rowCount(File &logFile) {
 size_t FileLogger::rowCount() {
   LogConfig* logConf = config.getLog();
   time_t time = network.getEpochTime();
-  size_t rowCount = 0;
+  size_t rowCountLocal = 0;
 
   for (uint8_t i = 0; i < logConf->daysToKeep; i++) {
-    rowCount += fileLog.rowCount(time - (86400 * i));
+    rowCountLocal += rowCount(time - (86400 * i));
   }
 
-  return rowCount;
+  return rowCountLocal;
 }
 
 size_t FileLogger::readRows(LogLine* output, size_t skip, size_t maxCount) {
