@@ -9,10 +9,13 @@ bool PDUWeb::checkCredentials(const char* user, const char* pass) {
 
   // Radius auth
   RadiusConfig* radiusConf = config.getRadius();
+
+  if (radiusConf->ip == IPAddress(255, 255, 255, 255)) return false;
   const char* secret = radiusConf->secret.c_str();
   uint16_t secretLen = radiusConf->secret.length();
 
-  RadiusMsg msg(RadiusCodeAccessRequest, radiusConf->timeout, radiusConf->retries);
+  // Don't allow high timeout / retries as we'll just stall here
+  RadiusMsg msg(RadiusCodeAccessRequest, min((uint8_t) 10, radiusConf->timeout), min((uint8_t) 5, radiusConf->retries));
   msg.addAttr(RadiusAttrUserName, 0, user);
   msg.addAttr(RadiusAttrUserPassword, 0, pass);
   msg.sign(secret, secretLen);
@@ -53,7 +56,8 @@ bool PDUWeb::currentUser(String& user) {
 
         time_t now = network.getEpochTime();
         time_t exp = doc["exp"];
-        if (!error && exp > now && doc["iat"] <= now) {
+        time_t iat = doc["iat"];
+        if (!error && exp > now && iat <= now) {
           String sub = doc["sub"];
           user = sub;
 

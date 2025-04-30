@@ -1,3 +1,4 @@
+#include <esp_task_wdt.h>
 #include "radius.h"
 
 extern "C" {
@@ -199,6 +200,9 @@ uint8_t RadiusMsg::sendWaitReply(WiFiUDP* Udp, IPAddress server, uint16_t port, 
           return true;
         }
       }
+
+      // Don't allow watchdog death
+      esp_task_wdt_reset();
     }
   }
   return false;  // No reply

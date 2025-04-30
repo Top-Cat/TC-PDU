@@ -8,7 +8,7 @@
 #include "control.h"
 #include "mqtt.h"
 
-#define WDT_TIMEOUT 3
+#define WDT_TIMEOUT 10
 
 WebServer server(80);
 PDUWeb web = PDUWeb(&server);
