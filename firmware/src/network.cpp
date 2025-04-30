@@ -3,6 +3,9 @@
 #include "config.h"
 #include "logs/logs.h"
 
+char hostname[14];
+uint8_t mac[6] = {0,0,0,0,0,0};
+
 void Network::task() {
   disconnected();
   setupETH();
@@ -64,7 +67,8 @@ void Network::setupWifi() {
       WiFi.mode(WIFI_STA);
       WiFi.disconnect();
 
-      WiFi.setHostname("TC-pdu-wifi");
+      esp_read_mac(mac, ESP_MAC_WIFI_STA);
+      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", mac[3], mac[4], mac[5]);
 
       WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
     }
@@ -99,7 +103,10 @@ void Network::ethEvent(WiFiEvent_t event)
 {
   switch (event) {
     case ARDUINO_EVENT_ETH_START:
-      ETH.setHostname("TC-pdu");
+      ETH.macAddress(mac);
+      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", mac[3], mac[4], mac[5]);
+
+      ETH.setHostname(hostname);
       break;
 
     case ARDUINO_EVENT_ETH_CONNECTED:
