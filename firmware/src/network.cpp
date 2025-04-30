@@ -30,14 +30,15 @@ void Network::task() {
 
   while (true) {
     if (!ap && !wifi && !eth && (esp_timer_get_time() - lastConnected) >= TIMEOUT) {
-      //Serial.println();
       Serial.println(F("Timeout waiting for connection"));
 
       setupAP();
     }
 
-    if ((ap && eth) || wifiReconfigured || (!wifi && esp_timer_get_time() > nextWifi)) {
-      nextWifi = esp_timer_get_time() + TIMEOUT;
+    if ((ap && eth) || wifiReconfigured || (!ap && !wifi && esp_timer_get_time() > nextWifi)) {
+      Serial.println(F("Checking wifi setup"));
+
+      nextWifi = esp_timer_get_time() + RETRY_WIFI;
       wifiReconfigured = false;
       setupWifi();
     }
@@ -51,16 +52,24 @@ void Network::reconfigureWifi() {
 }
 
 void Network::setupWifi() {
-  ap = false;
-
   WifiConfig* wifiConf = config.getWifi();
-  WiFi.mode(wifiConf->enabled ? WIFI_STA : WIFI_OFF);
-  WiFi.disconnect();
+  if (wifiConf->enabled) {
+    // Do nothing if wifi is enabled but not configured, continue broadcasting rescue ap
+    if (wifiConf->ssid.length() > 0) {
+      Serial.println(F("Attempting to connect to wifi"));
 
-  WiFi.setHostname("TC-pdu-wifi");
+      disconnected();
+      ap = false;
 
-  if (wifiConf->ssid.length() > 0 && wifiConf->enabled) {
-    WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
+      WiFi.mode(WIFI_STA);
+      WiFi.disconnect();
+
+      WiFi.setHostname("TC-pdu-wifi");
+
+      WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
+    }
+  } else {
+    WiFi.mode(WIFI_OFF);
   }
 }
 
