@@ -3,7 +3,7 @@
 #include "config.h"
 
 void SyslogLogger::process(LogProcess* state) {
-  while (!(network.setupComplete && network.hasTime())) delay(500);
+  while (!(network.setupComplete && network.hasTime() && network.isConnected())) delay(500);
 
   SyslogConfig* conf = config.getSyslog();
   if (conf->host.length() <= 0) return;

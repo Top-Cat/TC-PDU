@@ -62,6 +62,10 @@ void Network::task() {
   }
 }
 
+bool Network::isConnected() {
+  return eth || wifi;
+}
+
 void Network::reconfigureWifi() {
   wifiReconfigured = true;
 }

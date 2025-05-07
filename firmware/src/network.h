@@ -42,6 +42,7 @@ class Network {
     void task();
     void ethEvent(WiFiEvent_t event);
     bool setupComplete;
+    bool isConnected();
 
     WifiState wifiState() const;
     EthState ethState() const;
