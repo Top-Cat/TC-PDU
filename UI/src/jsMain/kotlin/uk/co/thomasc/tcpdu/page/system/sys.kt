@@ -54,8 +54,8 @@ val sysStatus = fc<SystemProps> { props ->
                     }
                     i("fas fa-circle text-$color") {}
 
-                    +" Temp $idx: ${temp}°C"
-                }
+                    +" Temp $idx: $temp°C"
+                }UI/src/jsMain/kotlin/uk/co/thomasc/tcpdu/page/system/sys.kt
 
                 hr {}
 
