@@ -2,9 +2,16 @@
 
 #include "config.h"
 #include "logs/logs.h"
+#include "esp_sntp.h"
+#include "i2c.h"
 
 char hostname[14];
 uint8_t mac[6] = {0,0,0,0,0,0};
+
+
+void timeavailable(struct timeval *t) {
+  bus.setTime(t->tv_sec);
+}
 
 void Network::task() {
   disconnected();
@@ -12,6 +19,8 @@ void Network::task() {
   setupWifi();
 
   delay(1);
+
+  sntp_set_time_sync_notification_cb(timeavailable);
 
   NTPConfig* ntpConf = config.getNTP();
   const char* tz = "GMT0BST,M3.5.0/1,M10.5.0";
@@ -30,6 +39,9 @@ void Network::task() {
   msg->type = BOOT;
   snprintf(msg->message, sizeof(msg->message), "Network setup complete");
   logger.msg(msg);
+
+  // We already tried to connect to wifi
+  nextWifi = esp_timer_get_time() + RETRY_WIFI;
 
   while (true) {
     if (!ap && !wifi && !eth && (esp_timer_get_time() - lastConnected) >= TIMEOUT) {
