@@ -11,6 +11,7 @@ import react.dom.div
 import react.dom.hr
 import react.dom.html.ReactHTML.br
 import react.dom.html.ReactHTML.p
+import react.dom.i
 import react.fc
 import uk.co.thomasc.tcpdu.apiRoot
 
@@ -42,6 +43,22 @@ val sysStatus = fc<SystemProps> { props ->
 
                 hr {}
 
+                system.temps.forEachIndexed { idx, temp ->
+                    if (idx > 0) br {}
+
+                    val color = when {
+                        temp < 30 -> "info"
+                        temp < 40 -> "success"
+                        temp < 60 -> "warning"
+                        else -> "danger"
+                    }
+                    i("fas fa-circle text-$color") {}
+
+                    +" Temp $idx: ${temp}°C"
+                }
+
+                hr {}
+
                 button(type = ButtonType.submit, classes = "btn btn-primary") {
                     attrs.onClickFunction = { ev ->
                         ev.preventDefault()
@@ -49,6 +66,15 @@ val sysStatus = fc<SystemProps> { props ->
                         Axios.post<String>("$apiRoot/reboot", "", generateConfig<String, String>())
                     }
                     +"Reboot"
+                }
+
+                button(type = ButtonType.submit, classes = "btn btn-primary ms-2") {
+                    attrs.onClickFunction = { ev ->
+                        ev.preventDefault()
+
+                        Axios.post<String>("$apiRoot/format", "", generateConfig<String, String>())
+                    }
+                    +"Clear Logs"
                 }
             }
         }

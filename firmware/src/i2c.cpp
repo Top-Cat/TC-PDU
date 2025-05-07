@@ -1,6 +1,32 @@
 #include "i2c.h"
 #include "logs/logs.h"
 
+float rawToCelsius(int32_t raw) {
+  if (raw <= DEVICE_DISCONNECTED_RAW)
+      return DEVICE_DISCONNECTED_C;
+  return (float)raw * 0.0078125f;  // 1/128
+}
+
+void handleTemperatureChange(int deviceIndex, int32_t temperatureRAW)
+{
+  bus.updateTemp(deviceIndex, rawToCelsius(temperatureRAW));
+}
+
+void handleDeviceDisconnected(int deviceIndex)
+{
+  Serial.print(F("[NonBlockingDallas] handleDeviceDisconnected ==> deviceIndex="));
+  Serial.print(deviceIndex);
+  Serial.println(F(" disconnected."));
+}
+
+void ModuleBus::updateTemp(uint8_t deviceIndex, float val) {
+  temps[deviceIndex] = val;
+}
+
+float* ModuleBus::getReadings() {
+  return temps;
+}
+
 void ModuleBus::setRelay(uint8_t idx, bool on) {
   if (idx >= MAX_DEVICES) return;
 
@@ -109,17 +135,51 @@ void ModuleBus::sendUpdates() {
   }
 }
 
+void ModuleBus::setTime(time_t t) {
+  struct tm* tm = localtime(&t);
+  rtc->set(
+    tm->tm_sec,
+    tm->tm_min,
+    tm->tm_hour,
+    tm->tm_wday,
+    tm->tm_mday,
+    tm->tm_mon + 1,
+    tm->tm_year - 100
+  );
+}
+
 void ModuleBus::task() {
+  sensors->begin(NonBlockingDallas::resolution_12, 10 * 1000);
+  sensors->onTemperatureChange(handleTemperatureChange);
+  sensors->onDeviceDisconnected(handleDeviceDisconnected);
+
   Wire.begin(I2C_SDA, I2C_SCL, I2C_KHZ * 100000);
   uint8_t idx = 0;
   uint8_t buffer[29];
 
   for (uint8_t address = 0; address < 127; ++address) {
-    Wire.beginTransmission(address);
-    uint8_t error = Wire.endTransmission();
+    if (address == 0x68) {
+      rtc->refresh();
 
-    if (error == 0) {
-      addresses[idx++] = address;
+      struct tm tm;
+      tm.tm_year = rtc->year() + 100;
+      tm.tm_mon = rtc->month() - 1;
+      tm.tm_mday = rtc->day();
+      tm.tm_hour = rtc->hour();
+      tm.tm_min = rtc->minute();
+      tm.tm_sec = rtc->second();
+      time_t t = mktime(&tm);
+      struct timeval now = { .tv_sec = t };
+      settimeofday(&now, NULL);
+    } else if (address == 0x50) {
+      // Reserved address for external eeprom
+    } else {
+      Wire.beginTransmission(address);
+      uint8_t error = Wire.endTransmission();
+
+      if (error == 0) {
+        addresses[idx++] = address;
+      }
     }
   }
 
@@ -143,14 +203,22 @@ void ModuleBus::task() {
     if (bytesReceived == sizeof(buffer)) {
       Wire.readBytes(buffer, sizeof(buffer));
       parseBuffer(buffer, &powerInfo[idx], controlInfo[idx].relayState);
+    } else {
+      Serial.print("Wrong bytes received for ");
+      Serial.println(addresses[idx]);
     }
 
     // Wait between requesting power updates
     for (uint8_t wait = 0; wait < 30; wait++) {
       sendUpdates();
+      sensors->update();
       delay(1);
     }
   }
+}
+
+uint8_t* ModuleBus::getAddressList() {
+  return addresses;
 }
 
 ///// Global object
