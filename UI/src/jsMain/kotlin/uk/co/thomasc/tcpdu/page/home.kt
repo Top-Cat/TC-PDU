@@ -22,6 +22,9 @@ import kotlin.js.Promise
 data class PDUState(val power: Float, val devices: List<PDUDeviceState>)
 
 @Serializable
+data class I2cInfo(val count: Int, val devices: List<UByte>)
+
+@Serializable
 data class PDUDeviceState(
     val name: String,
     val voltage: Float,
@@ -85,11 +88,16 @@ enum class OutputState(val enc: Long) {
 val homePage = fc<Props> {
     val history = useNavigate()
     val (pduState, setPduState) = useState<PDUState>()
+    val (i2c, setI2c) = useState<List<UByte>>()
 
     useEffectOnce {
         axiosGet<PDUState>("$apiRoot/state").then {
             setPduState(it)
         }.handleForbidden(history)
+
+        axiosGet<I2cInfo>("$apiRoot/i2c").then {
+            setI2c(it.devices)
+        }
     }
 
     div("row row-cols-1 row-cols-md-2 g-4") {
@@ -98,6 +106,7 @@ val homePage = fc<Props> {
                 output {
                     attrs.idx = idx
                     attrs.device = dev
+                    attrs.i2c = i2c
                     attrs.callback = { update ->
                         setPduState {
                             it?.copy(devices = it.devices.take(idx) + it.devices[idx].apply(update) + it.devices.drop(idx + 1))
