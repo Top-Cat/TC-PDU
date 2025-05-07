@@ -5,7 +5,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-#define TIMEOUT 20 * 1000 * 1000 // 10s
+#define TIMEOUT 20 * 1000 * 1000 // 20s
+#define RETRY_WIFI 5 * 60 * 1000 * 1000 // 5 mins
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN
 #define ETH_POWER_PIN 16
 #define ETH_TYPE ETH_PHY_LAN8720
@@ -60,6 +61,7 @@ class Network {
     bool wifi = false;
     bool eth = false;
     uint64_t lastConnected = 0;
+    uint64_t nextWifi = 0;
 
     void setupWifi();
     void setupETH();

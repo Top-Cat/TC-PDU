@@ -5,18 +5,20 @@
 #include <avr/io.h>
 #include <avr/eeprom.h>
 
-#define RELAY_PIN_OFF DDA7
-#define RELAY_PIN DDA1
-#define RELAY_PINS (RELAY_PIN_OFF | RELAY_PIN)
+#define RELAY_PIN_OFF DDA1
+#define RELAY_PIN DDA0
+#define RELAY_PINS (_BV(RELAY_PIN_OFF) | _BV(RELAY_PIN))
 // Need to remap timer if these are changed
-#define RED_PIN DDA2
-#define GREEN_PIN DDA3
+#define RED_PIN DDA3
+#define GREEN_PIN DDA2
 
-uint8_t EEMEM i2cAddr = 0x08;
+uint8_t EEMEM i2cAddr = 0x0a;
+uint8_t lastRelayCommand = 2;
 HLW8032 HL;
 
 ISR(TIMER2_OVF_vect) {
 	PORTA &= ~RELAY_PINS;
+	PORTB &= ~RELAY_PINS;
 	TCCR2B &= ~(_BV(CS22)); // Stop timer 2
 }
 
@@ -36,6 +38,10 @@ void setPin(uint8_t pin, bool state) {
 	bitWrite(PORTA, pin, state);
 }
 
+void setPinB(uint8_t pin, bool state) {
+	bitWrite(PORTB, pin, state);
+}
+
 void I2C_RxHandler(unsigned int numBytes)
 {
 	if (numBytes != 3) return;
@@ -43,12 +49,18 @@ void I2C_RxHandler(unsigned int numBytes)
 	uint8_t RxByte = TinyWireS.read();
 	bool relayOn = bitRead(RxByte, 0);
 
-	// Start timer 2
-	TCNT2 = 0;
-	TCCR2B |= _BV(CS22);
+	if (relayOn != lastRelayCommand) {
+		lastRelayCommand = relayOn;
 
-	setPin(RELAY_PIN, relayOn);
-	setPin(RELAY_PIN_OFF, !relayOn);
+		// Start timer 2
+		TCNT2 = 0;
+		TCCR2B |= _BV(CS22);
+
+		setPin(RELAY_PIN, relayOn);
+		setPin(RELAY_PIN_OFF, !relayOn);
+		setPinB(RELAY_PIN, relayOn);
+		setPinB(RELAY_PIN_OFF, !relayOn);
+	}
 
 	setPin(RED_PIN, bitRead(RxByte, 1));
 	setPin(GREEN_PIN, bitRead(RxByte, 2));
@@ -82,10 +94,12 @@ int main(void)
 	sei(); // Enable interrupts or serial won't work
 	HL.begin(Serial);
 
-	DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | (1<<RELAY_PIN) | (1<<RELAY_PIN_OFF); // Set pins to output
+	DDRA = (1<<RED_PIN) | (1<<GREEN_PIN) | RELAY_PINS; // Set pins to output
 	PORTA = 0; // Outputs low
+	DDRB = RELAY_PINS;
+	PORTB = 0;
 	TOCPMSA0 = (1<<TOCC1S0) | (1<<TOCC2S0); // Enable mapping TIMER1 to LEDS
-	TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
+	// TOCPMCOE = (1<<TOCC1OE) | (1<<TOCC2OE); // Commented so that by default the LEDS are not tied to TIMER1
 
 	// LED Timer
 	TIMSK1 = 0;

@@ -3,7 +3,13 @@
 
 #include <stdint.h>
 #include <Wire.h>
-#include <HardwareSerial.h>
+#include "uRTCLib.h"
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <NonBlockingDallas.h>
+
+#define ONE_WIRE_BUS 15
 
 #define MAX_DEVICES 16
 #define I2C_SDA 33
@@ -40,18 +46,30 @@ struct ControlInfo {
 class ModuleBus {
   public:
     uint8_t indexFor(uint8_t addr);
+    uint8_t* getAddressList();
     static void setupTask();
     void task();
+
+    float* getReadings();
+    void updateTemp(uint8_t index, float val);
 
     void setRelay(uint8_t idx, bool on);
     void setLed(uint8_t idx, LedState red, LedState green, float period, float dutyCycle);
     void setLed(uint8_t idx, bool red, bool green);
+    void setTime(time_t t);
 
     bool initComplete = false;
 
     PowerInfo powerInfo[MAX_DEVICES];
     uint8_t totalDevices = 0;
   private:
+    uRTCLib* rtc = new uRTCLib(0x68);
+    OneWire* oneWire = new OneWire(ONE_WIRE_BUS);
+    DallasTemperature* dt = new DallasTemperature(oneWire);
+    NonBlockingDallas* sensors = new NonBlockingDallas(dt);
+
+    float temps[3] = {0};
+
     ControlInfo controlInfo[MAX_DEVICES] = {};
     bool controlUpdate[MAX_DEVICES] = {false};
     uint8_t addresses[MAX_DEVICES] = {0};

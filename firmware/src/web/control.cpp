@@ -1,6 +1,7 @@
 #include "web.h"
 #include "config.h"
 #include "control.h"
+#include "i2c.h"
 #include "network.h"
 #include "version.h"
 
@@ -34,6 +35,26 @@ void PDUWeb::controlEndpoints() {
       object["minAlarm"] = output->getMinAlarm();
       object["maxAlarm"] = output->getMaxAlarm();
       object["outputState"] = (uint8_t) output->getOutputState();
+    }
+
+    String json;
+    serializeJson(doc, json);
+
+    sendStaticHeaders();
+    server->send(200, "text/html", json);
+  });
+
+  server->on("/api/i2c", HTTP_GET, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
+    JsonDocument doc;
+    doc["count"] = bus.totalDevices;
+    JsonArray devices = doc["devices"].to<JsonArray>();
+
+    uint8_t* addresses = bus.getAddressList();
+    for (uint8_t idx = 0; idx < bus.totalDevices; idx++) {
+      devices.add(addresses[idx]);
     }
 
     String json;
@@ -80,6 +101,13 @@ void PDUWeb::controlEndpoints() {
       doc["eth"]["subnet"] = eState.subnet;
       doc["eth"]["fullDuplex"] = eState.fullDuplex;
       doc["eth"]["linkSpeed"] = eState.linkSpeed;
+    }
+
+    JsonArray temps = doc["temps"].to<JsonArray>();
+
+    float* tempArr = bus.getReadings();
+    for (uint8_t idx = 0; idx < 3; idx++) {
+      temps.add(tempArr[idx]);
     }
 
     String json;

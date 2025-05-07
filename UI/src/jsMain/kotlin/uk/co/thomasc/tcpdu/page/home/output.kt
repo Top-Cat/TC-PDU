@@ -35,6 +35,7 @@ import uk.co.thomasc.tcpdu.util.fixed
 external interface OutputProps : Props {
     var idx: Int
     var device: PDUDeviceState
+    var i2c: List<UByte>?
     var callback: (DeviceStateUpdate) -> Unit
 }
 
@@ -58,6 +59,7 @@ val output = fc<OutputProps> { props ->
     val (loading, setLoading) = useState(false)
     val (editing, setEditing) = useState(false)
     val (bootState, setBootState) = useState(dev.bootState)
+    val (address, setAddress) = useState(dev.address)
 
     val nameRef = useRef<HTMLInputElement>()
     val priorityRef = useRef<HTMLInputElement>()
@@ -99,12 +101,31 @@ val output = fc<OutputProps> { props ->
                             attrs.htmlFor = "output-${props.idx}-addr"
                             +"Address"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "12"
-                            attrs.defaultValue = dev.address.toString()
-                            attrs.id = "output-${props.idx}-addr"
-                            attrs.disabled = loading
-                            ref = addressRef
+                        props.i2c?.also { i2c ->
+                            select("form-control") {
+                                attrs.id = "output-${props.idx}-addr"
+                                attrs.value = address.toString()
+                                attrs.onChangeFunction = { ev ->
+                                    setAddress((ev.target as HTMLSelectElement).value.toUByteOrNull() ?: 0u)
+                                }
+                                option {
+                                    attrs.value = "0"
+                                    +"Unassigned"
+                                }
+                                i2c.forEach {
+                                    option {
+                                        +it.toString()
+                                    }
+                                }
+                            }
+                        } ?: run {
+                            input(InputType.number, classes = "form-control") {
+                                attrs.placeholder = "12"
+                                attrs.defaultValue = dev.address.toString()
+                                attrs.id = "output-${props.idx}-addr"
+                                attrs.disabled = loading
+                                ref = addressRef
+                            }
                         }
                     }
                     div("form-group w-75") {
@@ -227,7 +248,7 @@ val output = fc<OutputProps> { props ->
                             props.idx,
                             name = nameRef.current?.value,
                             priority = priorityRef.current?.value?.toUByteOrNull(),
-                            address = addressRef.current?.value?.toUByteOrNull(),
+                            address = addressRef.current?.value?.toUByteOrNull() ?: address,
                             bootDelay = bootDelayRef.current?.value?.toUByteOrNull(),
                             maxPower = maxPowerRef.current?.value?.toUShortOrNull(),
                             bootState = bootState,
