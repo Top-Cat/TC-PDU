@@ -126,23 +126,24 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_ETH_CONNECTED:
-      {
+      if (!ethConnected) {
         LogLine* msg = new LogLine();
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "ETH connected");
         logger.msg(msg);
       }
+      ethConnected = true;
       break;
 
     case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-      {
+      if (!wifiConnected) {
         LogLine* msg = new LogLine();
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "WiFi connected");
         logger.msg(msg);
       }
-
-       break;
+      wifiConnected = true;
+      break;
 
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
       {
@@ -169,27 +170,29 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      {
-        if (wifi) disconnected();
-        wifi = false;
+      if (wifi) disconnected();
+      wifi = false;
 
+      if (wifiConnected) {
         LogLine* msg = new LogLine();
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "WiFi disconnected");
         logger.msg(msg);
       }
+      wifiConnected = false;
       break;
 
     case ARDUINO_EVENT_ETH_DISCONNECTED:
-      {
-        if (eth) disconnected();
-        eth = false;
+      if (eth) disconnected();
+      eth = false;
 
+      if (ethConnected) {
         LogLine* msg = new LogLine();
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "ETH disconnected");
         logger.msg(msg);
       }
+      ethConnected = false;
       break;
 
     case ARDUINO_EVENT_ETH_STOP:

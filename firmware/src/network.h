@@ -61,6 +61,9 @@ class Network {
     bool ap = false;
     bool wifi = false;
     bool eth = false;
+
+    bool wifiConnected = false;
+    bool ethConnected = false;
     uint64_t lastConnected = 0;
     uint64_t nextWifi = 0;
 
