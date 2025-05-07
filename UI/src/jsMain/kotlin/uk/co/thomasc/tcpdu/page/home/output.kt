@@ -106,10 +106,10 @@ val output = fc<OutputProps> { props ->
                                 attrs.id = "output-${props.idx}-addr"
                                 attrs.value = address.toString()
                                 attrs.onChangeFunction = { ev ->
-                                    setAddress((ev.target as HTMLSelectElement).value.toUByteOrNull() ?: 0u)
+                                    setAddress((ev.target as HTMLSelectElement).value.toUByteOrNull() ?: 255u)
                                 }
                                 option {
-                                    attrs.value = "0"
+                                    attrs.value = "255"
                                     +"Unassigned"
                                 }
                                 i2c.forEach {
