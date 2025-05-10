@@ -5,7 +5,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-#define TIMEOUT 20 * 1000 * 1000 // 20s
+#define TIMEOUT 30 * 1000 * 1000 // 30s
 #define RETRY_WIFI 5 * 60 * 1000 * 1000 // 5 mins
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN
 #define ETH_POWER_PIN 16
