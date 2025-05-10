@@ -52,7 +52,7 @@ try_again:
 	*_ubrrh = baud_setting >> 8;
 	*_ubrrl = baud_setting;
 	*_ucsrb = (_rxen | _txen | _rxcie);
-*_ucsrc = 0x26;
+	*_ucsrc = 0x26;
 }
 
 void HardwareSerial::end() {
