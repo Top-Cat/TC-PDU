@@ -176,10 +176,10 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     LogConfig* logConf = config.getLog();
-    if (doc["serialMask"]) logConf->serialMask = doc["serialMask"];
-    if (doc["emailMask"]) logConf->emailMask = doc["emailMask"];
-    if (doc["syslogMask"]) logConf->syslogMask = doc["syslogMask"];
-    if (doc["days"]) logConf->daysToKeep = doc["days"];
+    if (doc["serialMask"].is<uint64_t>()) logConf->serialMask = doc["serialMask"];
+    if (doc["emailMask"].is<uint64_t>()) logConf->emailMask = doc["emailMask"];
+    if (doc["syslogMask"].is<uint64_t>()) logConf->syslogMask = doc["syslogMask"];
+    if (doc["days"].is<uint8_t>()) logConf->daysToKeep = doc["days"];
 
     config.save();
     sendStaticHeaders();
