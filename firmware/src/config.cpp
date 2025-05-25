@@ -129,6 +129,10 @@ void PDUConfig::load() {
     addr += mqtt.prefix.length() + 1;
   }
 
+  if (version >= 11) {
+    mqtt.addMacToPrefix = EEPROM.readBool(addr++);
+  }
+
   if (version >= 8) {
     slog.host = EEPROM.readString(addr);
     addr += slog.host.length() + 1;
@@ -246,6 +250,7 @@ void PDUConfig::save() {
   addr += EEPROM.writeString(addr, mqtt.password) + 1;
   addr += EEPROM.writeString(addr, mqtt.clientId) + 1;
   addr += EEPROM.writeString(addr, mqtt.prefix) + 1;
+  addr += EEPROM.writeBool(addr, mqtt.addMacToPrefix);
 
   addr += EEPROM.writeString(addr, slog.host) + 1;
   addr += EEPROM.writeUShort(addr, slog.port);

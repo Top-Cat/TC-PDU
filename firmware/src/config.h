@@ -5,7 +5,7 @@
 #include <WString.h>
 #include "output.h"
 
-#define CONFIG_VERSION 10
+#define CONFIG_VERSION 11
 #define MAX_OUTPUTS 8
 
 struct RadiusConfig {
@@ -55,6 +55,7 @@ struct MqttConfig {
   String username = "";
   String password = "";
   String prefix = "";
+  bool addMacToPrefix = false;
 };
 
 struct SyslogConfig {

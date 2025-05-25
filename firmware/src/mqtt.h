@@ -16,6 +16,7 @@ class PDUMqtt {
     void task();
     void triggerChanges();
   private:
+    String prefix;
     bool configChanges = false;
     void registerCallbacks();
     AsyncMqttClient* mqttClient;

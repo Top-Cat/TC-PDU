@@ -234,6 +234,7 @@ void PDUWeb::configEndpoints() {
     if (doc["password"]) mqttConf->password = (const char*) doc["password"];
     if (doc["clientId"]) mqttConf->clientId = (const char*) doc["clientId"];
     if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
+    if (doc["addMacToPrefix"].is<bool>()) mqttConf->addMacToPrefix = (bool) doc["addMacToPrefix"];
 
     config.save();
     mqtt.triggerChanges();

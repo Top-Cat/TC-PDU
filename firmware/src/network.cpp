@@ -6,16 +6,14 @@
 #include "i2c.h"
 
 char hostname[14];
-uint8_t mac[6] = {0,0,0,0,0,0};
-
 
 void timeavailable(struct timeval *t) {
   bus.setTime(t->tv_sec);
 }
 
 void Network::task() {
-  disconnected();
   setupETH();
+  setupAP();
   setupWifi();
 
   delay(1);
@@ -40,22 +38,21 @@ void Network::task() {
   snprintf(msg->message, sizeof(msg->message), "Network setup complete");
   logger.msg(msg);
 
-  // We already tried to connect to wifi
   nextWifi = esp_timer_get_time() + RETRY_WIFI;
 
   while (true) {
-    if (!ap && !wifi && !eth && (esp_timer_get_time() - lastConnected) >= TIMEOUT) {
-      Serial.println(F("Timeout waiting for connection"));
+    if (wifiReconfigured) {
+      Serial.println(F("Wifi reconfigured"));
 
-      setupAP();
-    }
-
-    if ((ap && eth) || wifiReconfigured || (!ap && !wifi && esp_timer_get_time() > nextWifi)) {
-      Serial.println(F("Checking wifi setup"));
-
-      nextWifi = esp_timer_get_time() + RETRY_WIFI;
       wifiReconfigured = false;
       setupWifi();
+    }
+
+    if (!wifi && esp_timer_get_time() > nextWifi) {
+      Serial.println(F("Wifi reconnect"));
+
+      WiFi.reconnect();
+      nextWifi = esp_timer_get_time() + RETRY_WIFI;
     }
 
     delay(500);
@@ -72,24 +69,23 @@ void Network::reconfigureWifi() {
 
 void Network::setupWifi() {
   WifiConfig* wifiConf = config.getWifi();
+  WiFi.mode(WIFI_AP_STA);
+
   if (wifiConf->enabled) {
     // Do nothing if wifi is enabled but not configured, continue broadcasting rescue ap
     if (wifiConf->ssid.length() > 0) {
       Serial.println(F("Attempting to connect to wifi"));
 
-      disconnected();
-      ap = false;
+      esp_read_mac(wifimac, ESP_MAC_WIFI_STA);
+      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", wifimac[3], wifimac[4], wifimac[5]);
 
-      WiFi.mode(WIFI_STA);
-      WiFi.disconnect();
-
-      esp_read_mac(mac, ESP_MAC_WIFI_STA);
-      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", mac[3], mac[4], mac[5]);
+      Serial.print(F("Hostname: "));
+      Serial.println(hostname);
 
       WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
     }
   } else {
-    WiFi.mode(WIFI_OFF);
+    WiFi.disconnect();
   }
 }
 
@@ -101,8 +97,7 @@ void Network::setupETH() {
 void Network::setupAP() {
   Serial.println("Setup AP");
 
-  WiFi.mode(WIFI_AP);
-  WiFi.disconnect();
+  // WiFi.disconnect();
   ap = true;
   WiFi.softAP(APssid, APpass);
 
@@ -111,16 +106,18 @@ void Network::setupAP() {
   Serial.println(IP);
 }
 
-void Network::disconnected() {
-  lastConnected = esp_timer_get_time();
+String Network::getMac() const {
+  char macStr[7];
+  snprintf(macStr, sizeof(macStr), "%02x%02x%02x", ethmac[3], ethmac[4], ethmac[5]);
+  return macStr;
 }
 
 void Network::ethEvent(WiFiEvent_t event)
 {
   switch (event) {
     case ARDUINO_EVENT_ETH_START:
-      ETH.macAddress(mac);
-      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", mac[3], mac[4], mac[5]);
+      ETH.macAddress(ethmac);
+      snprintf(hostname, sizeof(hostname), "tc-pdu-%02x%02x%02x", ethmac[3], ethmac[4], ethmac[5]);
 
       ETH.setHostname(hostname);
       break;
@@ -141,6 +138,8 @@ void Network::ethEvent(WiFiEvent_t event)
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "WiFi connected");
         logger.msg(msg);
+
+        WiFi.softAPdisconnect(true);
       }
       wifiConnected = true;
       break;
@@ -170,7 +169,6 @@ void Network::ethEvent(WiFiEvent_t event)
       break;
 
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      if (wifi) disconnected();
       wifi = false;
 
       if (wifiConnected) {
@@ -178,12 +176,14 @@ void Network::ethEvent(WiFiEvent_t event)
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "WiFi disconnected");
         logger.msg(msg);
+
+        nextWifi = esp_timer_get_time() + RETRY_WIFI;
+        setupAP();
       }
       wifiConnected = false;
       break;
 
     case ARDUINO_EVENT_ETH_DISCONNECTED:
-      if (eth) disconnected();
       eth = false;
 
       if (ethConnected) {
@@ -197,7 +197,6 @@ void Network::ethEvent(WiFiEvent_t event)
 
     case ARDUINO_EVENT_ETH_STOP:
       {
-        if (eth) disconnected();
         eth = false;
 
         LogLine* msg = new LogLine();
