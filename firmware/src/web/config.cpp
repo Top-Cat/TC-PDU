@@ -6,6 +6,9 @@
 
 void PDUWeb::configEndpoints() {
   server->on("/api/config", HTTP_GET, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     WifiConfig* wifiConf = config.getWifi();
     doc["wifi"]["enabled"] = wifiConf->enabled;
