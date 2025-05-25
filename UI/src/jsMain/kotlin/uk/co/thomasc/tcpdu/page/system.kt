@@ -24,7 +24,7 @@ data class PDUSystem(
     val wifi: WifiState,
     val eth: EthState,
     val fs: FsState,
-    val temps: List<Float>
+    val temps: List<Float>? = listOf()
 )
 
 @Serializable

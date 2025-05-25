@@ -43,7 +43,7 @@ val sysStatus = fc<SystemProps> { props ->
 
                 hr {}
 
-                system.temps.forEachIndexed { idx, temp ->
+                system.temps?.forEachIndexed { idx, temp ->
                     if (idx > 0) br {}
 
                     val color = when {
