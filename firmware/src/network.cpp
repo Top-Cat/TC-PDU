@@ -97,7 +97,6 @@ void Network::setupETH() {
 void Network::setupAP() {
   Serial.println("Setup AP");
 
-  // WiFi.disconnect();
   ap = true;
   WiFi.softAP(APssid, APpass);
 
