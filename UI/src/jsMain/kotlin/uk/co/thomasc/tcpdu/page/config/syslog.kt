@@ -43,31 +43,33 @@ val syslogConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "syslog-host"
-                            +"Host"
+                    div("row") {
+                        div("col-md-9") {
+                            label("form-label") {
+                                attrs.htmlFor = "syslog-host"
+                                +"Host"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                key = "syslog-host"
+                                attrs.placeholder = "syslog.example.com"
+                                attrs.id = "syslog-host"
+                                attrs.defaultValue = config.syslog.host ?: ""
+                                ref = hostRef
+                            }
                         }
-                        input(InputType.text, classes = "form-control") {
-                            key = "syslog-host"
-                            attrs.placeholder = "syslog.example.com"
-                            attrs.id = "syslog-host"
-                            attrs.defaultValue = config.syslog.host ?: ""
-                            ref = hostRef
-                        }
-                    }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "syslog-port"
-                            +"Port"
-                        }
-                        input(InputType.number, classes = "form-control w-25") {
-                            key = "syslog-port"
-                            attrs.placeholder = "5140"
-                            attrs.id = "syslog-port"
-                            attrs.defaultValue = config.syslog.port?.toString() ?: ""
-                            ref = portRef
+                        div("col-md-3") {
+                            label("form-label") {
+                                attrs.htmlFor = "syslog-port"
+                                +"Port"
+                            }
+                            input(InputType.number, classes = "form-control") {
+                                key = "syslog-port"
+                                attrs.placeholder = "5140"
+                                attrs.id = "syslog-port"
+                                attrs.defaultValue = config.syslog.port?.toString() ?: ""
+                                ref = portRef
+                            }
                         }
                     }
 

@@ -96,7 +96,7 @@ val output = fc<OutputProps> { props ->
         div("card-body") {
             if (editing) {
                 div("output-grid") {
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-addr"
                             +"Address"
@@ -128,7 +128,7 @@ val output = fc<OutputProps> { props ->
                             }
                         }
                     }
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-prio"
                             +"Priority"
@@ -141,7 +141,7 @@ val output = fc<OutputProps> { props ->
                             ref = priorityRef
                         }
                     }
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-delay"
                             +"Boot delay (s)"
@@ -154,7 +154,7 @@ val output = fc<OutputProps> { props ->
                             ref = bootDelayRef
                         }
                     }
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-maxPower"
                             +"Max Power"
@@ -167,7 +167,7 @@ val output = fc<OutputProps> { props ->
                             ref = maxPowerRef
                         }
                     }
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-minAlarm"
                             +"Min Alarm"
@@ -180,7 +180,7 @@ val output = fc<OutputProps> { props ->
                             ref = minAlarmRef
                         }
                     }
-                    div("form-group w-75") {
+                    div("w-75") {
                         label("form-label") {
                             attrs.htmlFor = "output-${props.idx}-maxAlarm"
                             +"Max Alarm"
@@ -194,7 +194,7 @@ val output = fc<OutputProps> { props ->
                         }
                     }
                 }
-                div("form-group") {
+                div {
                     label("form-label") {
                         attrs.htmlFor = "output-${props.idx}-bootState"
                         +"Boot state"

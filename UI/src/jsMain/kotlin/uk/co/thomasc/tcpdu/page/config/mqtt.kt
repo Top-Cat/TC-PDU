@@ -37,6 +37,7 @@ val mqttConfig = fc<ConfigProps> { props ->
     val clientIdRef = useRef<HTMLInputElement>()
     val prefixRef = useRef<HTMLInputElement>()
     val enabledRef = useRef<HTMLInputElement>()
+    val addMacRef = useRef<HTMLInputElement>()
 
     val (showMqttPassword, setShowMqttPassword) = useState(false)
 
@@ -65,33 +66,35 @@ val mqttConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-host"
-                            +"Host"
+                    div("row") {
+                        div("col-md-9") {
+                            label("form-label") {
+                                attrs.htmlFor = "mqtt-host"
+                                +"Host"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                attrs.placeholder = "mqtt.example.com"
+                                attrs.id = "mqtt-host"
+                                attrs.defaultValue = config.mqtt.host ?: ""
+                                ref = hostRef
+                            }
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "mqtt.example.com"
-                            attrs.id = "mqtt-host"
-                            attrs.defaultValue = config.mqtt.host ?: ""
-                            ref = hostRef
+
+                        div("col-md-3") {
+                            label("form-label") {
+                                attrs.htmlFor = "mqtt-port"
+                                +"Port"
+                            }
+                            input(InputType.number, classes = "form-control") {
+                                attrs.placeholder = "1883"
+                                attrs.id = "mqtt-port"
+                                attrs.defaultValue = config.mqtt.port?.toString() ?: ""
+                                ref = portRef
+                            }
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-port"
-                            +"Port"
-                        }
-                        input(InputType.number, classes = "form-control w-25") {
-                            attrs.placeholder = "1883"
-                            attrs.id = "mqtt-port"
-                            attrs.defaultValue = config.mqtt.port?.toString() ?: ""
-                            ref = portRef
-                        }
-                    }
-
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "mqtt-user"
                             +"User"
@@ -104,7 +107,7 @@ val mqttConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "mqtt-pw"
                             +"Password"
@@ -127,29 +130,43 @@ val mqttConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-clientid"
-                            +"Client Id"
+                    div("row") {
+                        div("col-md-6") {
+                            label("form-label") {
+                                attrs.htmlFor = "mqtt-clientid"
+                                +"Client Id"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                attrs.placeholder = "esp32-tcpdu"
+                                attrs.id = "mqtt-clientid"
+                                attrs.defaultValue = config.mqtt.clientId ?: ""
+                                ref = clientIdRef
+                            }
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "esp32-tcpdu"
-                            attrs.id = "mqtt-clientid"
-                            attrs.defaultValue = config.mqtt.clientId ?: ""
-                            ref = clientIdRef
+
+                        div("col-md-6") {
+                            label("form-label") {
+                                attrs.htmlFor = "mqtt-prefix"
+                                +"Prefix"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                attrs.placeholder = "tc-pdu/"
+                                attrs.id = "mqtt-prefix"
+                                attrs.defaultValue = config.mqtt.prefix ?: ""
+                                ref = prefixRef
+                            }
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-prefix"
-                            +"Prefix"
+                    div("form-check") {
+                        input(InputType.checkBox, classes = "form-check-input") {
+                            attrs.defaultChecked = config.mqtt.addMacToPrefix == true
+                            attrs.id = "add-mac-to-prefix"
+                            ref = addMacRef
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "tc-pdu/"
-                            attrs.id = "mqtt-prefix"
-                            attrs.defaultValue = config.mqtt.prefix ?: ""
-                            ref = prefixRef
+                        label("form-check-label") {
+                            attrs.htmlFor = "add-mac-to-prefix"
+                            +"Add mac to prefix"
                         }
                     }
 
@@ -163,7 +180,8 @@ val mqttConfig = fc<ConfigProps> { props ->
                                 userRef.current?.value,
                                 passRef.current?.value,
                                 clientIdRef.current?.value,
-                                prefixRef.current?.value
+                                prefixRef.current?.value,
+                                addMacRef.current?.checked
                             )
                             Axios.post<String>("$apiRoot/config/mqtt", mqttConfig, generateConfig<MqttConfig, String>())
                                 .then {

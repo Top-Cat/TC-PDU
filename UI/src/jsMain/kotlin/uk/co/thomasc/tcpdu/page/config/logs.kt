@@ -110,7 +110,7 @@ val logsConfig = fc<ConfigProps> { props ->
                 }
             }
 
-            div("form-group") {
+            div {
                 label("form-label") {
                     attrs.htmlFor = "logs-retention"
                     +"Log retention"

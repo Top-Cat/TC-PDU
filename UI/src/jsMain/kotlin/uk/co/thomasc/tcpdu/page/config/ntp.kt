@@ -58,7 +58,7 @@ val ntpConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "ntp-host"
                             +"Host"
@@ -71,7 +71,7 @@ val ntpConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "ntp-offset"
                             +"Time Zone"

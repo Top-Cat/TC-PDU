@@ -52,33 +52,35 @@ val smtpConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "smtp-host"
-                            +"Host"
+                    div("row") {
+                        div("col-md-9") {
+                            label("form-label") {
+                                attrs.htmlFor = "smtp-host"
+                                +"Host"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                attrs.placeholder = "smtp.example.com"
+                                attrs.id = "smtp-host"
+                                attrs.defaultValue = config.log.smtp?.host ?: ""
+                                ref = hostRef
+                            }
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "smtp.example.com"
-                            attrs.id = "smtp-host"
-                            attrs.defaultValue = config.log.smtp?.host ?: ""
-                            ref = hostRef
+
+                        div("col-md-3") {
+                            label("form-label") {
+                                attrs.htmlFor = "smtp-port"
+                                +"Port"
+                            }
+                            input(InputType.number, classes = "form-control") {
+                                attrs.placeholder = "587"
+                                attrs.id = "smtp-port"
+                                attrs.defaultValue = config.log.smtp?.port?.toString() ?: ""
+                                ref = portRef
+                            }
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "smtp-port"
-                            +"Port"
-                        }
-                        input(InputType.number, classes = "form-control w-25") {
-                            attrs.placeholder = "587"
-                            attrs.id = "smtp-port"
-                            attrs.defaultValue = config.log.smtp?.port?.toString() ?: ""
-                            ref = portRef
-                        }
-                    }
-
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "smtp-user"
                             +"User"
@@ -91,7 +93,7 @@ val smtpConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "smtp-pw"
                             +"Password"
@@ -114,7 +116,7 @@ val smtpConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "smtp-from"
                             +"From"
@@ -127,7 +129,7 @@ val smtpConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "smtp-to"
                             +"To"

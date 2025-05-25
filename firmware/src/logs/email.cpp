@@ -13,7 +13,7 @@ Session_Config EmailLogger::setupConfig(LogConfig* logConf) {
 }
 
 void EmailLogger::process(LogProcess* state) {
-  while (!(network.setupComplete && network.hasTime())) delay(500);
+  while (!(network.setupComplete && network.isConnected() && network.hasTime())) delay(500);
 
   LogConfig* logConf = config.getLog();
   if (logConf->smtpServer.length() <= 0) return;

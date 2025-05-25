@@ -9,8 +9,8 @@ void PDUMqtt::onMqttConnect(bool sessionPresent) {
   MqttConfig* conf = config.getMqtt();
 
   // I tried (conf->prefix + "#").c_str() but it didn't work
-  char result[conf->prefix.length() + 1];
-  strcpy(result, conf->prefix.c_str());
+  char result[prefix.length() + 1];
+  strcpy(result, prefix.c_str());
   strcat(result, "#");
 
   mqttClient->subscribe(result, 2);
@@ -26,10 +26,10 @@ void PDUMqtt::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessagePr
   MqttConfig* conf = config.getMqtt();
   const char* MQTTDelimiter = "/";
 
-  if (strncmp(topic, conf->prefix.c_str(), conf->prefix.length()) != 0) return;
+  if (strncmp(topic, prefix.c_str(), prefix.length()) != 0) return;
   // Prefix matches
 
-  char* withoutPrefix = topic + conf->prefix.length();
+  char* withoutPrefix = topic + prefix.length();
   char* token = strtok(withoutPrefix, MQTTDelimiter);
 
   uint8_t outputIdx = strtoul(token, NULL, 0);
@@ -60,7 +60,7 @@ void PDUMqtt::task() {
 
   uint8_t backOff = 5;
   while (true) {
-    while (!network.setupComplete) {
+    while (!network.isConnected()) {
       backOff = 5;
       delay(100);
     }
@@ -75,6 +75,7 @@ void PDUMqtt::task() {
 
       JsonDocument doc;
       doc["power"] = control.getTotalPower();
+      doc["mac"] = network.getMac();
       JsonArray devices = doc["devices"].to<JsonArray>();
 
       for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
@@ -94,7 +95,7 @@ void PDUMqtt::task() {
       String json;
       serializeJson(doc, json);
 
-      String topic = conf->prefix + "state";
+      String topic = prefix + "state";
       mqttClient->publish(topic.c_str(), 0, false, json.c_str());
     } else {
       if (conf->host.length() > 0 && conf->enabled) {
@@ -108,6 +109,7 @@ void PDUMqtt::task() {
         mqttClient->setServer(conf->host.c_str(), conf->port);
         mqttClient->setClientId(conf->clientId.c_str());
         mqttClient->setCredentials(conf->username.c_str(), conf->password.c_str());
+        prefix = conf->prefix + (conf->addMacToPrefix ? (network.getMac() + "/") : "") + "state";
 
         mqttClient->connect();
       } else if (mqttClient != NULL) {

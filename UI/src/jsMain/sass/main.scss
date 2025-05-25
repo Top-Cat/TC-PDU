@@ -21,7 +21,7 @@ body {
 }
 
 .config, .login-form {
-  .form-group > input, .input-group {
+  form > div, .input-group {
     margin-bottom: 10px;
   }
   button {

@@ -59,7 +59,7 @@ val firmwarePage = fc<Props> {
             }
         }
 
-        div("form-group mt-3") {
+        div("mt-3") {
             label("form-label") {
                 attrs.htmlFor = "fw-file"
                 +"New firmware"

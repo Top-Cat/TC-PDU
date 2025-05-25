@@ -6,6 +6,9 @@
 
 void PDUWeb::configEndpoints() {
   server->on("/api/config", HTTP_GET, [&]() {
+    String user;
+    if (!currentUser(user)) return;
+
     JsonDocument doc;
     WifiConfig* wifiConf = config.getWifi();
     doc["wifi"]["enabled"] = wifiConf->enabled;
@@ -49,6 +52,7 @@ void PDUWeb::configEndpoints() {
     doc["mqtt"]["password"] = mqttConf->password;
     doc["mqtt"]["clientId"] = mqttConf->clientId;
     doc["mqtt"]["prefix"] = mqttConf->prefix;
+    doc["mqtt"]["addMacToPrefix"] = mqttConf->addMacToPrefix;
 
     SyslogConfig* slogConf = config.getSyslog();
     doc["syslog"]["host"] = slogConf->host;
@@ -176,10 +180,10 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     LogConfig* logConf = config.getLog();
-    if (doc["serialMask"]) logConf->serialMask = doc["serialMask"];
-    if (doc["emailMask"]) logConf->emailMask = doc["emailMask"];
-    if (doc["syslogMask"]) logConf->syslogMask = doc["syslogMask"];
-    if (doc["days"]) logConf->daysToKeep = doc["days"];
+    if (doc["serialMask"].is<uint64_t>()) logConf->serialMask = doc["serialMask"];
+    if (doc["emailMask"].is<uint64_t>()) logConf->emailMask = doc["emailMask"];
+    if (doc["syslogMask"].is<uint64_t>()) logConf->syslogMask = doc["syslogMask"];
+    if (doc["days"].is<uint8_t>()) logConf->daysToKeep = doc["days"];
 
     config.save();
     sendStaticHeaders();
@@ -234,6 +238,7 @@ void PDUWeb::configEndpoints() {
     if (doc["password"]) mqttConf->password = (const char*) doc["password"];
     if (doc["clientId"]) mqttConf->clientId = (const char*) doc["clientId"];
     if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
+    if (doc["addMacToPrefix"].is<bool>()) mqttConf->addMacToPrefix = (bool) doc["addMacToPrefix"];
 
     config.save();
     mqtt.triggerChanges();
