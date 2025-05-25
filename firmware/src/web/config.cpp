@@ -52,6 +52,7 @@ void PDUWeb::configEndpoints() {
     doc["mqtt"]["password"] = mqttConf->password;
     doc["mqtt"]["clientId"] = mqttConf->clientId;
     doc["mqtt"]["prefix"] = mqttConf->prefix;
+    doc["mqtt"]["addMacToPrefix"] = mqttConf->addMacToPrefix;
 
     SyslogConfig* slogConf = config.getSyslog();
     doc["syslog"]["host"] = slogConf->host;
