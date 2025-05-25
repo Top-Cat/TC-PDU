@@ -51,33 +51,35 @@ val radiusConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "radius-host"
-                            +"Host"
+                    div("row") {
+                        div("col-md-9") {
+                            label("form-label") {
+                                attrs.htmlFor = "radius-host"
+                                +"Host"
+                            }
+                            input(InputType.text, classes = "form-control") {
+                                attrs.placeholder = "radius.example.com"
+                                attrs.id = "radius-host"
+                                attrs.defaultValue = config.radius.ip ?: ""
+                                ref = hostRef
+                            }
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "radius.example.com"
-                            attrs.id = "radius-host"
-                            attrs.defaultValue = config.radius.ip ?: ""
-                            ref = hostRef
+
+                        div("col-md-3") {
+                            label("form-label") {
+                                attrs.htmlFor = "radius-port"
+                                +"Port"
+                            }
+                            input(InputType.number, classes = "form-control") {
+                                attrs.placeholder = "1812"
+                                attrs.id = "radius-port"
+                                attrs.defaultValue = config.radius.port?.toString() ?: ""
+                                ref = portRef
+                            }
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "radius-port"
-                            +"Port"
-                        }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "1812"
-                            attrs.id = "radius-port"
-                            attrs.defaultValue = config.radius.port?.toString() ?: ""
-                            ref = portRef
-                        }
-                    }
-
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "radius-pw"
                             +"Secret"
@@ -100,29 +102,31 @@ val radiusConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "radius-timeout"
-                            +"Timeout"
+                    div("row") {
+                        div("col-md-6") {
+                            label("form-label") {
+                                attrs.htmlFor = "radius-timeout"
+                                +"Timeout"
+                            }
+                            input(InputType.number, classes = "form-control w-50") {
+                                attrs.placeholder = "5"
+                                attrs.id = "radius-timeout"
+                                attrs.defaultValue = config.radius.timeout?.toString() ?: ""
+                                ref = timeoutRef
+                            }
                         }
-                        input(InputType.number, classes = "form-control w-25") {
-                            attrs.placeholder = "5"
-                            attrs.id = "radius-timeout"
-                            attrs.defaultValue = config.radius.timeout?.toString() ?: ""
-                            ref = timeoutRef
-                        }
-                    }
 
-                    div("form-group") {
-                        label("form-label") {
-                            attrs.htmlFor = "radius-retry"
-                            +"Retries"
-                        }
-                        input(InputType.number, classes = "form-control w-25") {
-                            attrs.placeholder = "3"
-                            attrs.id = "radius-retry"
-                            attrs.defaultValue = config.radius.retries?.toString() ?: ""
-                            ref = retriesRef
+                        div("col-md-6") {
+                            label("form-label") {
+                                attrs.htmlFor = "radius-retry"
+                                +"Retries"
+                            }
+                            input(InputType.number, classes = "form-control w-50") {
+                                attrs.placeholder = "3"
+                                attrs.id = "radius-retry"
+                                attrs.defaultValue = config.radius.retries?.toString() ?: ""
+                                ref = retriesRef
+                            }
                         }
                     }
 

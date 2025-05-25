@@ -56,7 +56,7 @@ val wifiConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "wifi-ssid"
                             +"SSID"
@@ -69,7 +69,7 @@ val wifiConfig = fc<ConfigProps> { props ->
                         }
                     }
 
-                    div("form-group") {
+                    div {
                         label("form-label") {
                             attrs.htmlFor = "wifi-pw"
                             +"Wifi Password"

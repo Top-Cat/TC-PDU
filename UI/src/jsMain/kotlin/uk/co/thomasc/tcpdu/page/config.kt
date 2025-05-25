@@ -39,7 +39,7 @@ data class LogConfig(val serialMask: ULong? = null, val syslogMask: ULong? = nul
 data class SmtpConfig(val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val from: String? = null, val to: String? = null)
 
 @Serializable
-data class MqttConfig(val enabled: Boolean? = null, val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null)
+data class MqttConfig(val enabled: Boolean? = null, val host: String? = null, val port: Int? = null, val user: String? = null, val password: String? = null, val clientId: String? = null, val prefix: String? = null, val addMacToPrefix: Boolean? = false)
 
 @Serializable
 data class SyslogConfig(val host: String? = null, val port: Int? = null)
