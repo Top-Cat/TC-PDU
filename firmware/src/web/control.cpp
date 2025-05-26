@@ -159,6 +159,8 @@ void PDUWeb::controlEndpoints() {
     if (doc["currentDirect"]) output->setCurrentCalibration(doc["currentDirect"]);
     if (doc["voltageDirect"]) output->setVoltageCalibration(doc["voltageDirect"]);
 
+    output->save();
+
     sendStaticHeaders();
     server->send(200, textPlain, "DONE");
   }, [&]() { });
