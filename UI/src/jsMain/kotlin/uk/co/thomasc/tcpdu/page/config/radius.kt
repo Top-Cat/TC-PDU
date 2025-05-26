@@ -2,31 +2,30 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.role
-import org.w3c.dom.HTMLInputElement
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.form
-import react.dom.i
-import react.dom.input
-import react.dom.label
-import react.dom.span
-import react.fc
+import react.dom.aria.AriaRole
+import react.dom.html.ReactHTML
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.i
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
+import react.dom.html.ReactHTML.span
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.errors
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.RadiusConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.cssom.ClassName
+import web.html.ButtonType
+import web.html.HTMLInputElement
+import web.html.InputType
 
-val radiusConfig = fc<ConfigProps> { props ->
+val radiusConfig = fcmemo<ConfigProps>("Radius Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
 
@@ -39,11 +38,14 @@ val radiusConfig = fc<ConfigProps> { props ->
     val (showRadiusSecret, setShowRadiusSecret) = useState(false)
 
     props.config?.let { config ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"Radius"
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 if (success == true) {
                     success { +"Config saved" }
                 } else if (success == false) {
@@ -51,87 +53,113 @@ val radiusConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("row") {
-                        div("col-md-9") {
-                            label("form-label") {
-                                attrs.htmlFor = "radius-host"
+                    div {
+                        className = ClassName("row")
+                        div {
+                            className = ClassName("col-md-9")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "radius-host"
                                 +"Host"
                             }
-                            input(InputType.text, classes = "form-control") {
-                                attrs.placeholder = "radius.example.com"
-                                attrs.id = "radius-host"
-                                attrs.defaultValue = config.radius.ip ?: ""
+                            input {
+                                type = InputType.text
+                                className = ClassName("form-control")
+                                placeholder = "radius.example.com"
+                                id = "radius-host"
+                                defaultValue = config.radius.ip ?: ""
                                 ref = hostRef
                             }
                         }
 
-                        div("col-md-3") {
-                            label("form-label") {
-                                attrs.htmlFor = "radius-port"
+                        div {
+                            className = ClassName("col-md-3")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "radius-port"
                                 +"Port"
                             }
-                            input(InputType.number, classes = "form-control") {
-                                attrs.placeholder = "1812"
-                                attrs.id = "radius-port"
-                                attrs.defaultValue = config.radius.port?.toString() ?: ""
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control")
+                                placeholder = "1812"
+                                id = "radius-port"
+                                defaultValue = config.radius.port?.toString() ?: ""
                                 ref = portRef
                             }
                         }
                     }
 
                     div {
-                        label("form-label") {
-                            attrs.htmlFor = "radius-pw"
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "radius-pw"
                             +"Secret"
                         }
-                        div("input-group") {
-                            input(if (showRadiusSecret) InputType.text else InputType.password, classes = "form-control") {
-                                attrs.placeholder = "********"
-                                attrs.id = "radius-pw"
-                                attrs.defaultValue = config.radius.secret ?: ""
+                        div {
+                            className = ClassName("input-group")
+                            input {
+                                type = if (showRadiusSecret) InputType.text else InputType.password
+                                className = ClassName("form-control")
+                                placeholder = "********"
+                                id = "radius-pw"
+                                defaultValue = config.radius.secret ?: ""
                                 ref = secretRef
                             }
-                            span("input-group-text") {
-                                i("fas fa-eye" + if (showRadiusSecret) "" else "-slash") {
-                                    attrs.onClickFunction = {
+                            span {
+                                className = ClassName("input-group-text")
+                                i {
+                                    className = ClassName("fas fa-eye" + if (showRadiusSecret) "" else "-slash")
+                                    onClick = {
                                         setShowRadiusSecret(!showRadiusSecret)
                                     }
-                                    attrs.role = "button"
+                                    role = AriaRole.button
                                 }
                             }
                         }
                     }
 
-                    div("row") {
-                        div("col-md-6") {
-                            label("form-label") {
-                                attrs.htmlFor = "radius-timeout"
+                    div {
+                        className = ClassName("row")
+                        div {
+                            className = ClassName("col-md-6")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "radius-timeout"
                                 +"Timeout"
                             }
-                            input(InputType.number, classes = "form-control w-50") {
-                                attrs.placeholder = "5"
-                                attrs.id = "radius-timeout"
-                                attrs.defaultValue = config.radius.timeout?.toString() ?: ""
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control w-50")
+                                placeholder = "5"
+                                id = "radius-timeout"
+                                defaultValue = config.radius.timeout?.toString() ?: ""
                                 ref = timeoutRef
                             }
                         }
 
-                        div("col-md-6") {
-                            label("form-label") {
-                                attrs.htmlFor = "radius-retry"
+                        div {
+                            className = ClassName("col-md-6")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "radius-retry"
                                 +"Retries"
                             }
-                            input(InputType.number, classes = "form-control w-50") {
-                                attrs.placeholder = "3"
-                                attrs.id = "radius-retry"
-                                attrs.defaultValue = config.radius.retries?.toString() ?: ""
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control w-50")
+                                placeholder = "3"
+                                id = "radius-retry"
+                                defaultValue = config.radius.retries?.toString() ?: ""
                                 ref = retriesRef
                             }
                         }
                     }
 
-                    button(type = ButtonType.submit, classes = "btn btn-primary") {
-                        attrs.onClickFunction = { ev ->
+                    button {
+                        type = ButtonType.submit
+                        className = ClassName("btn btn-primary")
+                        onClick = { ev ->
                             ev.preventDefault()
                             val newConfig = RadiusConfig(
                                 hostRef.current?.value,

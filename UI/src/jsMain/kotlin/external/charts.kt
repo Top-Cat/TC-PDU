@@ -1,11 +1,11 @@
 import org.w3c.dom.HTMLCanvasElement
-import react.ComponentClass
+import react.ComponentType
 import react.Props
 
 @JsModule("react-chartjs-2")
 @JsNonModule
 external object ChartJs {
-    val Line: ComponentClass<ChartProps>
+    val Line: ComponentType<ChartProps>
 }
 
 @JsModule("chart.js")

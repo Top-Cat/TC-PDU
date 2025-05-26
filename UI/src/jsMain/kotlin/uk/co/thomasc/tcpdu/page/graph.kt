@@ -8,17 +8,15 @@ import js.objects.jso
 import kotlinx.browser.window
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
-import org.w3c.dom.HTMLSelectElement
 import react.Props
-import react.dom.option
-import react.dom.select
-import react.fc
-import react.useEffectOnce
+import react.dom.html.ReactHTML.option
+import react.dom.html.ReactHTML.select
+import react.useEffectOnceWithCleanup
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
+import web.cssom.ClassName
 
 data class DataPoint(val voltage: Float, val current: Float, val power: Float, val va: Float)
 data class TimePoint(val time: Instant, val data: Map<Int, DataPoint>)
@@ -31,7 +29,7 @@ enum class GraphType(val min: Int?, val max: Int?, val block: (DataPoint) -> Flo
     PF(0, 1, { it.power / it.va })
 }
 
-val graphPage = fc<Props> {
+val graphPage = fcmemo<Props>("Graph") {
     val callback = useRef<() -> Unit>()
     val (data, setData) = useState(listOf<TimePoint>())
     val (names, setNames) = useState(listOf<String>())
@@ -55,7 +53,7 @@ val graphPage = fc<Props> {
         }
     }
 
-    useEffectOnce {
+    useEffectOnceWithCleanup {
         ChartJsBase.Chart.register(
             ChartJsBase.CategoryScale,
             ChartJsBase.LinearScale,
@@ -70,16 +68,18 @@ val graphPage = fc<Props> {
             callback.current?.invoke()
         }, 5000)
 
-        cleanup {
+
+        onCleanup {
             window.clearInterval(handle)
         }
     }
 
-    select("form-control") {
-        attrs.id = "graph-type"
-        attrs.value = graphType.name
-        attrs.onChangeFunction = { ev ->
-            setGraphType(GraphType.valueOf((ev.target as HTMLSelectElement).value))
+    select {
+        className = ClassName("form-control")
+        id = "graph-type"
+        value = graphType.name
+        onChange = { ev ->
+            setGraphType(GraphType.valueOf(ev.target.value))
         }
         GraphType.entries.forEach {
             option {
@@ -90,8 +90,8 @@ val graphPage = fc<Props> {
 
     if (data.isNotEmpty()) {
         ChartJs.Line {
-            attrs.type = "line"
-            attrs.data = jso {
+            type = "line"
+            this.data = jso {
                 labels = data.map { it.time.toString() }.toTypedArray()
                 datasets = names.mapIndexed { idx, name ->
                     jso<ChartDataset> {
@@ -101,7 +101,7 @@ val graphPage = fc<Props> {
                     }
                 }.toTypedArray()
             }
-            attrs.options = jso {
+            options = jso {
                 scales = jso {
                     y = jso {
                         min = graphType.min

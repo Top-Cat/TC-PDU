@@ -4,26 +4,29 @@ import external.Axios
 import external.TimeAgo
 import external.generateConfig
 import js.date.Date
-import kotlinx.html.ButtonType
-import kotlinx.html.js.onClickFunction
-import react.dom.button
-import react.dom.div
-import react.dom.hr
+import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.br
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.hr
+import react.dom.html.ReactHTML.i
 import react.dom.html.ReactHTML.p
-import react.dom.i
-import react.fc
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
+import web.cssom.ClassName
+import web.html.ButtonType
 
 fun bytesToText(b: Long) = (b / 1024.0).asDynamic().toFixed(2)
 
-val sysStatus = fc<SystemProps> { props ->
+val sysStatus = fcmemo<SystemProps>("System Status") { props ->
     props.system?.let { system ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"System"
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 p {
                     +"Free heap: ${bytesToText(system.mem)} kB"
                     br {}
@@ -31,8 +34,8 @@ val sysStatus = fc<SystemProps> { props ->
                     br {}
                     +"Uptime: "
                     TimeAgo.default {
-                        attrs.date = Date.now() - (system.uptime * 1000)
-                        attrs.formatter = { value, u, _ ->
+                        date = Date.now() - (system.uptime * 1000)
+                        formatter = { value, u, _ ->
                             val unit = if (value != 1) "${u}s" else u
                             "$value $unit"
                         }
@@ -52,15 +55,17 @@ val sysStatus = fc<SystemProps> { props ->
                         temp < 60 -> "warning"
                         else -> "danger"
                     }
-                    i("fas fa-circle text-$color") {}
+                    i { className = ClassName("fas fa-circle text-$color") }
 
                     +" Temp $idx: $temp°C"
                 }
 
                 hr {}
 
-                button(type = ButtonType.submit, classes = "btn btn-primary") {
-                    attrs.onClickFunction = { ev ->
+                ReactHTML.button {
+                    type = ButtonType.submit
+                    className = ClassName("btn btn-primary")
+                    onClick = { ev ->
                         ev.preventDefault()
 
                         Axios.post<String>("$apiRoot/reboot", "", generateConfig<String, String>())
@@ -68,8 +73,10 @@ val sysStatus = fc<SystemProps> { props ->
                     +"Reboot"
                 }
 
-                button(type = ButtonType.submit, classes = "btn btn-primary ms-2") {
-                    attrs.onClickFunction = { ev ->
+                ReactHTML.button {
+                    type = ButtonType.submit
+                    className = ClassName("btn btn-primary ms-2")
+                    onClick = { ev ->
                         ev.preventDefault()
 
                         Axios.post<String>("$apiRoot/format", "", generateConfig<String, String>())

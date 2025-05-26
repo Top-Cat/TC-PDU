@@ -2,35 +2,31 @@ package uk.co.thomasc.tcpdu.page.home
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
-import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.Serializable
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.HTMLSelectElement
 import react.Props
-import react.dom.a
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.hr
-import react.dom.i
-import react.dom.input
-import react.dom.label
-import react.dom.option
-import react.dom.p
-import react.dom.select
-import react.fc
+import react.dom.html.ReactHTML.a
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.hr
+import react.dom.html.ReactHTML.i
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
+import react.dom.html.ReactHTML.option
+import react.dom.html.ReactHTML.p
+import react.dom.html.ReactHTML.select
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.BootState
 import uk.co.thomasc.tcpdu.page.OutputState
 import uk.co.thomasc.tcpdu.page.PDUDeviceState
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.util.fixed
+import web.cssom.ClassName
+import web.html.HTMLInputElement
+import web.html.InputType
 
 external interface OutputProps : Props {
     var idx: Int
@@ -53,7 +49,7 @@ data class DeviceStateUpdate(
     val maxAlarm: UShort? = null
 )
 
-val output = fc<OutputProps> { props ->
+val output = fcmemo<OutputProps>("Output") { props ->
     val dev = props.device
     val history = useNavigate()
     val (loading, setLoading) = useState(false)
@@ -69,47 +65,66 @@ val output = fc<OutputProps> { props ->
     val minAlarmRef = useRef<HTMLInputElement>()
     val maxAlarmRef = useRef<HTMLInputElement>()
 
-    div("card border-primary") {
-        div("card-header ${if (dev.outputState != OutputState.NORMAL) "bg-warning" else ""}") {
+    div {
+        className = ClassName("card border-primary")
+        div {
+            className = ClassName("card-header ${if (dev.outputState != OutputState.NORMAL) "bg-warning" else ""}")
             if (editing) {
-                input(InputType.text, classes = "form-control") {
-                    attrs.placeholder = "Output ${props.idx}"
-                    attrs.defaultValue = dev.name
-                    attrs.id = "output-${props.idx}-name"
-                    attrs.disabled = loading
-                    attrs.maxLength = "64"
+                input {
+                    type = InputType.text
+                    className = ClassName("form-control")
+                    placeholder = "Output ${props.idx}"
+                    defaultValue = dev.name
+                    id = "output-${props.idx}-name"
+                    disabled = loading
+                    maxLength = 64
                     ref = nameRef
                 }
             } else {
                 +dev.name
-                div("float-end") {
-                    a("#") {
-                        attrs.onClickFunction = { ev ->
+                div {
+                    className = ClassName("float-end")
+                    a {
+                        href = "/calibrate/${props.idx}"
+                        title = "Coming soon"
+                        onClick = { ev ->
+                            ev.preventDefault()
+                        }
+                        i { className = ClassName("fas fa-compass") }
+                    }
+                    a {
+                        href = "#"
+                        onClick = { ev ->
                             ev.preventDefault()
                             setEditing(true)
                         }
-                        i("fas fa-pen") {}
+                        i { className = ClassName("fas fa-pen") }
                     }
                 }
             }
         }
-        div("card-body") {
+        div {
+            className = ClassName("card-body")
             if (editing) {
-                div("output-grid") {
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-addr"
+                div {
+                    className = ClassName("output-grid")
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-addr"
                             +"Address"
                         }
                         props.i2c?.also { i2c ->
-                            select("form-control") {
-                                attrs.id = "output-${props.idx}-addr"
-                                attrs.value = address.toString()
-                                attrs.onChangeFunction = { ev ->
-                                    setAddress((ev.target as HTMLSelectElement).value.toUByteOrNull() ?: 255u)
+                            select {
+                                className = ClassName("form-control")
+                                id = "output-${props.idx}-addr"
+                                value = address.toString()
+                                onChange = { ev ->
+                                    setAddress(ev.target.value.toUByteOrNull() ?: 255u)
                                 }
                                 option {
-                                    attrs.value = "255"
+                                    value = "255"
                                     +"Unassigned"
                                 }
                                 i2c.forEach {
@@ -119,119 +134,153 @@ val output = fc<OutputProps> { props ->
                                 }
                             }
                         } ?: run {
-                            input(InputType.number, classes = "form-control") {
-                                attrs.placeholder = "12"
-                                attrs.defaultValue = dev.address.toString()
-                                attrs.id = "output-${props.idx}-addr"
-                                attrs.disabled = loading
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control")
+                                placeholder = "12"
+                                defaultValue = dev.address.toString()
+                                id = "output-${props.idx}-addr"
+                                disabled = loading
                                 ref = addressRef
                             }
                         }
                     }
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-prio"
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-prio"
                             +"Priority"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "50"
-                            attrs.defaultValue = dev.priority.toString()
-                            attrs.id = "output-${props.idx}-prio"
-                            attrs.disabled = loading
+                        input {
+                            type = InputType.number
+                            className = ClassName("form-control")
+                            placeholder = "50"
+                            defaultValue = dev.priority.toString()
+                            id = "output-${props.idx}-prio"
+                            disabled = loading
                             ref = priorityRef
                         }
                     }
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-delay"
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-delay"
                             +"Boot delay (s)"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "5"
-                            attrs.defaultValue = dev.bootDelay.toString()
-                            attrs.id = "output-${props.idx}-delay"
-                            attrs.disabled = loading
+                        input {
+                            type = InputType.number
+                            className = ClassName("form-control")
+                            placeholder = "5"
+                            defaultValue = dev.bootDelay.toString()
+                            id = "output-${props.idx}-delay"
+                            disabled = loading
                             ref = bootDelayRef
                         }
                     }
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-maxPower"
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-maxPower"
                             +"Max Power"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "5"
-                            attrs.defaultValue = dev.maxPower.toString()
-                            attrs.id = "output-${props.idx}-maxPower"
-                            attrs.disabled = loading
+                        input {
+                            type = InputType.number
+                            className = ClassName("form-control")
+                            placeholder = "5"
+                            defaultValue = dev.maxPower.toString()
+                            id = "output-${props.idx}-maxPower"
+                            disabled = loading
                             ref = maxPowerRef
                         }
                     }
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-minAlarm"
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-minAlarm"
                             +"Min Alarm"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "5"
-                            attrs.defaultValue = dev.minAlarm.toString()
-                            attrs.id = "output-${props.idx}-minAlarm"
-                            attrs.disabled = loading
+                        input {
+                            type = InputType.number
+                            className = ClassName("form-control")
+                            placeholder = "5"
+                            defaultValue = dev.minAlarm.toString()
+                            id = "output-${props.idx}-minAlarm"
+                            disabled = loading
                             ref = minAlarmRef
                         }
                     }
-                    div("w-75") {
-                        label("form-label") {
-                            attrs.htmlFor = "output-${props.idx}-maxAlarm"
+                    div {
+                        className = ClassName("w-75")
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "output-${props.idx}-maxAlarm"
                             +"Max Alarm"
                         }
-                        input(InputType.number, classes = "form-control") {
-                            attrs.placeholder = "5"
-                            attrs.defaultValue = dev.maxAlarm.toString()
-                            attrs.id = "output-${props.idx}-maxAlarm"
-                            attrs.disabled = loading
+                        input {
+                            type = InputType.number
+                            className = ClassName("form-control")
+                            placeholder = "5"
+                            defaultValue = dev.maxAlarm.toString()
+                            id = "output-${props.idx}-maxAlarm"
+                            disabled = loading
                             ref = maxAlarmRef
                         }
                     }
                 }
                 div {
-                    label("form-label") {
-                        attrs.htmlFor = "output-${props.idx}-bootState"
+                    label {
+                        className = ClassName("form-label")
+                        htmlFor = "output-${props.idx}-bootState"
                         +"Boot state"
                     }
-                    select("form-control") {
-                        attrs.id = "output-${props.idx}-bootState"
-                        attrs.value = bootState.enc.toString()
-                        attrs.onChangeFunction = { ev ->
-                            setBootState(BootState.of((ev.target as HTMLSelectElement).value.toLongOrNull()) ?: BootState.LAST)
+                    select {
+                        className = ClassName("form-control")
+                        id = "output-${props.idx}-bootState"
+                        value = bootState.enc.toString()
+                        onChange = { ev ->
+                            setBootState(BootState.of(ev.target.value.toLongOrNull()) ?: BootState.LAST)
                         }
                         BootState.entries.forEach {
                             option {
-                                attrs.value = it.enc.toString()
+                                value = it.enc.toString()
                                 +it.name
                             }
                         }
                     }
                 }
             } else {
-                div("stat") {
-                    i("fas fa-bolt") {}
+                div {
+                    className = ClassName("stat")
+                    i { className = ClassName("fas fa-bolt") }
                     +"${dev.voltage.fixed(2)}V"
                 }
-                div("stat") {
-                    i("fas fa-copyright") {}
+                div {
+                    className = ClassName("stat")
+                    i { className = ClassName("fas fa-copyright") }
                     +"${dev.current.fixed(2)}A"
                 }
-                div("stat") {
-                    i("fas fa-power-off") {}
+                div {
+                    className = ClassName("stat")
+                    i { className = ClassName("fas fa-power-off") }
                     +"${dev.power.fixed(2)}W"
                 }
-                div("stat") {
+                div {
+                    className = ClassName("stat")
                     +"λ ${(dev.power / dev.va).fixed(2)}"
                 }
                 when (dev.outputState) {
-                    OutputState.ALARM -> p("mt-2") { +"ALARMING" }
-                    OutputState.TRIP -> p("mt-2") { +"TRIPPED" }
+                    OutputState.ALARM -> p {
+                        className = ClassName("mt-2")
+                        +"ALARMING"
+                    }
+                    OutputState.TRIP -> p {
+                        className = ClassName("mt-2")
+                        +"TRIPPED"
+                    }
                     else -> {}
                 }
             }
@@ -239,8 +288,9 @@ val output = fc<OutputProps> { props ->
             hr {}
 
             if (editing) {
-                button(classes = "btn btn-primary") {
-                    attrs.onClickFunction = { ev ->
+                button {
+                    className = ClassName("btn btn-primary")
+                    onClick = { ev ->
                         ev.preventDefault()
                         setLoading(true)
 
@@ -266,8 +316,9 @@ val output = fc<OutputProps> { props ->
 
                     +"Save"
                 }
-                button(classes = "btn btn-danger ms-1") {
-                    attrs.onClickFunction = { ev ->
+                button {
+                    className = ClassName("btn btn-danger ms-1")
+                    onClick = { ev ->
                         ev.preventDefault()
                         setEditing(false)
                     }
@@ -275,8 +326,9 @@ val output = fc<OutputProps> { props ->
                     +"Cancel"
                 }
             } else {
-                button(classes = "btn btn-${if (dev.state) "danger" else "primary"}") {
-                    attrs.onClickFunction = { ev ->
+                button {
+                    className = ClassName("btn btn-${if (dev.state) "danger" else "primary"}")
+                    onClick = { ev ->
                         ev.preventDefault()
                         setLoading(true)
 

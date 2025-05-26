@@ -5,17 +5,18 @@ import external.AxiosError
 import external.axiosGet
 import kotlinx.serialization.Serializable
 import react.Props
-import react.dom.div
-import react.fc
+import react.dom.html.ReactHTML.div
 import react.router.NavigateFunction
 import react.router.useNavigate
 import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.home.DeviceStateUpdate
 import uk.co.thomasc.tcpdu.page.home.output
 import uk.co.thomasc.tcpdu.util.EnumAsLongSerializer
 import uk.co.thomasc.tcpdu.util.NewNavOption
+import web.cssom.ClassName
 import kotlin.js.Promise
 
 @Serializable
@@ -85,7 +86,7 @@ enum class OutputState(val enc: Long) {
     )
 }
 
-val homePage = fc<Props> {
+val homePage = fcmemo<Props>("Home") {
     val history = useNavigate()
     val (pduState, setPduState) = useState<PDUState>()
     val (i2c, setI2c) = useState<List<UByte>>()
@@ -100,14 +101,16 @@ val homePage = fc<Props> {
         }
     }
 
-    div("row row-cols-1 row-cols-md-2 g-4") {
+    div {
+        className = ClassName("row row-cols-1 row-cols-md-2 g-4")
         pduState?.devices?.forEachIndexed { idx, dev ->
-            div("col") {
+            div {
+                className = ClassName("col")
                 output {
-                    attrs.idx = idx
-                    attrs.device = dev
-                    attrs.i2c = i2c
-                    attrs.callback = { update ->
+                    this.idx = idx
+                    device = dev
+                    this.i2c = i2c
+                    callback = { update ->
                         setPduState {
                             it?.copy(devices = it.devices.take(idx) + it.devices[idx].apply(update) + it.devices.drop(idx + 1))
                         }
