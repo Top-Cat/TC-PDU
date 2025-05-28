@@ -4,7 +4,6 @@ import external.Axios
 import external.TimeAgo
 import external.generateConfig
 import js.date.Date
-import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.br
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div

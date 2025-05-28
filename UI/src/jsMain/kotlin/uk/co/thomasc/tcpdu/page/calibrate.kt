@@ -30,7 +30,7 @@ import web.html.InputType
 @Serializable
 data class CalibrationData(val idx: Int, val current: Float? = null, val voltage: Float? = null, val currentDirect: Float? = null, val voltageDirect: Float? = null) {
     companion object {
-        fun reset(idx: Int) = CalibrationData(idx, currentDirect =  1f, voltageDirect = 1f)
+        fun reset(idx: Int) = CalibrationData(idx, currentDirect = 1f, voltageDirect = 1f)
     }
 }
 
