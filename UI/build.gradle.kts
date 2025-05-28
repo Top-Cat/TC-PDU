@@ -1,4 +1,5 @@
 import io.miret.etienne.gradle.sass.CompileSass
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
@@ -25,9 +26,7 @@ kotlin {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "21"
-        }
+        compilerOptions.jvmTarget = JvmTarget.JVM_21
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
@@ -164,4 +163,8 @@ tasks.getByName<Jar>("jvmJar") {
 tasks.getByName<JavaExec>("run") {
     dependsOn(tasks.getByName<Jar>("jvmJar"))
     classpath(tasks.getByName<Jar>("jvmJar"))
+}
+
+tasks.getByName("jsBrowserDistribution") {
+    dependsOn(tasks.getByName("jvmProcessResources"), tasks.getByName("compileSass"))
 }
