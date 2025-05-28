@@ -2,6 +2,7 @@ package uk.co.thomasc.tcpdu.page.system
 
 import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.i
 import uk.co.thomasc.tcpdu.fcmemo
 import web.cssom.ClassName
 
@@ -15,9 +16,9 @@ val wifiStatus = fcmemo<SystemProps>("Wifi Status") { props ->
                 div {
                     className = ClassName("float-end")
                     if (system.wifi.connected) {
-                        ReactHTML.i { className = ClassName("fas fa-circle text-success") }
+                        i { className = ClassName("fas fa-circle text-success") }
                     } else {
-                        ReactHTML.i { className = ClassName("fas fa-circle text-danger") }
+                        i { className = ClassName("fas fa-circle text-danger") }
                     }
                 }
             }

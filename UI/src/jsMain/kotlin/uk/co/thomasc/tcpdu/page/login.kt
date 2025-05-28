@@ -39,7 +39,7 @@ val loginPage = fcmemo<Props>("Login") {
             +"Sign in"
         }
         form {
-            //(classes = "card-body", method = FormMethod.post, action = "/login")
+            className = ClassName("card-body")
             method = FormMethod.post
             action = "/login".unsafeCast<FormAction>()
             onSubmit = { ev ->

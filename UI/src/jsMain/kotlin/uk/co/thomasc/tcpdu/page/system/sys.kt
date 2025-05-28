@@ -6,6 +6,7 @@ import external.generateConfig
 import js.date.Date
 import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.br
+import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.hr
 import react.dom.html.ReactHTML.i
@@ -62,7 +63,7 @@ val sysStatus = fcmemo<SystemProps>("System Status") { props ->
 
                 hr {}
 
-                ReactHTML.button {
+                button {
                     type = ButtonType.submit
                     className = ClassName("btn btn-primary")
                     onClick = { ev ->
@@ -73,7 +74,7 @@ val sysStatus = fcmemo<SystemProps>("System Status") { props ->
                     +"Reboot"
                 }
 
-                ReactHTML.button {
+                button {
                     type = ButtonType.submit
                     className = ClassName("btn btn-primary ms-2")
                     onClick = { ev ->

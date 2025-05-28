@@ -14,6 +14,7 @@ import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.option
 import react.dom.html.ReactHTML.p
 import react.dom.html.ReactHTML.select
+import react.router.dom.Link
 import react.router.useNavigate
 import react.useRef
 import react.useState
@@ -84,12 +85,8 @@ val output = fcmemo<OutputProps>("Output") { props ->
                 +dev.name
                 div {
                     className = ClassName("float-end")
-                    a {
-                        href = "/calibrate/${props.idx}"
-                        title = "Coming soon"
-                        onClick = { ev ->
-                            ev.preventDefault()
-                        }
+                    Link {
+                        to = "/calibrate/${props.idx}"
                         i { className = ClassName("fas fa-compass") }
                     }
                     a {

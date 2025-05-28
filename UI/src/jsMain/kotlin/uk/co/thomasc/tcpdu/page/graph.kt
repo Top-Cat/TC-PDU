@@ -68,7 +68,6 @@ val graphPage = fcmemo<Props>("Graph") {
             callback.current?.invoke()
         }, 5000)
 
-
         onCleanup {
             window.clearInterval(handle)
         }

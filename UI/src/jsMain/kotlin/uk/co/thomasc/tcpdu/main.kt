@@ -12,6 +12,7 @@ import react.memo
 import react.router.Outlet
 import react.router.RouterProvider
 import react.router.dom.createBrowserRouter
+import uk.co.thomasc.tcpdu.page.calibratePage
 import uk.co.thomasc.tcpdu.page.configPage
 import uk.co.thomasc.tcpdu.page.firmwarePage
 import uk.co.thomasc.tcpdu.page.graphPage
@@ -52,6 +53,10 @@ val app = fcmemo<Props>("PDU App") {
                     jso {
                         path = "graph"
                         element = createElement(graphPage)
+                    },
+                    jso {
+                        path = "calibrate/:idx"
+                        element = createElement(calibratePage)
                     },
                     jso {
                         path = "config"
