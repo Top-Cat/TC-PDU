@@ -12,3 +12,6 @@ object CommonMath {
 
 fun Float.fixed(n: Int) = CommonMath.fixed(this, n)
 fun Double.fixed(n: Int) = CommonMath.fixed(this, n)
+
+fun Float.fixedStr(n: Int) = CommonMath.fixedStr(this, n)
+fun Double.fixedStr(n: Int) = CommonMath.fixedStr(this, n)

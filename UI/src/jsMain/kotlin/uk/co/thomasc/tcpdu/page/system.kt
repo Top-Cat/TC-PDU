@@ -3,15 +3,16 @@ package uk.co.thomasc.tcpdu.page
 import external.axiosGet
 import kotlinx.serialization.Serializable
 import react.Props
-import react.dom.div
-import react.fc
+import react.dom.html.ReactHTML.div
 import react.router.useNavigate
 import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.system.ethStatus
 import uk.co.thomasc.tcpdu.page.system.sysStatus
 import uk.co.thomasc.tcpdu.page.system.wifiStatus
+import web.cssom.ClassName
 
 @Serializable
 data class PDUSystem(
@@ -65,7 +66,7 @@ interface INetworkState {
     val subnet: String?
 }
 
-val systemPage = fc<Props> {
+val systemPage = fcmemo<Props>("System Page") {
     val history = useNavigate()
     val (system, setSystem) = useState<PDUSystem>()
 
@@ -76,13 +77,15 @@ val systemPage = fc<Props> {
     }
 
     if (system != null) {
-        div("config row row-cols-1 row-cols-md-3 g-4") {
+        div {
+            className = ClassName("config row row-cols-1 row-cols-md-3 g-4")
             val systemBlocks = listOf(wifiStatus, ethStatus, sysStatus)
 
             systemBlocks.forEach {
-                div("col") {
+                div {
+                    className = ClassName("col")
                     it.invoke {
-                        attrs.system = system
+                        this.system = system
                     }
                 }
             }

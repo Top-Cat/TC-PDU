@@ -1,25 +1,31 @@
 package uk.co.thomasc.tcpdu.page.system
 
-import react.dom.div
-import react.dom.i
-import react.fc
+import react.dom.html.ReactHTML
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.i
+import uk.co.thomasc.tcpdu.fcmemo
+import web.cssom.ClassName
 
-val ethStatus = fc<SystemProps> { props ->
+val ethStatus = fcmemo<SystemProps>("ETH Status") { props ->
     props.system?.let { system ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"Ethernet"
-                div("float-end") {
+                div {
+                    className = ClassName("float-end")
                     if (system.eth.connected) {
-                        i("fas fa-circle text-success") {}
+                        i { className = ClassName("fas fa-circle text-success") }
                     } else {
-                        i("far fa-circle text-danger") {}
+                        i { className = ClassName("fas fa-circle text-danger") }
                     }
                 }
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 genericStatus {
-                    attrs.state = system.eth
+                    state = system.eth
                 }
                 hideIfNull("Direction", system.eth.fullDuplex?.let { d -> if (d) "Full" else "Half" }, " duplex")
                 hideIfNull("Speed", system.eth.linkSpeed, " Mbps")

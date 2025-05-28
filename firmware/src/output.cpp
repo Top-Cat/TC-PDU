@@ -71,10 +71,8 @@ void Output::init() {
   // Ensure consistent state
   setAddress(address);
 
-  auto reason = esp_reset_reason();
-
   // On at boot
-  if (bootState == BootState::LAST && reason != ESP_RST_BROWNOUT) {
+  if (bootState == BootState::LAST) {
     setState(NULL, lastState, true);
   } else {
     setState(NULL, bootState == BootState::ON, true);
@@ -226,6 +224,10 @@ void Output::setFromJson(String user, JsonDocument* doc) {
   JsonVariant maxAlarm = (*doc)["maxAlarm"];
   if (!maxAlarm.isNull()) setMaxAlarm(maxAlarm);
 
+  save();
+}
+
+void Output::save() {
   if (isDirty()) config.save();
 }
 

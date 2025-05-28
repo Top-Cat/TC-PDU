@@ -2,28 +2,26 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onClickFunction
-import org.w3c.dom.HTMLInputElement
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.form
-import react.dom.input
-import react.dom.label
-import react.fc
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.errors
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.SyslogConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.cssom.ClassName
+import web.html.ButtonType
+import web.html.HTMLInputElement
+import web.html.InputType
 
-val syslogConfig = fc<ConfigProps> { props ->
+val syslogConfig = fcmemo<ConfigProps>("Syslog Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
 
@@ -31,11 +29,14 @@ val syslogConfig = fc<ConfigProps> { props ->
     val portRef = useRef<HTMLInputElement>()
 
     props.config?.let { config ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"Syslog"
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 if (success == true) {
                     success { +"Config saved" }
                 } else if (success == false) {
@@ -43,38 +44,49 @@ val syslogConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("row") {
-                        div("col-md-9") {
-                            label("form-label") {
-                                attrs.htmlFor = "syslog-host"
+                    div {
+                        className = ClassName("row")
+                        div {
+                            className = ClassName("col-md-9")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "syslog-host"
                                 +"Host"
                             }
-                            input(InputType.text, classes = "form-control") {
+                            input {
+                                type = InputType.text
+                                className = ClassName("form-control")
                                 key = "syslog-host"
-                                attrs.placeholder = "syslog.example.com"
-                                attrs.id = "syslog-host"
-                                attrs.defaultValue = config.syslog.host ?: ""
+                                placeholder = "syslog.example.com"
+                                id = "syslog-host"
+                                defaultValue = config.syslog.host ?: ""
                                 ref = hostRef
                             }
                         }
 
-                        div("col-md-3") {
-                            label("form-label") {
-                                attrs.htmlFor = "syslog-port"
+                        div {
+                            className = ClassName("col-md-3")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "syslog-port"
                                 +"Port"
                             }
-                            input(InputType.number, classes = "form-control") {
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control")
                                 key = "syslog-port"
-                                attrs.placeholder = "5140"
-                                attrs.id = "syslog-port"
-                                attrs.defaultValue = config.syslog.port?.toString() ?: ""
+                                placeholder = "5140"
+                                id = "syslog-port"
+                                defaultValue = config.syslog.port?.toString() ?: ""
                                 ref = portRef
                             }
                         }
                     }
 
-                    button(type = ButtonType.submit, classes = "btn btn-primary") {
-                        attrs.onClickFunction = { ev ->
+                    button {
+                        type = ButtonType.submit
+                        className = ClassName("btn btn-primary")
+                        onClick = { ev ->
                             ev.preventDefault()
                             val syslogConfig = SyslogConfig(
                                 hostRef.current?.value,

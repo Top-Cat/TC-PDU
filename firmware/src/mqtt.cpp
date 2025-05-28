@@ -109,7 +109,7 @@ void PDUMqtt::task() {
         mqttClient->setServer(conf->host.c_str(), conf->port);
         mqttClient->setClientId(conf->clientId.c_str());
         mqttClient->setCredentials(conf->username.c_str(), conf->password.c_str());
-        prefix = conf->prefix + (conf->addMacToPrefix ? (network.getMac() + "/") : "") + "state";
+        prefix = conf->prefix + (conf->addMacToPrefix ? (network.getMac() + "/") : "");
 
         mqttClient->connect();
       } else if (mqttClient != NULL) {

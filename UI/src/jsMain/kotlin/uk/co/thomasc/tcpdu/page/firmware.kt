@@ -4,29 +4,26 @@ import external.Axios
 import external.AxiosProgress
 import external.AxiosRequestConfig
 import external.axiosGet
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.hidden
-import kotlinx.html.id
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.role
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLInputElement
-import org.w3c.files.get
-import org.w3c.xhr.FormData
 import react.Props
-import react.dom.button
-import react.dom.div
-import react.dom.form
-import react.dom.input
-import react.dom.label
-import react.dom.p
-import react.fc
+import react.dom.aria.AriaRole
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
+import react.dom.html.ReactHTML.p
 import react.router.useNavigate
 import react.useEffectOnce
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
+import web.cssom.ClassName
+import web.form.FormData
+import web.html.ButtonType
+import web.html.HTMLElement
+import web.html.HTMLInputElement
+import web.html.InputType
 
 class UploadRequestConfig(block: (AxiosProgress) -> Unit) : AxiosRequestConfig {
     override var onUploadProgress: ((progressEvent: AxiosProgress) -> Unit)? = block
@@ -35,7 +32,7 @@ class UploadRequestConfig(block: (AxiosProgress) -> Unit) : AxiosRequestConfig {
     }
 }
 
-val firmwarePage = fc<Props> {
+val firmwarePage = fcmemo<Props>("Firmware") {
     val history = useNavigate()
     val (curFw, setFw) = useState("Unknown")
     val (loading, setLoading) = useState(false)
@@ -48,38 +45,47 @@ val firmwarePage = fc<Props> {
         }.handleForbidden(history)
     }
 
-    form(classes = "w-50 m-auto") {
+    form {
+        className = ClassName("w-50 m-auto")
         p { +"Current firmware: $curFw" }
 
-        div("progress") {
-            attrs.hidden = !loading
-            div("progress-bar progress-bar-striped progress-bar-animated bg-info") {
-                attrs.role = "progressbar"
+        div {
+            className = ClassName("progress")
+            hidden = !loading
+            div {
+                className = ClassName("progress-bar progress-bar-striped progress-bar-animated bg-info")
+                role = AriaRole.progressbar
                 ref = progressRef
             }
         }
 
-        div("mt-3") {
-            label("form-label") {
-                attrs.htmlFor = "fw-file"
+        div {
+            className = ClassName("mt-3")
+            label {
+                className = ClassName("form-label")
+                htmlFor = "fw-file"
                 +"New firmware"
             }
-            input(InputType.file, classes = "form-control") {
-                attrs.placeholder = "firmware.bin"
-                attrs.id = "fw-file"
-                attrs.disabled = loading
+            input {
+                type = InputType.file
+                className = ClassName("form-control")
+                placeholder = "firmware.bin"
+                id = "fw-file"
+                disabled = loading
                 ref = fwRef
             }
         }
 
-        button(type = ButtonType.submit, classes = "btn btn-primary w-100 mt-3") {
-            attrs.disabled = loading
-            attrs.onClickFunction = { ev ->
+        button {
+            type = ButtonType.submit
+            className = ClassName("btn btn-primary w-100 mt-3")
+            disabled = loading
+            onClick = { ev ->
                 ev.preventDefault()
 
                 setLoading(true)
                 val data = FormData()
-                data.asDynamic().append("file", fwRef.current?.files?.get(0))
+                fwRef.current?.files?.get(0)?.let { data.append("file", it) }
 
                 Axios.post<String>(
                     "/update",

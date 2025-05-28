@@ -2,28 +2,26 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onClickFunction
-import org.w3c.dom.HTMLInputElement
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.form
-import react.dom.input
-import react.dom.label
-import react.fc
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.errors
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.WifiConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.cssom.ClassName
+import web.html.ButtonType
+import web.html.HTMLInputElement
+import web.html.InputType
 
-val wifiConfig = fc<ConfigProps> { props ->
+val wifiConfig = fcmemo<ConfigProps>("WiFi Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
 
@@ -32,11 +30,14 @@ val wifiConfig = fc<ConfigProps> { props ->
     val enabledRef = useRef<HTMLInputElement>()
 
     props.config?.let { config ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"Wifi"
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 if (success == true) {
                     success { +"Config saved" }
                 } else if (success == false) {
@@ -44,46 +45,58 @@ val wifiConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-check") {
-                        input(InputType.checkBox, classes = "form-check-input") {
-                            attrs.defaultChecked = config.wifi.enabled == true
-                            attrs.id = "wifi-enabled"
+                    div {
+                        className = ClassName("form-check")
+                        input {
+                            type = InputType.checkbox
+                            className = ClassName("form-check-input")
+                            defaultChecked = config.wifi.enabled == true
+                            id = "wifi-enabled"
                             ref = enabledRef
                         }
-                        label("form-check-label") {
-                            attrs.htmlFor = "wifi-enabled"
+                        label {
+                            className = ClassName("form-check-label")
+                            htmlFor = "wifi-enabled"
                             +"Enabled"
                         }
                     }
 
                     div {
-                        label("form-label") {
-                            attrs.htmlFor = "wifi-ssid"
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "wifi-ssid"
                             +"SSID"
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "SSID"
-                            attrs.id = "wifi-ssid"
-                            attrs.defaultValue = config.wifi.ssid ?: ""
+                        input {
+                            type = InputType.text
+                            className = ClassName("form-control")
+                            placeholder = "SSID"
+                            id = "wifi-ssid"
+                            defaultValue = config.wifi.ssid ?: ""
                             ref = ssidRef
                         }
                     }
 
                     div {
-                        label("form-label") {
-                            attrs.htmlFor = "wifi-pw"
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "wifi-pw"
                             +"Wifi Password"
                         }
-                        input(InputType.password, classes = "form-control") {
-                            attrs.placeholder = "Wifi Password"
-                            attrs.id = "wifi-pw"
-                            attrs.defaultValue = config.wifi.pass ?: ""
+                        input {
+                            type = InputType.password
+                            className = ClassName("form-control")
+                            placeholder = "Wifi Password"
+                            id = "wifi-pw"
+                            defaultValue = config.wifi.pass ?: ""
                             ref = wifiPwRef
                         }
                     }
 
-                    button(type = ButtonType.submit, classes = "btn btn-primary") {
-                        attrs.onClickFunction = { ev ->
+                    button {
+                        type = ButtonType.submit
+                        className = ClassName("btn btn-primary")
+                        onClick = { ev ->
                             ev.preventDefault()
                             val newConfig = WifiConfig(enabledRef.current?.checked, ssidRef.current?.value, wifiPwRef.current?.value)
                             Axios.post<String>("$apiRoot/config/wifi", newConfig, generateConfig<WifiConfig, String>())

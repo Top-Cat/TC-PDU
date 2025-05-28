@@ -2,15 +2,17 @@ package uk.co.thomasc.tcpdu
 
 import js.objects.jso
 import kotlinx.browser.window
-import kotlinx.html.id
+import react.ChildrenBuilder
+import react.FC
 import react.Props
 import react.createElement
 import react.dom.client.createRoot
-import react.dom.div
-import react.fc
+import react.dom.html.ReactHTML.div
+import react.memo
 import react.router.Outlet
 import react.router.RouterProvider
 import react.router.dom.createBrowserRouter
+import uk.co.thomasc.tcpdu.page.calibratePage
 import uk.co.thomasc.tcpdu.page.configPage
 import uk.co.thomasc.tcpdu.page.firmwarePage
 import uk.co.thomasc.tcpdu.page.graphPage
@@ -22,6 +24,8 @@ import web.dom.document
 
 const val apiRoot = "/api"
 
+fun <T : Props> fcmemo(name: String, block: ChildrenBuilder.(props: T) -> Unit) = memo(FC(name, block))
+
 fun main() {
     window.onload = {
         document.getElementById("root")?.let { root ->
@@ -30,12 +34,12 @@ fun main() {
     }
 }
 
-val root = fc<Props> {
+val root = fcmemo<Props>("PDU Root") {
     navbar {}
     Outlet()
 }
 
-val app = fc<Props> {
+val app = fcmemo<Props>("PDU App") {
     val appRouter = createBrowserRouter(
         arrayOf(
             jso {
@@ -49,6 +53,10 @@ val app = fc<Props> {
                     jso {
                         path = "graph"
                         element = createElement(graphPage)
+                    },
+                    jso {
+                        path = "calibrate/:idx"
+                        element = createElement(calibratePage)
                     },
                     jso {
                         path = "config"
@@ -80,13 +88,13 @@ val app = fc<Props> {
     )
 
     RouterProvider {
-        attrs.router = appRouter
+        router = appRouter
     }
 }
 
-val notFound = fc<Props> {
+val notFound = fcmemo<Props>("Not Found") {
     div {
-        attrs.id = "notfound"
+        id = "notfound"
         +"Not found"
     }
 }

@@ -20,8 +20,8 @@ const val mainRoot = "http://10.2.2.58"
 
 @Location("/")
 class MainRoute {
-    @Location("/{path?}")
-    data class Home(val path: String, val api: MainRoute)
+    @Location("/{path?}/{path2?}")
+    data class Home(val path: String, val path2: String, val api: MainRoute)
 
     @Location("/")
     data class Root(val api: MainRoute)

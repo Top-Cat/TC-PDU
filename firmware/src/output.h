@@ -49,6 +49,8 @@ class Output {
     void calibrateCurrent(float correction);
     void setVoltageCalibration(float correction);
     void setCurrentCalibration(float correction);
+
+    void save();
   private:
     char name[64] = {};
     uint8_t address = 0xFF;

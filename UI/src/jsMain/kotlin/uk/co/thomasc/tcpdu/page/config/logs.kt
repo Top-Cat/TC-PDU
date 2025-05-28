@@ -2,35 +2,33 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
-import kotlinx.html.js.onClickFunction
-import org.w3c.dom.HTMLInputElement
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.input
-import react.dom.label
-import react.dom.table
-import react.dom.tbody
-import react.dom.td
-import react.dom.th
-import react.dom.thead
-import react.dom.tr
-import react.fc
+import react.dom.html.ReactHTML
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
+import react.dom.html.ReactHTML.table
+import react.dom.html.ReactHTML.tbody
+import react.dom.html.ReactHTML.td
+import react.dom.html.ReactHTML.th
+import react.dom.html.ReactHTML.thead
+import react.dom.html.ReactHTML.tr
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.errors
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.LogConfig
 import uk.co.thomasc.tcpdu.page.LogType
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.cssom.ClassName
+import web.html.ButtonType
+import web.html.HTMLInputElement
+import web.html.InputType
 
-val logsConfig = fc<ConfigProps> { props ->
+val logsConfig = fcmemo<ConfigProps>("Logs Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
     val (serialMask, setSerialMask) = useState(props.config?.log?.serialMask ?: 0uL)
@@ -46,30 +44,38 @@ val logsConfig = fc<ConfigProps> { props ->
             input.and((1uL shl idx).inv())
         }
 
-    div("card border-primary") {
-        div("card-header") {
+    div {
+        className = ClassName("card border-primary")
+        div {
+            className = ClassName("card-header")
             +"Logs"
         }
-        div("card-body") {
+        div {
+            className = ClassName("card-body")
             if (success == true) {
                 success { +"Config saved" }
             } else if (success == false) {
                 errors { +"Unknown error" }
             }
 
-            table("table table-sm table-striped") {
+            table {
+                className = ClassName("table table-sm table-striped")
                 thead {
                     tr {
-                        th(classes = "col-6") {
+                        th {
+                            className = ClassName("col-6")
                             +"Type"
                         }
-                        th(classes = "col-2") {
+                        th {
+                            className = ClassName("col-2")
                             +"Serial"
                         }
-                        th(classes = "col-2") {
+                        th {
+                            className = ClassName("col-2")
                             +"Syslog"
                         }
-                        th(classes = "col-2") {
+                        th {
+                            className = ClassName("col-2")
                             +"Email"
                         }
                     }
@@ -82,26 +88,32 @@ val logsConfig = fc<ConfigProps> { props ->
                                 +logType.human
                             }
                             td {
-                                input(InputType.checkBox, classes = "form-check-input") {
-                                    attrs.defaultChecked = serialMask.shr(idx).and(1uL) == 1uL
-                                    attrs.onChangeFunction = { ev ->
-                                        setSerialMask(setBit(serialMask, idx, (ev.target as HTMLInputElement).checked))
+                                input {
+                                    type = InputType.checkbox
+                                    className = ClassName("form-check-input")
+                                    defaultChecked = serialMask.shr(idx).and(1uL) == 1uL
+                                    onChange = { ev ->
+                                        setSerialMask(setBit(serialMask, idx, ev.target.checked))
                                     }
                                 }
                             }
                             td {
-                                input(InputType.checkBox, classes = "form-check-input") {
-                                    attrs.defaultChecked = syslogMask.shr(idx).and(1uL) == 1uL
-                                    attrs.onChangeFunction = { ev ->
-                                        setSyslogMask(setBit(syslogMask, idx, (ev.target as HTMLInputElement).checked))
+                                input {
+                                    type = InputType.checkbox
+                                    className = ClassName("form-check-input")
+                                    defaultChecked = syslogMask.shr(idx).and(1uL) == 1uL
+                                    onChange = { ev ->
+                                        setSyslogMask(setBit(syslogMask, idx, ev.target.checked))
                                     }
                                 }
                             }
                             td {
-                                input(InputType.checkBox, classes = "form-check-input") {
-                                    attrs.defaultChecked = emailMask.shr(idx).and(1uL) == 1uL
-                                    attrs.onChangeFunction = { ev ->
-                                        setEmailMask(setBit(emailMask, idx, (ev.target as HTMLInputElement).checked))
+                                input {
+                                    type = InputType.checkbox
+                                    className = ClassName("form-check-input")
+                                    defaultChecked = emailMask.shr(idx).and(1uL) == 1uL
+                                    onChange = { ev ->
+                                        setEmailMask(setBit(emailMask, idx, ev.target.checked))
                                     }
                                 }
                             }
@@ -111,20 +123,25 @@ val logsConfig = fc<ConfigProps> { props ->
             }
 
             div {
-                label("form-label") {
-                    attrs.htmlFor = "logs-retention"
+                label {
+                    className = ClassName("form-label")
+                    htmlFor = "logs-retention"
                     +"Log retention"
                 }
-                input(InputType.text, classes = "form-control") {
-                    attrs.placeholder = "3"
-                    attrs.id = "logs-retention"
-                    attrs.defaultValue = props.config?.log?.days?.toString() ?: ""
+                input {
+                    type = InputType.text
+                    className = ClassName("form-control")
+                    placeholder = "3"
+                    id = "logs-retention"
+                    defaultValue = props.config?.log?.days?.toString() ?: ""
                     ref = daysRef
                 }
             }
 
-            button(type = ButtonType.submit, classes = "btn btn-primary") {
-                attrs.onClickFunction = { ev ->
+            button {
+                type = ButtonType.submit
+                className = ClassName("btn btn-primary")
+                onClick = { ev ->
                     ev.preventDefault()
                     setSuccess(null)
 

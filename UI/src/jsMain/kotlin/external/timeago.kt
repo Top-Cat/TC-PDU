@@ -1,6 +1,6 @@
 package external
 
-import react.ComponentClass
+import react.ComponentType
 import react.Props
 
 external interface TimeAgoProps : Props {
@@ -12,5 +12,5 @@ external interface TimeAgoProps : Props {
 @JsModule("react-timeago")
 @JsNonModule
 external object TimeAgo {
-    val default: ComponentClass<TimeAgoProps>
+    val default: ComponentType<TimeAgoProps>
 }

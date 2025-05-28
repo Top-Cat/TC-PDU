@@ -6,8 +6,8 @@ val kotlinVersion: String by project
 val ktorVersion: String by project
 
 plugins {
-    kotlin("multiplatform") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
+    kotlin("multiplatform") version "2.1.0"
+    kotlin("plugin.serialization") version "2.1.0"
     id("io.miret.etienne.sass") version "1.1.2"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
     application
@@ -92,9 +92,9 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
 
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-extensions:1.0.1-pre.736")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-legacy:18.3.1-pre.736")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom-legacy:18.3.1-pre.736")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.23.0-pre.736")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:19.0.0-pre.860")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:19.0.0-pre.860")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.28.0-pre.860")
                 implementation(npm("axios", "0.21.1"))
                 implementation(npm("bootswatch", "5.3.3"))
                 implementation(npm("bootstrap", "5.3.3"))

@@ -3,12 +3,12 @@ package uk.co.thomasc.tcpdu.page
 import external.axiosGet
 import kotlinx.serialization.Serializable
 import react.Props
-import react.dom.div
-import react.fc
+import react.dom.html.ReactHTML.div
 import react.router.useNavigate
 import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.config.logsConfig
 import uk.co.thomasc.tcpdu.page.config.mqttConfig
 import uk.co.thomasc.tcpdu.page.config.ntpConfig
@@ -16,6 +16,7 @@ import uk.co.thomasc.tcpdu.page.config.radiusConfig
 import uk.co.thomasc.tcpdu.page.config.smtpConfig
 import uk.co.thomasc.tcpdu.page.config.syslogConfig
 import uk.co.thomasc.tcpdu.page.config.wifiConfig
+import web.cssom.ClassName
 
 @Serializable
 data class PDUConfig(val wifi: WifiConfig, val radius: RadiusConfig, val auth: AuthConfig, val ntp: NtpConfig, val log: LogConfig, val mqtt: MqttConfig, val syslog: SyslogConfig)
@@ -44,7 +45,7 @@ data class MqttConfig(val enabled: Boolean? = null, val host: String? = null, va
 @Serializable
 data class SyslogConfig(val host: String? = null, val port: Int? = null)
 
-val configPage = fc<Props> {
+val configPage = fcmemo<Props>("Config") {
     val (config, setConfig) = useState<PDUConfig>()
     val history = useNavigate()
 
@@ -55,22 +56,25 @@ val configPage = fc<Props> {
     }
 
     if (config != null) {
-        div("config row row-cols-1 row-cols-md-2 g-4") {
+        div {
+            className = ClassName("config row row-cols-1 row-cols-md-2 g-4")
+            val col = ClassName("col")
             val configBlocks = mapOf(
-                wifiConfig to "col",
-                ntpConfig to "col",
-                mqttConfig to "col",
-                smtpConfig to "col",
-                radiusConfig to "col",
-                syslogConfig to "col",
-                logsConfig to "col-md-12"
+                wifiConfig to col,
+                ntpConfig to col,
+                mqttConfig to col,
+                smtpConfig to col,
+                radiusConfig to col,
+                syslogConfig to col,
+                logsConfig to ClassName("col-md-12")
             )
 
             configBlocks.forEach { (fc, clazz) ->
-                div(clazz) {
+                div {
+                    className = clazz
                     fc.invoke {
-                        attrs.config = config
-                        attrs.updateCallback = {
+                        this.config = config
+                        updateCallback = {
                             setConfig(it)
                         }
                     }

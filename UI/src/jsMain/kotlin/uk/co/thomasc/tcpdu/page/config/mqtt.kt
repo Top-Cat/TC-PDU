@@ -2,31 +2,29 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.role
-import org.w3c.dom.HTMLInputElement
-import react.dom.button
-import react.dom.defaultValue
-import react.dom.div
-import react.dom.form
-import react.dom.i
-import react.dom.input
-import react.dom.label
-import react.dom.span
-import react.fc
+import react.dom.aria.AriaRole
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.i
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
+import react.dom.html.ReactHTML.span
 import react.router.useNavigate
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.errors
+import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.MqttConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.cssom.ClassName
+import web.html.ButtonType
+import web.html.HTMLInputElement
+import web.html.InputType
 
-val mqttConfig = fc<ConfigProps> { props ->
+val mqttConfig = fcmemo<ConfigProps>("MQTT Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
 
@@ -42,11 +40,14 @@ val mqttConfig = fc<ConfigProps> { props ->
     val (showMqttPassword, setShowMqttPassword) = useState(false)
 
     props.config?.let { config ->
-        div("card border-primary") {
-            div("card-header") {
+        div {
+            className = ClassName("card border-primary")
+            div {
+                className = ClassName("card-header")
                 +"MQTT"
             }
-            div("card-body") {
+            div {
+                className = ClassName("card-body")
                 if (success == true) {
                     success { +"Config saved" }
                 } else if (success == false) {
@@ -54,124 +55,161 @@ val mqttConfig = fc<ConfigProps> { props ->
                 }
 
                 form {
-                    div("form-check") {
-                        input(InputType.checkBox, classes = "form-check-input") {
-                            attrs.defaultChecked = config.mqtt.enabled == true
-                            attrs.id = "mqtt-enabled"
+                    div {
+                        className = ClassName("form-check")
+                        input {
+                            type = InputType.checkbox
+                            className = ClassName("form-check-input")
+                            defaultChecked = config.mqtt.enabled == true
+                            id = "mqtt-enabled"
                             ref = enabledRef
                         }
-                        label("form-check-label") {
-                            attrs.htmlFor = "mqtt-enabled"
+                        label {
+                            className = ClassName("form-check-label")
+                            htmlFor = "mqtt-enabled"
                             +"Enabled"
                         }
                     }
 
-                    div("row") {
-                        div("col-md-9") {
-                            label("form-label") {
-                                attrs.htmlFor = "mqtt-host"
+                    div {
+                        className = ClassName("row")
+                        div {
+                            className = ClassName("col-md-9")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "mqtt-host"
                                 +"Host"
                             }
-                            input(InputType.text, classes = "form-control") {
-                                attrs.placeholder = "mqtt.example.com"
-                                attrs.id = "mqtt-host"
-                                attrs.defaultValue = config.mqtt.host ?: ""
+                            input {
+                                type = InputType.text
+                                className = ClassName("form-control")
+                                placeholder = "mqtt.example.com"
+                                id = "mqtt-host"
+                                defaultValue = config.mqtt.host ?: ""
                                 ref = hostRef
                             }
                         }
 
-                        div("col-md-3") {
-                            label("form-label") {
-                                attrs.htmlFor = "mqtt-port"
+                        div {
+                            className = ClassName("col-md-3")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "mqtt-port"
                                 +"Port"
                             }
-                            input(InputType.number, classes = "form-control") {
-                                attrs.placeholder = "1883"
-                                attrs.id = "mqtt-port"
-                                attrs.defaultValue = config.mqtt.port?.toString() ?: ""
+                            input {
+                                type = InputType.number
+                                className = ClassName("form-control")
+                                placeholder = "1883"
+                                id = "mqtt-port"
+                                defaultValue = config.mqtt.port?.toString() ?: ""
                                 ref = portRef
                             }
                         }
                     }
 
                     div {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-user"
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "mqtt-user"
                             +"User"
                         }
-                        input(InputType.text, classes = "form-control") {
-                            attrs.placeholder = "mqtt-user"
-                            attrs.id = "mqtt-user"
-                            attrs.defaultValue = config.mqtt.user ?: ""
+                        input {
+                            type = InputType.text
+                            className = ClassName("form-control")
+                            placeholder = "mqtt-user"
+                            id = "mqtt-user"
+                            defaultValue = config.mqtt.user ?: ""
                             ref = userRef
                         }
                     }
 
                     div {
-                        label("form-label") {
-                            attrs.htmlFor = "mqtt-pw"
+                        label {
+                            className = ClassName("form-label")
+                            htmlFor = "mqtt-pw"
                             +"Password"
                         }
-                        div("input-group") {
-                            input(if (showMqttPassword) InputType.text else InputType.password, classes = "form-control") {
-                                attrs.placeholder = "********"
-                                attrs.id = "mqtt-pw"
-                                attrs.defaultValue = config.mqtt.password ?: ""
+                        div {
+                            className = ClassName("input-group")
+                            input {
+                                type = if (showMqttPassword) InputType.text else InputType.password
+                                className = ClassName("form-control")
+                                placeholder = "********"
+                                id = "mqtt-pw"
+                                defaultValue = config.mqtt.password ?: ""
                                 ref = passRef
                             }
-                            span("input-group-text") {
-                                i("fas fa-eye" + if (showMqttPassword) "" else "-slash") {
-                                    attrs.onClickFunction = {
+                            span {
+                                className = ClassName("input-group-text")
+                                i {
+                                    className = ClassName("fas fa-eye" + if (showMqttPassword) "" else "-slash")
+                                    onClick = {
                                         setShowMqttPassword(!showMqttPassword)
                                     }
-                                    attrs.role = "button"
+                                    role = AriaRole.button
                                 }
                             }
                         }
                     }
 
-                    div("row") {
-                        div("col-md-6") {
-                            label("form-label") {
-                                attrs.htmlFor = "mqtt-clientid"
+                    div {
+                        className = ClassName("row")
+                        div {
+                            className = ClassName("col-md-6")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "mqtt-clientid"
                                 +"Client Id"
                             }
-                            input(InputType.text, classes = "form-control") {
-                                attrs.placeholder = "esp32-tcpdu"
-                                attrs.id = "mqtt-clientid"
-                                attrs.defaultValue = config.mqtt.clientId ?: ""
+                            input {
+                                type = InputType.text
+                                className = ClassName("form-control")
+                                placeholder = "esp32-tcpdu"
+                                id = "mqtt-clientid"
+                                defaultValue = config.mqtt.clientId ?: ""
                                 ref = clientIdRef
                             }
                         }
 
-                        div("col-md-6") {
-                            label("form-label") {
-                                attrs.htmlFor = "mqtt-prefix"
+                        div {
+                            className = ClassName("col-md-6")
+                            label {
+                                className = ClassName("form-label")
+                                htmlFor = "mqtt-prefix"
                                 +"Prefix"
                             }
-                            input(InputType.text, classes = "form-control") {
-                                attrs.placeholder = "tc-pdu/"
-                                attrs.id = "mqtt-prefix"
-                                attrs.defaultValue = config.mqtt.prefix ?: ""
+                            input {
+                                type = InputType.text
+                                className = ClassName("form-control")
+                                placeholder = "tc-pdu/"
+                                id = "mqtt-prefix"
+                                defaultValue = config.mqtt.prefix ?: ""
                                 ref = prefixRef
                             }
                         }
                     }
 
-                    div("form-check") {
-                        input(InputType.checkBox, classes = "form-check-input") {
-                            attrs.defaultChecked = config.mqtt.addMacToPrefix == true
-                            attrs.id = "add-mac-to-prefix"
+                    div {
+                        className = ClassName("form-check")
+                        input {
+                            type = InputType.checkbox
+                            className = ClassName("form-check-input")
+                            defaultChecked = config.mqtt.addMacToPrefix == true
+                            id = "add-mac-to-prefix"
                             ref = addMacRef
                         }
-                        label("form-check-label") {
-                            attrs.htmlFor = "add-mac-to-prefix"
+                        label {
+                            className = ClassName("form-check-label")
+                            htmlFor = "add-mac-to-prefix"
                             +"Add mac to prefix"
                         }
                     }
 
-                    button(type = ButtonType.submit, classes = "btn btn-primary") {
-                        attrs.onClickFunction = { ev ->
+                    button {
+                        type = ButtonType.submit
+                        className = ClassName("btn btn-primary")
+                        onClick = { ev ->
                             ev.preventDefault()
                             val mqttConfig = MqttConfig(
                                 enabledRef.current?.checked,
