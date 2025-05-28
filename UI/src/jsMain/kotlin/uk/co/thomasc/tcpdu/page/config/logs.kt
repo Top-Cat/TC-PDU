@@ -2,7 +2,6 @@ package uk.co.thomasc.tcpdu.page.config
 
 import external.Axios
 import external.generateConfig
-import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
