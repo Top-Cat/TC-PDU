@@ -20,8 +20,8 @@ void logStartupError(const char* reason) {
   logger.msg(msg);
 }
 
-void logStartupError() {
-  switch (esp_reset_reason()) {
+void logStartupError(esp_reset_reason_t reason) {
+  switch (reason) {
     case ESP_RST_BROWNOUT:
       logStartupError("brownout");
       break;
@@ -49,6 +49,9 @@ void setup() {
   Serial.print(F("setup() running on core "));
   Serial.println(xPortGetCoreID());
 
+  auto reason = esp_reset_reason();
+  coldBoot = reason == ESP_RST_POWERON;
+
   config.load();
 
   logger.setupTask();
@@ -57,7 +60,7 @@ void setup() {
   control.setupTask();
   mqtt.setupTask();
 
-  logStartupError();
+  logStartupError(reason);
 
   // Setup watchdog
   esp_task_wdt_init(WDT_TIMEOUT, true);

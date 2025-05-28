@@ -8,6 +8,8 @@
 enum class BootState { ON, LAST, OFF };
 enum class OutputState { NORMAL, ALARM, TRIP };
 
+extern bool coldBoot;
+
 class Output {
   public:
     void serialize(uint8_t* ser);
