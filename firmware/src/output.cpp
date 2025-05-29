@@ -6,6 +6,8 @@
 
 #define ALARM_DELAY 6
 
+bool coldBoot = true;
+
 void Output::serialize(uint8_t* ser) {
   strncpy((char*) ser, name, sizeof(name));
   ser[64] = address;
@@ -73,9 +75,9 @@ void Output::init() {
 
   // On at boot
   if (bootState == BootState::LAST) {
-    setState(NULL, lastState, true);
+    setState(NULL, lastState, coldBoot);
   } else {
-    setState(NULL, bootState == BootState::ON, true);
+    setState(NULL, bootState == BootState::ON, coldBoot);
   }
 }
 

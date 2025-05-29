@@ -2,6 +2,7 @@
 #include "network.h"
 #include "config.h"
 #include "control.h"
+#include "i2c.h"
 
 #include <ArduinoJson.h>
 
@@ -90,6 +91,15 @@ void PDUMqtt::task() {
         object["kwh"] = output->getKWH();
         object["va"] = output->getVA();
         object["state"] = output->getState();
+      }
+
+      JsonArray temps = doc["temps"].to<JsonArray>();
+
+      float* tempArr = bus.getReadings();
+      for (uint8_t idx = 0; idx < 3; idx++) {
+        JsonObject object = temps.add<JsonObject>();
+        object["index"] = idx;
+        object["reading"] = tempArr[idx];
       }
 
       String json;
