@@ -65,7 +65,7 @@ val ntpConfig = fcmemo<ConfigProps>("NTP Config") { props ->
                             +"Host"
                         }
                         input {
-                            type = InputType.checkbox
+                            type = InputType.text
                             className = ClassName("form-control")
                             placeholder = "pool.ntp.org"
                             id = "ntp-host"
@@ -85,7 +85,7 @@ val ntpConfig = fcmemo<ConfigProps>("NTP Config") { props ->
                             id = "ntp-offset"
                             value = selectedTimezone
                             onChange = { ev ->
-                                setSelectedTimezone((ev.target as HTMLSelectElement).value)
+                                setSelectedTimezone(ev.target.value)
                             }
                             timezones
                                 .forEach {
