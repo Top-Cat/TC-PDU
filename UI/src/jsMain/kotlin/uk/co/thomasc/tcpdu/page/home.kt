@@ -3,12 +3,14 @@ package uk.co.thomasc.tcpdu.page
 import external.Axios
 import external.AxiosError
 import external.axiosGet
+import kotlinx.browser.window
 import kotlinx.serialization.Serializable
 import react.Props
 import react.dom.html.ReactHTML.div
 import react.router.NavigateFunction
 import react.router.useNavigate
-import react.useEffectOnce
+import react.useEffectOnceWithCleanup
+import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.fcmemo
@@ -20,7 +22,7 @@ import web.cssom.ClassName
 import kotlin.js.Promise
 
 @Serializable
-data class PDUState(val power: Float, val devices: List<PDUDeviceState>)
+data class PDUState(val power: Float, val frequency: Float? = null, val devices: List<PDUDeviceState>)
 
 @Serializable
 data class I2cInfo(val count: Int, val devices: List<UByte>)
@@ -88,13 +90,29 @@ enum class OutputState(val enc: Long) {
 
 val homePage = fcmemo<Props>("Home") {
     val history = useNavigate()
+    val callback = useRef<() -> Unit>()
+    val handle = useRef<Int>()
     val (pduState, setPduState) = useState<PDUState>()
     val (i2c, setI2c) = useState<List<UByte>>()
 
-    useEffectOnce {
+    callback.current = {
         axiosGet<PDUState>("$apiRoot/state").then {
             setPduState(it)
         }.handleForbidden(history)
+
+        handle.current = window.setTimeout({
+            callback.current?.invoke()
+        }, 10_000)
+    }
+
+    useEffectOnceWithCleanup {
+        callback.current?.invoke()
+
+        onCleanup {
+            handle.current?.let {
+                window.clearInterval(it)
+            }
+        }
 
         axiosGet<I2cInfo>("$apiRoot/i2c").then {
             setI2c(it.devices)
@@ -110,11 +128,12 @@ val homePage = fcmemo<Props>("Home") {
                     this.idx = idx
                     device = dev
                     this.i2c = i2c
-                    callback = { update ->
+                    this.callback = { update ->
                         setPduState {
                             it?.copy(devices = it.devices.take(idx) + it.devices[idx].apply(update) + it.devices.drop(idx + 1))
                         }
                     }
+                    this.frequency = pduState.frequency
                 }
             }
         }

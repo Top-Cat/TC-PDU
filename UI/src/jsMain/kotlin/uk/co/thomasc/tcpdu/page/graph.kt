@@ -11,6 +11,7 @@ import kotlinx.datetime.Instant
 import react.Props
 import react.dom.html.ReactHTML.option
 import react.dom.html.ReactHTML.select
+import react.router.useNavigate
 import react.useEffectOnceWithCleanup
 import react.useRef
 import react.useState
@@ -30,6 +31,7 @@ enum class GraphType(val min: Int?, val max: Int?, val block: (DataPoint) -> Flo
 }
 
 val graphPage = fcmemo<Props>("Graph") {
+    val history = useNavigate()
     val callback = useRef<() -> Unit>()
     val (data, setData) = useState(listOf<TimePoint>())
     val (names, setNames) = useState(listOf<String>())
@@ -48,9 +50,7 @@ val graphPage = fcmemo<Props>("Graph") {
                 ).take(360)
             )
             setNames(it.devices.map { dev -> dev.name })
-        }.catch {
-            console.log("ERROR", it)
-        }
+        }.handleForbidden(history)
     }
 
     useEffectOnceWithCleanup {

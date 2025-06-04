@@ -25,6 +25,7 @@ import uk.co.thomasc.tcpdu.page.OutputState
 import uk.co.thomasc.tcpdu.page.PDUDeviceState
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.util.fixed
+import uk.co.thomasc.tcpdu.util.fixedStr
 import web.cssom.ClassName
 import web.html.HTMLInputElement
 import web.html.InputType
@@ -34,6 +35,7 @@ external interface OutputProps : Props {
     var device: PDUDeviceState
     var i2c: List<UByte>?
     var callback: (DeviceStateUpdate) -> Unit
+    var frequency: Float?
 }
 
 @Serializable
@@ -253,21 +255,28 @@ val output = fcmemo<OutputProps>("Output") { props ->
                 div {
                     className = ClassName("stat")
                     i { className = ClassName("fas fa-bolt") }
-                    +"${dev.voltage.fixed(2)}V"
+                    +"${dev.voltage.fixed(2)} V"
                 }
                 div {
                     className = ClassName("stat")
                     i { className = ClassName("fas fa-copyright") }
-                    +"${dev.current.fixed(2)}A"
+                    +"${dev.current.fixed(2)} A"
                 }
                 div {
                     className = ClassName("stat")
                     i { className = ClassName("fas fa-power-off") }
-                    +"${dev.power.fixed(2)}W"
+                    +"${dev.power.fixed(2)} W"
                 }
                 div {
                     className = ClassName("stat")
                     +"λ ${(dev.power / dev.va).fixed(2)}"
+                }
+                props.frequency?.takeIf { it != 0f }?.let { f ->
+                    div {
+                        className = ClassName("stat")
+                        i { className = ClassName("fas fa-wave-square") }
+                        +"${f.fixedStr(3)} Hz"
+                    }
                 }
                 when (dev.outputState) {
                     OutputState.ALARM -> p {
