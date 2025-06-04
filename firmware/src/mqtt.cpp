@@ -3,6 +3,7 @@
 #include "config.h"
 #include "control.h"
 #include "i2c.h"
+#include "frequency.h"
 
 #include <ArduinoJson.h>
 
@@ -76,6 +77,7 @@ void PDUMqtt::task() {
 
       JsonDocument doc;
       doc["power"] = control.getTotalPower();
+      doc["frequency"] = frequency;
       doc["mac"] = network.getMac();
       JsonArray devices = doc["devices"].to<JsonArray>();
 

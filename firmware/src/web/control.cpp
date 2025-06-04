@@ -4,6 +4,7 @@
 #include "i2c.h"
 #include "network.h"
 #include "version.h"
+#include "frequency.h"
 
 #include <SPIFFS.h>
 
@@ -14,6 +15,7 @@ void PDUWeb::controlEndpoints() {
 
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
+    doc["frequency"] = frequency;
     JsonArray devices = doc["devices"].to<JsonArray>();
 
     for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {
