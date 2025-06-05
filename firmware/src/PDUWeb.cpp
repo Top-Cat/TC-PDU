@@ -7,6 +7,7 @@
 #include "web/web.h"
 #include "control.h"
 #include "mqtt.h"
+#include "frequency.h"
 
 #define WDT_TIMEOUT 10
 
@@ -53,6 +54,7 @@ void setup() {
   coldBoot = reason == ESP_RST_POWERON;
 
   config.load();
+  freq.init();
 
   logger.setupTask();
   bus.setupTask();
