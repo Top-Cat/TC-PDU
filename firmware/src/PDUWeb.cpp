@@ -54,7 +54,7 @@ void setup() {
   coldBoot = reason == ESP_RST_POWERON;
 
   config.load();
-  initFrequency();
+  freq.init();
 
   logger.setupTask();
   bus.setupTask();

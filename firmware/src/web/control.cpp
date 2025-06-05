@@ -15,7 +15,7 @@ void PDUWeb::controlEndpoints() {
 
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
-    doc["frequency"] = frequency;
+    doc["frequency"] = freq.getFrequency();
     JsonArray devices = doc["devices"].to<JsonArray>();
 
     for (uint8_t idx = 0; idx < MAX_OUTPUTS; idx++) {

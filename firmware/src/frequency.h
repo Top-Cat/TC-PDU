@@ -1,8 +1,12 @@
 #ifndef frequency_h
 #define frequency_h
 
-void initFrequency();
+class Frequency {
+  public:
+    void init();
+    float getFrequency();
+};
 
-extern float frequency;
+extern Frequency freq;
 
 #endif

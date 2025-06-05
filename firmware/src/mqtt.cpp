@@ -77,7 +77,7 @@ void PDUMqtt::task() {
 
       JsonDocument doc;
       doc["power"] = control.getTotalPower();
-      doc["frequency"] = frequency;
+      doc["frequency"] = freq.getFrequency();
       doc["mac"] = network.getMac();
       JsonArray devices = doc["devices"].to<JsonArray>();
 
