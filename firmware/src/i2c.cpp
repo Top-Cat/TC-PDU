@@ -159,6 +159,7 @@ void ModuleBus::task() {
 
   for (uint8_t address = 0; address < 127; ++address) {
     if (address == 0x68) {
+      this->hasRtc = true;
       rtc->refresh();
 
       struct tm tm;
@@ -195,17 +196,19 @@ void ModuleBus::task() {
     idx++;
 
     // Could use modulo but overflow may be whacky
-    while (idx >= totalDevices) {
-      idx -= totalDevices;
-    }
+    if (totalDevices > 0) {
+      while (idx >= totalDevices) {
+        idx -= totalDevices;
+      }
 
-    uint8_t bytesReceived = Wire.requestFrom(addresses[idx], sizeof(buffer));
-    if (bytesReceived == sizeof(buffer)) {
-      Wire.readBytes(buffer, sizeof(buffer));
-      parseBuffer(buffer, &powerInfo[idx], controlInfo[idx].relayState);
-    } else {
-      Serial.print("Wrong bytes received for ");
-      Serial.println(addresses[idx]);
+      uint8_t bytesReceived = Wire.requestFrom(addresses[idx], sizeof(buffer));
+      if (bytesReceived == sizeof(buffer)) {
+        Wire.readBytes(buffer, sizeof(buffer));
+        parseBuffer(buffer, &powerInfo[idx], controlInfo[idx].relayState);
+      } else {
+        Serial.print("Wrong bytes received for ");
+        Serial.println(addresses[idx]);
+      }
     }
 
     // Wait between requesting power updates

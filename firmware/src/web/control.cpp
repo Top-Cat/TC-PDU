@@ -78,6 +78,7 @@ void PDUWeb::controlEndpoints() {
     doc["fw"] = "0.0." STRING(BUILD_NUMBER) STRING(SNAPSHOT);
     doc["uptime"] = control.getUptime();
     doc["mem"] = esp_get_free_heap_size();
+    doc["rtc"] = bus.hasRtc;
 
     doc["fs"]["used"] = SPIFFS.usedBytes();
     doc["fs"]["total"] = SPIFFS.totalBytes();

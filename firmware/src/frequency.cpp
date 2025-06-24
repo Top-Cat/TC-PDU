@@ -70,7 +70,10 @@ void Frequency::init() {
   ESP_ERROR_CHECK(rmt_config(&rmt_rx_config));
   ESP_ERROR_CHECK(rmt_driver_install(FREQ_CHANNEL, 64 * blocks * sizeof(rmt_item32_t), 0));
 
-  // Force RMT to end once per second (we only have enough blocks for 128 / f seconds 2.56 at 50Hz)
+  // Timer manually toggles GPIO to force RMT to end
+  // We only have enough blocks for 128 / f seconds
+  //  - 2.56 at 50Hz
+  //  - 2.13 at 60Hz
   rmt_timer = xTimerCreate("rmt_timer", 1000 / portTICK_PERIOD_MS, true, NULL, rmt_timer_callback);
   xTimerStart(rmt_timer, 0);
 
