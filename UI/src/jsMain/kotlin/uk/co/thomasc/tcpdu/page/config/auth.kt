@@ -192,6 +192,9 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
                             Axios.post<String>("$apiRoot/config/auth", authConfig, generateConfig<AuthConfig, String>())
                                 .then {
                                     setSuccess(true)
+                                    setAdminPassword("")
+                                    setAdminPasswordRep("")
+                                    setCurrentPassword("")
                                     props.updateCallback(config.copy(auth = authConfig))
                                 }
                                 .handleForbidden(history)

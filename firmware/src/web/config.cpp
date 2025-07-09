@@ -25,7 +25,7 @@ void PDUWeb::configEndpoints() {
     JWTConfig* jwtConf = config.getJWT();
     doc["auth"]["validityPeriod"] = jwtConf->validityPeriod;
     //doc["auth"]["key"] = jwtConf->key;
-    doc["auth"]["adminPassword"] = config.adminPassword;
+    //doc["auth"]["adminPassword"] = config.adminPassword;
 
     NTPConfig* ntpConf = config.getNTP();
     doc["ntp"]["host"] = ntpConf->host;
@@ -151,6 +151,17 @@ void PDUWeb::configEndpoints() {
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
 
+    sendStaticHeaders();
+
+    if (doc["adminPassword"]) {
+      if (config.adminPassword.equals(doc["oldPassword"].as<const char*>())) {
+        config.adminPassword = doc["adminPassword"].as<const char*>();
+      } else {
+        server->send(400, textPlain, "Invalid password");
+        return;
+      }
+    }
+
     LogLine* msg = new LogLine();
     msg->type = CONFIG;
     strncpy(msg->user, user.c_str(), sizeof(msg->user));
@@ -167,11 +178,6 @@ void PDUWeb::configEndpoints() {
       setSession(jwtConf, iat, user.c_str());
     }
 
-    if (doc["adminPassword"] && config.adminPassword.equals(doc["oldPassword"].as<const char*>())) {
-      config.adminPassword = doc["adminPassword"].as<const char*>();
-    }
-
-    sendStaticHeaders();
     server->send(200, textPlain, "DONE");
     config.save();
   }, [&]() { });
