@@ -11,7 +11,6 @@ import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.span
 import react.router.useNavigate
-import react.useEffectOnce
 import react.useRef
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
@@ -30,21 +29,14 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
     val history = useNavigate()
     val (success, setSuccess) = useState<Boolean?>(null)
 
+    val (currentPassword, setCurrentPassword) = useState("")
+    val (adminPassword, setAdminPassword) = useState("")
+    val (adminPasswordRep, setAdminPasswordRep) = useState("")
+
     val validityPeriodRef = useRef<HTMLInputElement>()
-    val currentPasswordRef = useRef<HTMLInputElement>()
-    val adminPasswordRef = useRef<HTMLInputElement>()
-    val adminPasswordRepRef = useRef<HTMLInputElement>()
     val (showCurrentPassword, setShowCurrentPassword)  = useState(false)
     val (showAdminPassword, setShowAdminPassword)  = useState(false)
     val (showAdminPasswordRep, setShowAdminPasswordRep)  = useState(false)
-
-    val (user, setUser) = useState<String>()
-
-    useEffectOnce {
-        Axios.get<String>("$apiRoot/me", generateConfig<String, String>()).then {
-            setUser(it.data)
-        }.handleForbidden(history)
-    }
 
     props.config?.let { config ->
         div {
@@ -81,9 +73,12 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
 
                     // For autocomplete
                     input {
-                        type = InputType.hidden
+                        className = ClassName("d-none")
+                        autoComplete = AutoFillNormalField.username
+                        type = InputType.text
                         name = "username"
                         value = "admin"
+                        readOnly = true
                     }
 
                     div {
@@ -101,7 +96,10 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
                                 key = "auth-pw-old"
                                 placeholder = "********"
                                 id = "auth-pw-old"
-                                ref = currentPasswordRef
+                                value = currentPassword
+                                onChange = {
+                                    setCurrentPassword(it.currentTarget.value)
+                                }
                             }
                             span {
                                 className = ClassName("input-group-text")
@@ -130,7 +128,10 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
                                 key = "auth-pw"
                                 placeholder = "********"
                                 id = "auth-pw"
-                                ref = adminPasswordRef
+                                value = adminPassword
+                                onChange = {
+                                    setAdminPassword(it.currentTarget.value)
+                                }
                             }
                             span {
                                 className = ClassName("input-group-text")
@@ -159,7 +160,10 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
                                 key = "auth-pw-rpt"
                                 placeholder = "********"
                                 id = "auth-pw-rpt"
-                                ref = adminPasswordRepRef
+                                value = adminPasswordRep
+                                onChange = {
+                                    setAdminPasswordRep(it.currentTarget.value)
+                                }
                             }
                             span {
                                 className = ClassName("input-group-text")
@@ -180,15 +184,10 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
                         onClick = { ev ->
                             ev.preventDefault()
 
-                            val adminPassword1 = adminPasswordRef.current?.value
-                            val adminPassword2 = adminPasswordRepRef.current?.value
-
-                            val newAdminPassword = if (adminPassword1 == adminPassword2) adminPassword1 else null
-
                             val authConfig = AuthConfig(
                                 validityPeriod = validityPeriodRef.current?.value?.toIntOrNull(),
-                                oldPassword = currentPasswordRef.current?.value,
-                                adminPassword = newAdminPassword
+                                oldPassword = currentPassword,
+                                adminPassword = if (adminPassword == adminPasswordRep) adminPassword else null
                             )
                             Axios.post<String>("$apiRoot/config/auth", authConfig, generateConfig<AuthConfig, String>())
                                 .then {

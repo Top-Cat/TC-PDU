@@ -75,6 +75,7 @@ val configPage = fcmemo<Props>("Config") {
                 div {
                     className = clazz
                     fc.invoke {
+                        key = fc.displayName
                         this.config = config
                         updateCallback = {
                             setConfig(it)

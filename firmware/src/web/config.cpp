@@ -25,7 +25,7 @@ void PDUWeb::configEndpoints() {
     JWTConfig* jwtConf = config.getJWT();
     doc["auth"]["validityPeriod"] = jwtConf->validityPeriod;
     //doc["auth"]["key"] = jwtConf->key;
-    //doc["auth"]["adminPassword"] = config.adminPassword;
+    doc["auth"]["adminPassword"] = config.adminPassword;
 
     NTPConfig* ntpConf = config.getNTP();
     doc["ntp"]["host"] = ntpConf->host;
@@ -83,8 +83,8 @@ void PDUWeb::configEndpoints() {
     JsonVariant enabled = doc["enabled"];
     if (!enabled.isNull()) wifiConf->enabled = enabled;
 
-    wifiConf->ssid = (const char*) doc["ssid"];
-    wifiConf->password = (const char*) doc["pass"];
+    wifiConf->ssid = doc["ssid"].as<const char*>();
+    wifiConf->password = doc["pass"].as<const char*>();
 
     config.save();
 
@@ -107,9 +107,9 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     RadiusConfig* radiusConf = config.getRadius();
-    if (doc["secret"]) radiusConf->secret = (const char*) doc["secret"];
+    if (doc["secret"]) radiusConf->secret = doc["secret"].as<const char*>();
     if (doc["port"]) radiusConf->port = doc["port"];
-    if (doc["ip"]) radiusConf->ip.fromString((const char*) doc["ip"]);
+    if (doc["ip"]) radiusConf->ip.fromString(doc["ip"].as<const char*>());
 
     config.save();
     sendStaticHeaders();
@@ -130,7 +130,7 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     NTPConfig* ntpConf = config.getNTP();
-    if (doc["host"]) ntpConf->host = (const char*) doc["host"];
+    if (doc["host"]) ntpConf->host = doc["host"].as<const char*>();
     if (doc["tz"]) {
       const char* tz = doc["tz"];
       ntpConf->timezone = tz;
@@ -166,13 +166,14 @@ void PDUWeb::configEndpoints() {
       // Use issed at time as now to re-issue same validity as before
       setSession(jwtConf, iat, user.c_str());
     }
-    if (doc["adminPassword"] && config.adminPassword.equals((const char*) doc["oldPassword"])) {
-      config.adminPassword = (const char*) doc["adminPassword"];
+
+    if (doc["adminPassword"] && config.adminPassword.equals(doc["oldPassword"].as<const char*>())) {
+      config.adminPassword = doc["adminPassword"].as<const char*>();
     }
 
-    config.save();
     sendStaticHeaders();
     server->send(200, textPlain, "DONE");
+    config.save();
   }, [&]() { });
 
   server->on("/api/config/log", HTTP_POST, [&]() {
@@ -213,12 +214,12 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     LogConfig* logConf = config.getLog();
-    if (doc["host"]) logConf->smtpServer = (const char*) doc["host"];
+    if (doc["host"]) logConf->smtpServer = doc["host"].as<const char*>();
     if (doc["port"]) logConf->smtpPort = doc["port"];
-    if (doc["user"]) logConf->smtpUser = (const char*) doc["user"];
-    if (doc["password"]) logConf->smtpPass = (const char*) doc["password"];
-    if (doc["from"]) logConf->smtpFrom = (const char*) doc["from"];
-    if (doc["to"]) logConf->smtpTo = (const char*) doc["to"];
+    if (doc["user"]) logConf->smtpUser = doc["user"].as<const char*>();
+    if (doc["password"]) logConf->smtpPass = doc["password"].as<const char*>();
+    if (doc["from"]) logConf->smtpFrom = doc["from"].as<const char*>();
+    if (doc["to"]) logConf->smtpTo = doc["to"].as<const char*>();
 
     config.save();
     sendStaticHeaders();
@@ -241,12 +242,12 @@ void PDUWeb::configEndpoints() {
     MqttConfig* mqttConf = config.getMqtt();
     JsonVariant enabled = doc["enabled"];
     if (!enabled.isNull()) mqttConf->enabled = enabled;
-    if (doc["host"]) mqttConf->host = (const char*) doc["host"];
+    if (doc["host"]) mqttConf->host = doc["host"].as<const char*>();
     if (doc["port"]) mqttConf->port = doc["port"];
-    if (doc["user"]) mqttConf->username = (const char*) doc["user"];
-    if (doc["password"]) mqttConf->password = (const char*) doc["password"];
-    if (doc["clientId"]) mqttConf->clientId = (const char*) doc["clientId"];
-    if (doc["prefix"]) mqttConf->prefix = (const char*) doc["prefix"];
+    if (doc["user"]) mqttConf->username = doc["user"].as<const char*>();
+    if (doc["password"]) mqttConf->password = doc["password"].as<const char*>();
+    if (doc["clientId"]) mqttConf->clientId = doc["clientId"].as<const char*>();
+    if (doc["prefix"]) mqttConf->prefix = doc["prefix"].as<const char*>();
     if (doc["addMacToPrefix"].is<bool>()) mqttConf->addMacToPrefix = (bool) doc["addMacToPrefix"];
 
     config.save();
@@ -269,7 +270,7 @@ void PDUWeb::configEndpoints() {
     logger.msg(msg);
 
     SyslogConfig* slogConf = config.getSyslog();
-    if (doc["host"]) slogConf->host = (const char*) doc["host"];
+    if (doc["host"]) slogConf->host = doc["host"].as<const char*>();
     if (doc["port"]) slogConf->port = doc["port"];
 
     config.save();
