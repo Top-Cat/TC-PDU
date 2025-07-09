@@ -9,6 +9,7 @@ import react.useEffectOnce
 import react.useState
 import uk.co.thomasc.tcpdu.apiRoot
 import uk.co.thomasc.tcpdu.fcmemo
+import uk.co.thomasc.tcpdu.page.config.authConfig
 import uk.co.thomasc.tcpdu.page.config.logsConfig
 import uk.co.thomasc.tcpdu.page.config.mqttConfig
 import uk.co.thomasc.tcpdu.page.config.ntpConfig
@@ -28,7 +29,7 @@ data class WifiConfig(val enabled: Boolean? = null, val ssid: String? = null, va
 data class RadiusConfig(val ip: String? = null, val port: Int? = null, val secret: String? = null, val timeout: Int? = null, val retries: Int? = null)
 
 @Serializable
-data class AuthConfig(val validityPeriod: Int? = null)
+data class AuthConfig(val validityPeriod: Int? = null, val updateKey: Boolean? = null, val adminPassword: String? = null, val oldPassword: String? = null)
 
 @Serializable
 data class NtpConfig(val host: String? = null, val tz: String? = null)
@@ -66,6 +67,7 @@ val configPage = fcmemo<Props>("Config") {
                 smtpConfig to col,
                 radiusConfig to col,
                 syslogConfig to col,
+                authConfig to col,
                 logsConfig to ClassName("col-md-12")
             )
 
@@ -73,6 +75,7 @@ val configPage = fcmemo<Props>("Config") {
                 div {
                     className = clazz
                     fc.invoke {
+                        key = fc.displayName
                         this.config = config
                         updateCallback = {
                             setConfig(it)

@@ -19,6 +19,7 @@ import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.MqttConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.autofill.AutoFillBase
 import web.cssom.ClassName
 import web.html.ButtonType
 import web.html.HTMLInputElement
@@ -135,6 +136,7 @@ val mqttConfig = fcmemo<ConfigProps>("MQTT Config") { props ->
                             input {
                                 type = if (showMqttPassword) InputType.text else InputType.password
                                 className = ClassName("form-control")
+                                autoComplete = AutoFillBase.off
                                 placeholder = "********"
                                 id = "mqtt-pw"
                                 defaultValue = config.mqtt.password ?: ""

@@ -12,7 +12,7 @@
 #define RED_PIN DDA3
 #define GREEN_PIN DDA2
 
-uint8_t EEMEM i2cAddr = 0x0a;
+uint8_t EEMEM i2cAddr = 0x01;
 uint8_t lastRelayCommand = 2;
 HLW8032 HL;
 
@@ -26,7 +26,7 @@ void setPWM(uint8_t RxByte) {
 	// Bits 3 and 4 enable PWM
 	uint8_t RED_PULSE = bitRead(RxByte, 3);
 	uint8_t GREEN_PULSE = bitRead(RxByte, 4);
-	TOCPMCOE = (GREEN_PULSE<<TOCC1OE) | (RED_PULSE<<TOCC2OE);
+	TOCPMCOE = (RED_PULSE<<TOCC1OE) | (GREEN_PULSE<<TOCC2OE);
 
 	// Byte 2 sets PWM period
 	ICR1 = (TinyWireS.read() << 8) | 0xFF;

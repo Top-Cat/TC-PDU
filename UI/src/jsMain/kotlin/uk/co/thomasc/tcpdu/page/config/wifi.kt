@@ -16,6 +16,7 @@ import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.WifiConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.autofill.AutoFillBase
 import web.cssom.ClassName
 import web.html.ButtonType
 import web.html.HTMLInputElement
@@ -86,6 +87,7 @@ val wifiConfig = fcmemo<ConfigProps>("WiFi Config") { props ->
                         input {
                             type = InputType.password
                             className = ClassName("form-control")
+                            autoComplete = AutoFillBase.off
                             placeholder = "Wifi Password"
                             id = "wifi-pw"
                             defaultValue = config.wifi.pass ?: ""

@@ -59,6 +59,7 @@ class ModuleBus {
     void setTime(time_t t);
 
     bool initComplete = false;
+    bool hasRtc = false;
 
     PowerInfo powerInfo[MAX_DEVICES];
     uint8_t totalDevices = 0;

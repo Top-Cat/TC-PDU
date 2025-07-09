@@ -19,6 +19,7 @@ import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.RadiusConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.autofill.AutoFillBase
 import web.cssom.ClassName
 import web.html.ButtonType
 import web.html.HTMLInputElement
@@ -99,6 +100,7 @@ val radiusConfig = fcmemo<ConfigProps>("Radius Config") { props ->
                             className = ClassName("input-group")
                             input {
                                 type = if (showRadiusSecret) InputType.text else InputType.password
+                                autoComplete = AutoFillBase.off
                                 className = ClassName("form-control")
                                 placeholder = "********"
                                 id = "radius-pw"
