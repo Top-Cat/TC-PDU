@@ -2,7 +2,6 @@ package uk.co.thomasc.tcpdu.page
 
 import external.Axios
 import external.generateConfig
-import kotlinx.browser.document
 import kotlinx.serialization.Serializable
 import react.Props
 import react.dom.FormAction

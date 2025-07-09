@@ -34,9 +34,9 @@ val authConfig = fcmemo<ConfigProps>("Auth Config") { props ->
     val (adminPasswordRep, setAdminPasswordRep) = useState("")
 
     val validityPeriodRef = useRef<HTMLInputElement>()
-    val (showCurrentPassword, setShowCurrentPassword)  = useState(false)
-    val (showAdminPassword, setShowAdminPassword)  = useState(false)
-    val (showAdminPasswordRep, setShowAdminPasswordRep)  = useState(false)
+    val (showCurrentPassword, setShowCurrentPassword) = useState(false)
+    val (showAdminPassword, setShowAdminPassword) = useState(false)
+    val (showAdminPasswordRep, setShowAdminPasswordRep) = useState(false)
 
     props.config?.let { config ->
         div {
