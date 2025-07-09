@@ -25,7 +25,7 @@ data class PDUSystem(
     val wifi: WifiState,
     val eth: EthState,
     val fs: FsState,
-    val hasRtc: Boolean = false,
+    val rtc: Boolean = false,
     val temps: List<Float>? = listOf()
 )
 

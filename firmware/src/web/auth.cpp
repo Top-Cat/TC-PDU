@@ -27,7 +27,7 @@ bool PDUWeb::checkCredentials(const char* user, const char* pass) {
     reply.code() == RadiusCodeAccessAccept;
 }
 
-bool PDUWeb::currentUser(String& user) {
+bool PDUWeb::currentUser(String* const& user, time_t* const& riat) {
   String cookieStr = server->header("Cookie");
   int delimIndex;
 
@@ -59,7 +59,8 @@ bool PDUWeb::currentUser(String& user) {
         time_t iat = doc["iat"];
         if (!error && exp > now && iat <= now) {
           String sub = doc["sub"];
-          user = sub;
+          if (user != NULL) *user = sub;
+          if (riat != NULL) *riat = iat;
 
           JWTConfig* jwtConf = config.getJWT();
           if ((exp - now) < (jwtConf->validityPeriod / 2)) {
@@ -80,7 +81,7 @@ bool PDUWeb::currentUser(String& user) {
 void PDUWeb::authEndpoints() {
   server->on("/api/me", HTTP_GET, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     sendStaticHeaders();
     server->send(200, "text/html", user);

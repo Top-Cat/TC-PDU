@@ -11,7 +11,7 @@
 void PDUWeb::controlEndpoints() {
   server->on("/api/state", HTTP_GET, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
@@ -48,7 +48,7 @@ void PDUWeb::controlEndpoints() {
 
   server->on("/api/i2c", HTTP_GET, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     doc["count"] = bus.totalDevices;
@@ -68,7 +68,7 @@ void PDUWeb::controlEndpoints() {
 
   server->on("/api/system", HTTP_GET, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     doc["power"] = control.getTotalPower();
@@ -122,7 +122,7 @@ void PDUWeb::controlEndpoints() {
 
   server->on("/api/state", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -138,7 +138,7 @@ void PDUWeb::controlEndpoints() {
 
   server->on("/api/reboot", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     ESP.restart();
 
@@ -148,7 +148,7 @@ void PDUWeb::controlEndpoints() {
 
   server->on("/api/calibrate", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;

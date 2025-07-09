@@ -51,7 +51,7 @@ val loginPage = fcmemo<Props>("Login") {
                     history.invoke("/", NewNavOption)
 
                     // TODO: Validate this cookie elsewhere
-                    console.log(document.cookie)
+                    // console.log(document.cookie)
                 }.catch {
                     if (it.asDynamic().response?.status == 401) {
                         console.log("Bad credentials")

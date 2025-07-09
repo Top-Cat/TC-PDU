@@ -9,7 +9,7 @@ void PDUWeb::logEndpoints() {
   server->on(UriBraces("/api/logs/{}"), HTTP_GET, [&]() {
 
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     JsonArray logs = doc["logs"].to<JsonArray>();
@@ -47,7 +47,7 @@ void PDUWeb::logEndpoints() {
   server->on(UriBraces("/api/logf/{}/{}"), HTTP_GET, [&]() {
 
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     JsonArray logs = doc["logs"].to<JsonArray>();
@@ -89,7 +89,7 @@ void PDUWeb::logEndpoints() {
 
   server->on("/api/format", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     logger.format();
 

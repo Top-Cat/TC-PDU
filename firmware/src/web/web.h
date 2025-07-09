@@ -21,7 +21,7 @@ class PDUWeb {
     static constexpr const char* textPlain = "text/plain";
     void sendStaticHeaders();
     bool checkCredentials(const char* user, const char* pass);
-    bool currentUser(String& user);
+    bool currentUser(String* const& user, time_t* const& riat = NULL);
     void setSession(JWTConfig* conf, time_t now, const char* user);
 
     static bool deserializeOrError(WebServer* server, JsonDocument* doc);

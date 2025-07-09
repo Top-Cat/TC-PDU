@@ -19,6 +19,7 @@ import uk.co.thomasc.tcpdu.fcmemo
 import uk.co.thomasc.tcpdu.page.SmtpConfig
 import uk.co.thomasc.tcpdu.page.handleForbidden
 import uk.co.thomasc.tcpdu.success
+import web.autofill.AutoFillBase
 import web.cssom.ClassName
 import web.html.ButtonType
 import web.html.HTMLInputElement
@@ -117,6 +118,7 @@ val smtpConfig = fcmemo<ConfigProps>("SMTP Config") { props ->
                             input {
                                 type = if (showSmtpPassword) InputType.text else InputType.password
                                 className = ClassName("form-control")
+                                autoComplete = AutoFillBase.off
                                 placeholder = "********"
                                 id = "smtp-pw"
                                 defaultValue = config.log.smtp?.password ?: ""

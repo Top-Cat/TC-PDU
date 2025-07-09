@@ -7,7 +7,7 @@
 void PDUWeb::configEndpoints() {
   server->on("/api/config", HTTP_GET, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     WifiConfig* wifiConf = config.getWifi();
@@ -67,7 +67,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/wifi", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -95,7 +95,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/radius", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -118,7 +118,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/ntp", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -145,7 +145,8 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/auth", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    time_t iat;
+    if (!currentUser(&user, &iat)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -158,8 +159,16 @@ void PDUWeb::configEndpoints() {
 
     JWTConfig* jwtConf = config.getJWT();
     if (doc["validityPeriod"]) jwtConf->validityPeriod = doc["validityPeriod"];
-    if (doc["updateKey"]) config.regenerateJWTKey();
-    if (user == "admin" && doc["adminPassword"]) config.adminPassword = (const char*) doc["adminPassword"];
+    if (doc["updateKey"]) {
+      JWTConfig* jwtConf = config.getJWT();
+      config.regenerateJWTKey();
+      jwt.setPSK(jwtConf->key);
+      // Use issed at time as now to re-issue same validity as before
+      setSession(jwtConf, iat, user.c_str());
+    }
+    if (doc["adminPassword"] && config.adminPassword.equals((const char*) doc["oldPassword"])) {
+      config.adminPassword = (const char*) doc["adminPassword"];
+    }
 
     config.save();
     sendStaticHeaders();
@@ -168,7 +177,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/log", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -192,7 +201,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/smtp", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -218,7 +227,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/mqtt", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;
@@ -248,7 +257,7 @@ void PDUWeb::configEndpoints() {
 
   server->on("/api/config/syslog", HTTP_POST, [&]() {
     String user;
-    if (!currentUser(user)) return;
+    if (!currentUser(&user)) return;
 
     JsonDocument doc;
     if (!deserializeOrError(server, &doc)) return;

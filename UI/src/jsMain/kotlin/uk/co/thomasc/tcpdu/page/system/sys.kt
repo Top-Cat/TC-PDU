@@ -43,7 +43,7 @@ val sysStatus = fcmemo<SystemProps>("System Status") { props ->
                     br {}
                     +"Current time: ${system.time}"
                     br {}
-                    +"RTC: ${if (system.hasRtc) "✔\uFE0F" else "❌"}"
+                    +"RTC: ${if (system.rtc) "✔\uFE0F" else "❌"}"
                 }
 
                 hr {}
