@@ -85,7 +85,7 @@ void Network::setupWifi() {
       WiFi.begin(wifiConf->ssid.c_str(), wifiConf->password.c_str());
     }
   } else {
-    WiFi.disconnect();
+    WiFi.disconnect(false, true);
   }
 }
 
