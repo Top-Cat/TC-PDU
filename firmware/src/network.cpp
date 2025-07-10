@@ -127,6 +127,8 @@ void Network::ethEvent(WiFiEvent_t event)
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "ETH connected");
         logger.msg(msg);
+
+        WiFi.softAPdisconnect(true);
       }
       ethConnected = true;
       break;
@@ -177,7 +179,7 @@ void Network::ethEvent(WiFiEvent_t event)
         logger.msg(msg);
 
         nextWifi = esp_timer_get_time() + RETRY_WIFI;
-        setupAP();
+        if (!ethConnected) setupAP();
       }
       wifiConnected = false;
       break;
@@ -190,6 +192,8 @@ void Network::ethEvent(WiFiEvent_t event)
         msg->type = NETWORK;
         snprintf(msg->message, sizeof(msg->message), "ETH disconnected");
         logger.msg(msg);
+
+        if (!wifiConnected) setupAP();
       }
       ethConnected = false;
       break;
